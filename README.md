@@ -7,8 +7,11 @@
 [EMPR Lectures](https://vle.york.ac.uk/webapps/blackboard/content/listContent.jsp?course_id=_88743_1&content_id=_2848340_1&mode=reset)
 
 [lpc17xx.h docs](https://www-users.cs.york.ac.uk/~pcc/MCP/drivers/html/files.html)
+
 [VLE Driver Docs](https://vle.york.ac.uk/bbcswebdav/pid-2848390-dt-content-rid-7066727_2/courses/Y2018-006400/2015-16/CMSIS/drivers/html/modules.html)
+
 [SPI Documentation](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+
 [Pin and Port Mapping](https://www-users.cs.york.ac.uk/~pcc/MCP/MbedPins.html)
 
 ## Note when using Serial on uni computers. You need to use xfce terminal not gnome terminal.

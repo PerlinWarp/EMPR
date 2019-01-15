@@ -41,15 +41,15 @@ void InitSPI(uint8_t BitsPerTransfer,uint8_t ClockFreq,uint8_t IntENA)
 /*
   Direct GPIO for spi
 */
-  GPIO_PinFunction(SCK_PIN,SPI_FUNCTION);
-  GPIO_PinFunction(MOSI_PIN,SPI_FUNCTION);
-  GPIO_PinFunction(MISO_PIN,SPI_FUNCTION);
-  GPIO_PinFunction(SSEL_PIN,PINSEL_FUNC_0);
+  GPIO_PinFunction(P0_15,PINSEL_FUNC_3);
+  GPIO_PinFunction(P0_18,PINSEL_FUNC_3);
+  GPIO_PinFunction(P0_17,PINSEL_FUNC_3);
+  GPIO_PinFunction(P0_16,PINSEL_FUNC_0);
 
-  GPIO_PinDirection(SCK_PIN,OUTPUT);        /* Configure SCK,MOSI,SSEl as Output and MISO as Input */
-  GPIO_PinDirection(MOSI_PIN,OUTPUT);
-  GPIO_PinDirection(MISO_PIN,INPUT);
-  GPIO_PinDirection(SSEL_PIN,OUTPUT);
+  GPIO_PinDirection(P0_15,1);        /* Configure SCK,MOSI,SSEl as Output and MISO as Input */
+  GPIO_PinDirection(P0_18,1);
+  GPIO_PinDirection(P0_17,0);
+  GPIO_PinDirection(P0_16,1);
 
   SPI_DisableChipSelect();
   LPC_SC->PCONP |= (1 << 8);//turn on power for SPI
