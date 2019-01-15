@@ -18,8 +18,9 @@
  * warranty that such application will be suitable for the specified
  * use without further testing or modification.
  **********************************************************************/
+#include <LPC17xx.h>
 #include "lpc17xx_spi.h"
-#include "lpc17xx_libcfg.h"
+// #include "lpc17xx_libcfg.h"
 #include "lpc17xx_pinsel.h"
 #include "debug_frmwrk.h"
 #include "lpc17xx_gpio.h"
@@ -415,24 +416,33 @@ int c_entry(void)
          * 8  P0.17 - MISO
          * 9  P0.18 - MOSI
          */
-//      PinCfg.Funcnum = 3;
-        PinCfg.Funcnum = 2;
+        PinCfg.Funcnum = 3;
+        //SCK
+        //PinCfg.Funcnum = 2;
         PinCfg.OpenDrain = 0;
         PinCfg.Pinmode = 0;
         PinCfg.Portnum = 0;
-//      PinCfg.Pinnum = 15;
-        PinCfg.Pinnum = 7;
+        PinCfg.Pinnum = 15;
+        //PinCfg.Pinnum = 78;
         PINSEL_ConfigPin(&PinCfg);
-//      PinCfg.Pinnum = 17;
-        PinCfg.Pinnum = 8;
-        PINSEL_ConfigPin(&PinCfg);
-//      PinCfg.Pinnum = 18;
-        PinCfg.Pinnum = 9;
-        PINSEL_ConfigPin(&PinCfg);
-//      PinCfg.Pinnum = 16;
-        PinCfg.Pinnum = 11;
+
+        // SSEL
         PinCfg.Funcnum = 0;
+        PinCfg.Pinnum = 16;
+        //PinCfg.Pinnum = 8;
         PINSEL_ConfigPin(&PinCfg);
+
+        // MOSI
+        PinCfg.Funcnum = 3;
+        PinCfg.Pinnum = 18;
+        //PinCfg.Pinnum = 76;
+        PINSEL_ConfigPin(&PinCfg);
+
+        //MISO
+        PinCfg.Pinnum = 17;
+        //PinCfg.Pinnum = 77;
+        PINSEL_ConfigPin(&PinCfg);
+
         //Initialize SD card detection pin P4.29
         PinCfg.Portnum = 4;
         PinCfg.Pinnum = 29;
