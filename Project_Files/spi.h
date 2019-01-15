@@ -25,6 +25,11 @@ Registers (these are all 32bits):
   SPDR - Data Register for I/O
   SPCCR - Clock Counter register- controls the master Clock Frequency
 */
+void CLR_Flags()
+{
+  uint8_t temp = LPC_SPI->SPSR;
+  uint8_t temp = LPC_SPI->SPDR;
+}
 void InitSPI_Default()
 {
   InitSPI(16,spi_GetPclk()/4000000,0);
@@ -32,15 +37,25 @@ void InitSPI_Default()
 void InitSPI(uint8_t BitsPerTransfer,uint8_t ClockFreq,uint8_t IntENA)
 {
   BitsPerTransfer %= 16;
-  BitsPerTransfer = ((BitsPerTransfer)<8?8:BitsPerTransfer);
+  //BitsPerTransfer = ((BitsPerTransfer)<8?8:BitsPerTransfer);
 /*
   Direct GPIO for spi
 */
+  GPIO_PinFunction(P0_15,PINSEL_FUNC_3);
+  GPIO_PinFunction(P0_18,PINSEL_FUNC_3);
+  GPIO_PinFunction(P0_17,PINSEL_FUNC_3);
+  GPIO_PinFunction(P0_16,PINSEL_FUNC_0);
+
+  GPIO_PinDirection(P0_15,1);        /* Configure SCK,MOSI,SSEl as Output and MISO as Input */
+  GPIO_PinDirection(P0_18,1);
+  GPIO_PinDirection(P0_17,0);
+  GPIO_PinDirection(P0_16,1);
+
   SPI_DisableChipSelect();
   LPC_SC->PCONP |= (1 << 8);//turn on power for SPI
   LPC_SPI->SPCCR = ClockFreq;
   //     Reserved|BitsPerTransfer|MasterSel|IntE
-  LPC_SPI->SPCR = (0)|(BitsPerTransfer<<7)|(1<<4)|(IntENA<<3);
+  LPC_SPI->SPCR = (0)|(BitsPerTransfer<<7)|(3<<4)|(IntENA<<3);
   CLR_Flags();
 }
 
@@ -59,10 +74,6 @@ uint8_t SPI_Read()
   return (uint8_t)LPC_SPI->SPDR;
 }
 
-void CLR_Flags()
-{
-  uint8_t temp = LPC_SPI->SPSR;
-  uint8_t temp = LPC_SPI->SPDR;
-}
+
 
 #endif
