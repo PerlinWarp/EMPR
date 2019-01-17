@@ -50,7 +50,7 @@ EXECNAME	= bin/main
 
 # Source files provided by the user to build the project
 
-OBJ = main.o Delay.o SerialIO.o
+OBJ = main.o Delay.o SerialIO.o spi.o
 # Commands handled by this makefile
 all: 	main
 	@echo "Build finished"
