@@ -28,9 +28,11 @@ Registers (these are all 32bits):
   SPCCR - Clock Counter register- controls the master Clock Frequency
 */
 
+extern void SSP0_IRQHandler();//Note: extern references the declared instance of irqhandler in lpc17xx
+
 void CLR_Flags();
 void InitSPI_Default();
 void InitSPI(uint8_t BitsPerTransfer,uint32_t ClockFreq,uint8_t IntENA);
-void SPI_Write(uint8_t Data);
-uint8_t SPI_Read();
+void SPI_Write(uint16_t Data);
+uint16_t SPI_Read();
 #endif
