@@ -36,6 +36,8 @@
 // PIN number that  /CS pin assigned on
 #define CS_PIN_NUM      16
  
+#define SD_DETECT_PORTNUM   4
+#define SD_DETECT_PINNUM    29
 typedef enum _sd_connect_status
 {
     SD_CONNECTED,
@@ -183,7 +185,15 @@ void print_menu(void)
  * @param[in]   none
  * @return      SD_CONNECTED or SD_DISCONNECTED
  **********************************************************************/
-
+sd_connect_status SD_GetCardConnectStatus(void)
+{
+    sd_connect_status ret=SD_DISCONNECTED;
+ 
+    if((GPIO_ReadValue(SD_DETECT_PORTNUM)&(1<<SD_DETECT_PINNUM))== 0)
+        ret = SD_CONNECTED;
+ 
+    return ret;
+}
 /*********************************************************************//**
  * @brief       Calculate CRC-7 as required by SD specification
  * @param[in]   - old_crc: 0x00 to start new CRC
@@ -380,6 +390,10 @@ uint32_t SD_SendReceiveData_Polling(void* tx_buf, void* rx_buf, uint32_t length)
     SPI_Init(LPC_SPI, &SPI_ConfigStruct);
     // Initialize /CS pin to GPIO function
     CS_Init();
+    // check for SD card insertion
+    _DBG("\n\rPlease plug-in SD card!");
+    while(SD_GetCardConnectStatus()==SD_DISCONNECTED);
+    _DBG("...Connected!\n\r");
     // Wait for bus idle
     if(SD_WaitDeviceIdle(160) != SD_OK) return SD_ERROR_BUS_NOT_IDLE;
     _DBG("Initialize SD card in SPI mode...");
@@ -478,6 +492,7 @@ uint32_t SD_SendReceiveData_Polling(void* tx_buf, void* rx_buf, uint32_t length)
     PinCfg.Pinnum = 29;
     PinCfg.Funcnum = 0;//GPIO function
     PINSEL_ConfigPin(&PinCfg);
+    GPIO_SetDir(SD_DETECT_PORTNUM, (1<<SD_DETECT_PINNUM), 0);//input
  
     /* Initialize debug via UART0
      * � 115200bps
