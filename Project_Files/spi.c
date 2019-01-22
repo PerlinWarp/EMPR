@@ -1,21 +1,48 @@
 #include "spi.h"
 
+volatile uint32_t SSP0_Int_Timeout = 0;
+volatile uint32_t SSP0_Int_Readable = 0;
+volatile uint32_t SSP0_Int_OverRun = 0;
+volatile uint32_t SSP1_Int_Timeout = 0;
+volatile uint32_t SSP1_Int_Readable = 0;
+volatile uint32_t SSP1_Int_OverRun = 0;
 
-
-void SSP0_IRQHandler()
-{}
+void SSP0_IRQHandler(){}
+  uint32_t reg;
+  reg = LPC_SSP0->MIS;
+  if(reg & 1){
+    SSP0_Int_OverRun++;
+    LPC_SSP0->ICR = 1;
+  }
+  if(reg & (1<<1)){
+    SSP0_Int_Timeout++;
+    LPC_SSP0->ICR = 2;
+  }
+  if(reg & (1<<2))SSP0_Int_Readable++;
+}
 
 void SSP1_IRQHandler()//If all's well, this should trigger whenever SSP calls an interrupt
 {//https://github.com/luka1995/LPC17xx-Libraries/blob/master/Libraries/SSP.c <-- See for details
   //To do:
     //initialize SSP interrupt
     //Whenever
+  uint32_t reg;
+  reg = LPC_SSP1->MIS;
+  if(reg & 1){
+    SSP1_Int_OverRun++;
+    LPC_SSP1->ICR = 1;
+  }
+  if(reg & (1<<1)){
+    SSP1_Int_Timeout++;
+    LPC_SSP1->ICR = 2;
+  }
+  if(reg & (1<<2))SSP1_Int_Readable++;
 }
 
 
 
 /*For the SD Card*/
-void Init_SSP1(uint8_t BitsPerTransfer)
+void Init_SSP1()
 {
   uint8_t temp,i;
   SystemInit();
@@ -26,12 +53,12 @@ void Init_SSP1(uint8_t BitsPerTransfer)
   LPC_SC->PCLKSEL1|= 1<<10;//Return to syst clock freq
   LPC_SSP1->CPSR |= 8;//Divide clock by 8
   for(i=0;i<8;i++)temp = LPC_SSP1->DR; // Clear the read
-  LPC_SSP1->CR0 |= (BitsPerTransfer)|~(3<<4)|(3<<6);
+  LPC_SSP1->CR0 |= (16)|~(3<<4)|(3<<6);
   NVIC_EnableIRQ(SSP1_IRQn);
   LPC_SSP1->CR1 &= ~(1<<2);
   LPC_SSP1->CR1 |=1<<1;
 }
-void Init_SSP0(uint8_t BitsPerTransfer)
+void Init_SSP0()
 {
   SystemInit();
   LPC_PINCON->PINSEL0 |= 0x80000000;//Set 15 to Func 3 - -> PIN SWITCHED
@@ -50,13 +77,13 @@ void Init_SSP0(uint8_t BitsPerTransfer)
   //     Reserved|BitsPerTransfer|MasterSel|IntE
   LPC_SPI->SPCR = (0)|(BitsPerTransfer<<7)|(3<<4)|(IntENA<<3);*/
   LPC_SSP0->CPSR |= 8;//Divide the peripheral clock by 8. Minimum value is 2.
-  LPC_SSP0->CR0 |= (BitsPerTransfer)|~(3<<4)|(3<<6) //This is the control register for SSP0, it is used to control the phase, the bit size, the mode (we are using SPI here)
+  LPC_SSP0->CR0 |= (16)|~(3<<4)|(3<<6) //This is the control register for SSP0, it is used to control the phase, the bit size, the mode (we are using SPI here)
   NVIC_EnableIRQ(SSP0_IRQn);
   LPC_SSP0->CR1 &= ~(1<<2);//As a precaution, SSP is set to master just in case.
   LPC_SSP0->CR1 |=1<<1;//This is the second control register, used to control Maslter/Slave, enable/disable
 }
 
-void SSP1_Write(uint8_t *buf, uint32_t Length){
+void SSP1_Write(uint16_t *buf, uint32_t Length){
   uint8_t temp,i;
   for(i = 0;i<Length;i++)
   {
@@ -66,7 +93,7 @@ void SSP1_Write(uint8_t *buf, uint32_t Length){
   while(LPC_SSP1->SR&(1<<4));
   temp = LPC_SSP1->DR;
 }
-void SSP0_Write(uint8_t *buf, uint32_t Length){  uint8_t temp,i;
+void SSP0_Write(uint16_t *buf, uint32_t Length){  uint8_t temp,i;
   for(i = 0;i<Length;i++)
   {
     while(LPC_SSP0->SC&(1<<1));//Wait for next byte
@@ -75,15 +102,23 @@ void SSP0_Write(uint8_t *buf, uint32_t Length){  uint8_t temp,i;
   while(LPC_SSP0->SR&(1<<4));
   temp = LPC_SSP0->DR;
 }
-void SSP1_Read(uint8_t *buf, uint32_t Length){
+void SSP1_Read(uint16_t *buf, uint32_t Length){
   for(i = 0;i<Length;i++)
   {
-    while(LPC_SSP1->SC&(1<<2));//Wait for next byte
+    LPC_SSP1->DR = 0xFF;
+    while(LPC_SSP1->SC&(1<<2));
     buf[i] = LPC_SSP1->DR;
   }
   while(LPC_SSP1->SR&(1<<4));
   temp = LPC_SSP1->DR;
 }
-void SSP0_Read(uint8_t *buf, uint32_t Length){
-
+void SSP0_Read(uint16_t *buf, uint32_t Length){
+  for(i = 0;i<Length;i++)
+  {
+    LPC_SSP0->DR = 0xFF;
+    while(LPC_SSP0->SC&(1<<2));
+    buf[i] = LPC_SSP0->DR;
+  }
+  while(LPC_SSP0->SR&(1<<4));
+  temp = LPC_SSP0->DR;
 }

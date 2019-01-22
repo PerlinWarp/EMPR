@@ -32,7 +32,10 @@ extern void SSP0_IRQHandler();//Note: extern references the declared instance of
 extern void SSP1_IRQHandler();
 extern void Init_SSP0();
 extern void Init_SSP1();
-
+void SSP1_Write(uint16_t *buf, uint32_t Length);
+void SSP0_Write(uint16_t *buf, uint32_t Length);
+void SSP1_Read(uint16_t *buf, uint32_t Length);
+void SSP0_Read(uint16_t *buf, uint32_t Length);
 #endif
 
 
