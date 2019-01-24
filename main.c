@@ -31,34 +31,44 @@ void IRQInit()
   __enable_irq();
 }
 
-void DrawArrows()
-{
-    LCDGoHome();
-    LCDCursorShift(15-strlen(MenuText[SelMenuItem]));
-    if(SelMenuItem == 0)
-    {
-
-        LCDNewLine();
-        LCDPrint("#\x30");
-    }
-    else if(SelMenuItem == MENUTEXTNUM - 2)
-    {
-        LCDPrint("*\x02");
-    }
-    else
-    {
-        LCDPrint("*\x02");
-        LCDNewLine();
-        LCDPrint("#\x30");
-    }
-}
 void DrawMenu()
 {
     char inputBuf[80];
-    sprintf(inputBuf,"%s\n%s",MenuText[SelMenuItem],MenuText[SelMenuItem]);
+    char* lfill1,*lfill2;
+    int i;
+    int s1= 16-strlen(MenuText[SelMenuItem]),s2 = 16-strlen(MenuText[SelMenuItem+1]);
+    lfill1 = (char*)malloc(s1);
+    lfill2 = (char*)malloc(s2);
+    i=0;
+    while(i<s1-2)
+    {
+      lfill1[i]=' ';
+      ++i;
+    }
+    lfill1[++i] = '\x02';
+    lfill1[++i] = '\0';
+    i=0;
+    while(i<s2-2)
+    {
+      lfill2[i]=' ';
+      ++i;
+    }
+    lfill2[++i] = '\x30';
+    lfill2[++i] = '\0';
+    WriteText("Gottem bois\n\r");
+    switch(SelMenuItem)
+    {
+      case 0:
+        sprintf(inputBuf,"%s\n%s%s",MenuText[SelMenuItem],MenuText[SelMenuItem+1],lfill2);
+        break;
+      case MENUTEXTNUM-2:
+        sprintf(inputBuf,"%s%s\n%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1]);
+        break;
+      default:
+        sprintf(inputBuf,"%s%s\n%s%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1],lfill2);
+    }
     LCDClear();
     LCDPrint(inputBuf);
-    DrawArrows();
 }
 void Menu()
 {
@@ -92,11 +102,13 @@ void Menu()
 
 int main()
 {
+    InitSerial();
     SystemInit();
     DelayInit();
     I2CInit();
     IRQInit();
     LCDInit();
+    LCDClear();
     Menu();
 
 
