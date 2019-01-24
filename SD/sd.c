@@ -380,17 +380,17 @@ sd_error SD_Init(uint8_t retries)
 
         // /* Check if the card is not MMC */
         // /* Start its internal initialization process */
-        // while(1)
-        // {
-        //         SD_SendCommand(CMD55_APP_CMD, SD_arg);
-        //         if(SD_WaitR1(&rxdata,0,1000)!= SD_OK) return SD_ERROR_CMD55;
+         while(1)
+         {
+                SD_SendCommand(CMD55_APP_CMD, SD_arg);
+                if(SD_WaitR1(&rxdata,0,1000)!= SD_OK) return SD_ERROR_CMD55;
 
-        //         SD_SendCommand(ACMD41_SEND_OP_COND, SD_arg);
-        //         SD_WaitR1(&rxdata,0,1000);
-        //         if (rxdata & R1_IDLE) //in_idle_state = 1
-        //                 for (i = 0; i < 1000; i++); /* wait for a while */
-        //         else break; //in_idle_state=0 --> ready
-        // }
+                SD_SendCommand(ACMD41_SEND_OP_COND, SD_arg);
+                SD_WaitR1(&rxdata,0,1000);
+                if (rxdata & R1_IDLE) //in_idle_state = 1
+                        for (i = 0; i < 1000; i++); /* wait for a while */
+                 else break; //in_idle_state=0 --> ready
+         }
         /* Enable CRC */
         SD_arg[3] = 0x01;
         SD_SendCommand(CMD59_CRC_ON_OFF, SD_arg);
