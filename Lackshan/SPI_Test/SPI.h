@@ -54,5 +54,4 @@ char Read_SSP1(void){
 }
 
 // Char may not be suitable for 8 bit value - change it
-// Add SerialIO stuff to this directory
 // Test

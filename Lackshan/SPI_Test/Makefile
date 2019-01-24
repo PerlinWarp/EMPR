@@ -49,7 +49,7 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/main
 
 # Source files provided by the user to build the project
-OBJ		= main.o
+OBJ		= main.o SerialIO.o Delay.o
 
 # Commands handled by this makefile
 all: 	main
