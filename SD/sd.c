@@ -215,9 +215,6 @@ uint32_t SD_SendReceiveData_Polling(void* tx_buf, void* rx_buf, uint32_t length)
         xferConfig.rx_data = rx_buf;
         xferConfig.length = length;
         uint32_t res = SSP_ReadWrite(LPC_SSP1, &xferConfig, SSP_TRANSFER_POLLING);
-        _DBG("\n\r");
-        _DBD(res);
-        _DBG("\n\r");
         // SSP STAT == DONE here(this is good i think)
 // _DBG("Debug Length = ");
 // _DBD(xferConfig.length);
