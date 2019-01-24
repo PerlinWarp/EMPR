@@ -9,9 +9,9 @@
 #ifndef I2S_H_
 #define I2S_H_
 
-#include "lpc17xx.h"
+#include "LPC17xx.h"
 #include "lpc17xx_i2s.h"
-#include "lpc17xx_libcfg.h"
+#include "lpc17xx_libcfg_default.h"
 #include "lpc17xx_gpdma.h"
 #include "lpc17xx_pinsel.h"
 

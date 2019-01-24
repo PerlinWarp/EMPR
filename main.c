@@ -37,7 +37,7 @@ void DrawArrows()
     LCDCursorShift(15-strlen(MenuText[SelMenuItem]));
     if(SelMenuItem == 0)
     {
-        
+
         LCDNewLine();
         LCDPrint("#\x30");
     }
@@ -45,18 +45,18 @@ void DrawArrows()
     {
         LCDPrint("*\x02");
     }
-    else()
+    else
     {
         LCDPrint("*\x02");
         LCDNewLine();
         LCDPrint("#\x30");
-    }  
+    }
 }
 void DrawMenu()
 {
-    char[80] inputBuf;
+    char inputBuf[80];
     sprintf(inputBuf,"%s\n%s",MenuText[SelMenuItem],MenuText[SelMenuItem]);
-    LCDClear(); 
+    LCDClear();
     LCDPrint(inputBuf);
     DrawArrows();
 }
@@ -71,15 +71,15 @@ void Menu()
         {
             switch(key)
             {
-                case: BUTTON_UP
+                case BUTTON_UP:
                     --SelMenuItem;
                     SelMenuItem = max(SelMenuItem,0);
                     break;
-                case: BUTTON_DOWN
+                case BUTTON_DOWN:
                     ++SelMenuItem;
-                    SelMenuItem = min(SelMenuItem,MENUTEXTNUM-2;
+                    SelMenuItem = min(SelMenuItem,MENUTEXTNUM-2);
                     break;
-                case: BUTTON_SEL
+                case BUTTON_SEL:
                     optionSelected = 1;
                     break;
             }

@@ -49,12 +49,10 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/main
 
 # Source files provided by the user to build the project
-mainDir = Project_Files
-ffcdir = Project_Files/ff13c/source
+ffcFiles = $(patsubst %.c,%.o,$(wildcard Project_Files/ff13c/source/*.c))
+sourceFiles := $(patsubst %.c,%.o,$(wildcard source/*.c))
 
-ffcFiles = $(ffcdir)/diskio.o $(ffcdir)/ff.o $(ffcdir)/ffsystem.o $(ffcdir)/ffunicode.o
-
-OBJ = $(mainDir)/main.o $(ffcFiles)
+OBJ = main.o $(sourceFiles)
 # Commands handled by this makefile
 all: 	main
 	@echo "Build finished"
