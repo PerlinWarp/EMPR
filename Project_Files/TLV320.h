@@ -10,7 +10,7 @@
 #define TLV_H_
 #include "LPC17xx.h"
 #include "spi.h"
-
+#include "i2s.h"
 /*SPI - CS goes low while the command is active, and high when not used
   SCLK - Pulse for each bit input
   SDIN - Pass instruction here -> address bloc , then data block
@@ -24,6 +24,6 @@
 
 */
 
-TLV_SEND(uint8_t Instruction uint8_t Data);
+void TLV320_Setup();
 
 #endif
