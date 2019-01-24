@@ -214,7 +214,7 @@ uint32_t SD_SendReceiveData_Polling(void* tx_buf, void* rx_buf, uint32_t length)
         xferConfig.tx_data = tx_buf;
         xferConfig.rx_data = rx_buf;
         xferConfig.length = length;
-        uint32_t res = SSP_ReadWrite(LPC_SSP0, &xferConfig, SSP_TRANSFER_POLLING);
+        uint32_t res = SSP_ReadWrite(LPC_SSP1, &xferConfig, SSP_TRANSFER_POLLING);
         _DBG("\n\r");
         _DBD(res);
         _DBG("\n\r");
@@ -342,9 +342,10 @@ sd_error SD_Init(uint8_t retries)
         // initialize SSP configuration structure to default
         SSP_ConfigStructInit(&SSP_ConfigStruct);
         // Initialize SSP peripheral with parameter given in structure above
-        SSP_Init(LPC_SSP0, &SSP_ConfigStruct);
+        SSP_Init(LPC_SSP1, &SSP_ConfigStruct);
 
-        
+        // Enable SSP peripheral
+        SSP_Cmd(LPC_SSP1, ENABLE);
 
 
         // Initialize /CS pin to GPIO function
@@ -458,6 +459,7 @@ int c_entry(void)
         PINSEL_ConfigPin(&PinCfg);
         GPIO_SetDir(SD_DETECT_PORTNUM, (1<<SD_DETECT_PINNUM), 0);//input
 
+
         /* Initialize debug via UART0
          * � 115200bps
          * � 8 data bit
@@ -505,7 +507,7 @@ int c_entry(void)
                 if(SD_GetCID()!= SD_OK)
                 {
                         _DBG("Fail\n\r");
-                        SSP_DeInit(LPC_SSP0);
+                        SSP_DeInit(LPC_SSP1);
                 }
                 else
                 {
@@ -531,7 +533,7 @@ int c_entry(void)
         }
         else
     // DeInitialize SSP peripheral
-                SSP_DeInit(LPC_SSP0);
+                SSP_DeInit(LPC_SSP1);
     /* Loop forever */
     while(1);
     return 1;
