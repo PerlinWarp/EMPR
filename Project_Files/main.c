@@ -5,16 +5,16 @@ int main()
 
   WriteText("Start\n\r");
   Delay_Init();
-  InitSPI_Default();
+  Init_SSP0();
   char buff[50];
-  uint8_t Din,Dout=0;
+  uint16_t Din,Dout=0;
 
   while(1)
   {
     Dout++;
     if(Dout == 255)Dout = 0;
-    SPI_Write(Dout);
-    Din = SPI_Read();
+    SSP0_Write(&Dout,1);
+    SSP0_Read(&Din,1);
     sprintf(buff, "Output: %d Input: %d ?? \n\r",Dout,Din);
     WriteText(buff);
   }

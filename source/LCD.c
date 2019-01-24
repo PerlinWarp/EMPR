@@ -19,9 +19,10 @@ void LCDGoHome(){
 void LCDNewLine(){
 	uint8_t Data[2] = {0x00,0xC0};
 	SendData(Data,2);}
-void LCDCursorShift(uint8_t value){//Note the possibility of using this to create a shift register animation clear.
-	uint8_t Data[] = {[0 . . . ++value] = 0x14};//00010100 - move 1 to right
-	Data[0] = 0x00;//^ To Test, apparently works with gcc
+void LCDCursorShift(uint8_t value){//Note the possibility of using this to create a shift register animation clear
+	uint8_t Data[value],i;
+	for(i=1;i<value;i++)Data[i] = 0x14;
+	Data[0] = 0x00;
 	SendData(Data,value);}
 void LCDInit(){
 	uint8_t Data[11] = {0x00,0x34,0x0c,0x06,0x35,0x04,0x10,0x42,0x9f,0x34,0x02};

@@ -6,6 +6,6 @@
 #include "spi.h"
 #include "Delay.h"
 #include "SerialIO.h"
-
+#include "i2s.h"
 
 #endif

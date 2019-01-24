@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <stdlib.h>
 
-#include "lpc17xx.h"
+#include "LPC17xx.h"
 
 #include "source/SerialIO.h"
 #include "source/LCD.h"
@@ -28,15 +28,17 @@
 #include "source/KeyAccess.h"
 #include "source/Delay.h"
 
+/*
 #include "SD/sd.h"
 #include "ADC/dac.h"
 #include "Project_Files/spi.h"
-
+#include "Project_Files/i2s.h"
+*/
 volatile int buttonpress;
 volatile char prevKey,key;
 
 int SelMenuItem;
-char*[MenuTextNum] MenuText = {"A1. Record Audio","A2. Playback Audio",
+char* MenuText[MENUTEXTNUM] = {"A1. Record Audio","A2. Playback Audio",
                      "A3. Save Audio to SD ", "A4. Browse SD",
                      "U2. IPod Mode"," "};
 
@@ -48,18 +50,18 @@ void DrawArrows();
 void IRQInit();
 
 /*
-TO DO: 
+TO DO:
 NAVIGATION:
     View File List + Display, Navigate
     View Information about the file e.g. size
 PC ACCESS:
-    Communicate to PC 
+    Communicate to PC
     Data Visualizer
     External File Manager
 PLAYBACK:
     Everything
 FILE SYSTEM:
-    Everything 
+    Everything
 */
 
 #endif

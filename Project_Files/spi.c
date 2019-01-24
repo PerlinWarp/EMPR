@@ -7,7 +7,7 @@ volatile uint32_t SSP1_Int_Timeout = 0;
 volatile uint32_t SSP1_Int_Readable = 0;
 volatile uint32_t SSP1_Int_OverRun = 0;
 
-void SSP0_IRQHandler(){}
+void SSP0_IRQHandler(){
   uint32_t reg;
   reg = LPC_SSP0->MIS;
   if(reg & 1){
@@ -77,46 +77,49 @@ void Init_SSP0()
   //     Reserved|BitsPerTransfer|MasterSel|IntE
   LPC_SPI->SPCR = (0)|(BitsPerTransfer<<7)|(3<<4)|(IntENA<<3);*/
   LPC_SSP0->CPSR |= 8;//Divide the peripheral clock by 8. Minimum value is 2.
-  LPC_SSP0->CR0 |= (16)|~(3<<4)|(3<<6) //This is the control register for SSP0, it is used to control the phase, the bit size, the mode (we are using SPI here)
+  LPC_SSP0->CR0 |= (16)|~(3<<4)|(3<<6); //This is the control register for SSP0, it is used to control the phase, the bit size, the mode (we are using SPI here)
   NVIC_EnableIRQ(SSP0_IRQn);
   LPC_SSP0->CR1 &= ~(1<<2);//As a precaution, SSP is set to master just in case.
-  LPC_SSP0->CR1 |=1<<1;//This is the second control register, used to control Maslter/Slave, enable/disable
+  LPC_SSP0->CR1 |=1<<1;//This is the second conuint8_t temp,i;trol register, used to control Maslter/Slave, enable/disable
 }
 
 void SSP1_Write(uint16_t *buf, uint32_t Length){
   uint8_t temp,i;
   for(i = 0;i<Length;i++)
   {
-    while(LPC_SSP1->SC&(1<<1));//Wait for next byte
+    while(LPC_SSP1->SR&(1<<1));//Wait for next byte
     LPC_SSP1->DR = buf[i];
   }
   while(LPC_SSP1->SR&(1<<4));
   temp = LPC_SSP1->DR;
 }
-void SSP0_Write(uint16_t *buf, uint32_t Length){  uint8_t temp,i;
+void SSP0_Write(uint16_t *buf, uint32_t Length){
+  uint8_t temp,i;
   for(i = 0;i<Length;i++)
   {
-    while(LPC_SSP0->SC&(1<<1));//Wait for next byte
+    while(LPC_SSP0->SR&(1<<1));//Wait for next byte
     LPC_SSP0->DR = buf[i];
   }
   while(LPC_SSP0->SR&(1<<4));
   temp = LPC_SSP0->DR;
 }
 void SSP1_Read(uint16_t *buf, uint32_t Length){
+  uint8_t temp,i;
   for(i = 0;i<Length;i++)
   {
     LPC_SSP1->DR = 0xFF;
-    while(LPC_SSP1->SC&(1<<2));
+    while(LPC_SSP1->SR&(1<<2));
     buf[i] = LPC_SSP1->DR;
   }
   while(LPC_SSP1->SR&(1<<4));
   temp = LPC_SSP1->DR;
 }
 void SSP0_Read(uint16_t *buf, uint32_t Length){
+  uint8_t temp,i;
   for(i = 0;i<Length;i++)
   {
     LPC_SSP0->DR = 0xFF;
-    while(LPC_SSP0->SC&(1<<2));
+    while(LPC_SSP0->SR&(1<<2));
     buf[i] = LPC_SSP0->DR;
   }
   while(LPC_SSP0->SR&(1<<4));
