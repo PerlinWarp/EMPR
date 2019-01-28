@@ -3,7 +3,7 @@
 void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
-  LPC_GPIOINT->IO0IntClr = (1<<5);
+  LPC_GPIOINT->IO0IntClr = (1<<10);
   key = GetKeyInput();
   WriteText("IRQ Polled");
   if(key != prevKey && key != ' ')
@@ -19,16 +19,16 @@ void EINT3_IRQHandler(void)
 }
 void IRQInit()
 {
-  LPC_GPIO0->FIODIR &= ~(1<<5);
-  LPC_GPIOINT->IO0IntClr = (1<<5);
-  LPC_SC->EXTINT = 1<<3;
-  LPC_GPIOINT->IO0IntEnF |= (1<<5);
-
-  /*LPC_PINCON->PINSEL1 = (1<<7);//Check which pins the pcf8574 uses
-  LPC_SC->EXTMODE = 1; //Edge Triggered
-  LPC_SC->EXTPOLAR = 1;//Falling vs Rising Edge*/
+  LPC_PINCON->PINSEL4|=0x4000000;
+  LPC_PINCON->PINSEL0&=~(3<<20);
+  LPC_SC->EXTMODE = 1<<3;
+  LPC_SC->EXTPOLAR = 1<<3;
+  LPC_GPIO0->FIODIR &= ~(1<<10);
+  LPC_GPIOINT->IO0IntClr = (1<<10);
+  LPC_GPIOINT->IO0IntEnF |= (1<<10);
+  LPC_SC->EXTINT = 1<<3; //Clear Pending Interrupts
   key = ' ';
-  buttonpress =0;
+  buttonpress = 0;
   NVIC_EnableIRQ(EINT3_IRQn);
   __enable_irq();
 }
@@ -42,13 +42,11 @@ void DrawMenu()
     lfill1 = (char*)malloc(s1);
     lfill2 = (char*)malloc(s2);
     for(i = 0;i<s1;i++)lfill1[i]=' ';
-    lfill1[s1-2] = '\x02';
+    lfill1[s1-2] = '\x12';
     lfill1[s1-1] = '\0';
     for(i = 0;i<s2;i++)lfill2[i]=' ';
-    WriteText("\n\r1");
     lfill2[s2-2] = '\x30';
     lfill2[s2-1] = '\0';
-    WriteText("\n\r2");
     switch(SelMenuItem)
     {
       case 0:
@@ -60,13 +58,14 @@ void DrawMenu()
       default:
         sprintf(inputBuf,"%s%s\n%s%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1],lfill2);
     }
+
     LCDClear();
     LCDPrint(inputBuf);
 }
 void Menu()
 {
     SelMenuItem = 0;
-    int optionSelected = 0;
+    int optionSelected = 0,changed =1;
     DrawMenu();
     while(!optionSelected)
     {
@@ -78,30 +77,43 @@ void Menu()
                 case BUTTON_UP:
                     --SelMenuItem;
                     SelMenuItem = max(SelMenuItem,0);
+                    if(SelMenuItem ==0)changed =0;
                     break;
                 case BUTTON_DOWN:
                     ++SelMenuItem;
+                    if(SelMenuItem ==MENUTEXTNUM-1)changed =0;
                     SelMenuItem = min(SelMenuItem,MENUTEXTNUM-2);
                     break;
                 case BUTTON_SEL:
                     optionSelected = 1;
                     break;
+                default:
+                    changed =0;
             }
-            DrawMenu();
+            if(changed)DrawMenu();
+            changed =1;
             buttonpress = 0;
         }
     }
 
 }
 
-int main()
+void RecordLoop()
 {
+  //Enable I2S
+  //Check for interrn
+}
+
+void PlayLoop()
+{}
+
+int main()
+{//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
     SystemInit();
     DelayInit();
-
-    IRQInit();
     I2CInit();
+    IRQInit();
     LCDInit();
     LCDClear();
     Menu();

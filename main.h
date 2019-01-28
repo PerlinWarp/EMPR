@@ -42,8 +42,6 @@ char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio","A2.Play Audio",
                      "A3.Save to SD", "A4.Browse SD",
                      "U2.IPod Mode"," "};
 
-void EINT3_IRQHandler(void);
-
 void Menu();
 void DrawMenu();
 void DrawArrows();

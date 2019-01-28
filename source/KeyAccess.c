@@ -53,7 +53,7 @@ unsigned char GetKeyData(char BitMask)
 	unsigned char Data;
 	I2C_M_SETUP_Type trData;
 
-	trData.sl_addr7bit = 0x24;//Address for Keypad
+	trData.sl_addr7bit = 0x21;//Address for Keypad
 	trData.retransmissions_max = 2;
 
 	trData.tx_data = &addr;

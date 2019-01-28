@@ -58,7 +58,7 @@ void LCDPrint(char* input)
 			datacount = 0;
 		}
 		else if	(input[i]<0x60){
-			if(input[i]==0x30||input[i]==0x02){Data[datacount]=input[i];}
+			if(input[i]==0x30||input[i]==0x12){Data[datacount]=input[i];}
 			else{
 			Data[datacount]=input[i]|0x80;}
 		}
