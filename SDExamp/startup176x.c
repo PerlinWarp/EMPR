@@ -178,8 +178,8 @@ void Reset_Handler (void)
 
 
 	/* Initialize .data/.bss section and static objects get ready to use after this process */
-	for (s = _sidata, d = _sdata; d < _edata; *d++ = *s++) ;
-	for (d = _sbss; d < _ebss; *d++ = 0) ;
+	//for (s = _sidata, d = _sdata; d < _edata; *d++ = *s++) ;
+	//for (d = _sbss; d < _ebss; *d++ = 0) ;
 
 	/* Start main() with MSP and privileged mode */
 	main();
