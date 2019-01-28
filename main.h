@@ -38,9 +38,9 @@ volatile int buttonpress;
 volatile char prevKey,key;
 
 int SelMenuItem;
-char* MenuText[MENUTEXTNUM] = {"A1. Record Audio","A2. Playback Audio",
-                     "A3. Save Audio to SD ", "A4. Browse SD",
-                     "U2. IPod Mode"," "};
+char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio","A2.Play Audio",
+                     "A3.Save to SD", "A4.Browse SD",
+                     "U2.IPod Mode"," "};
 
 void EINT3_IRQHandler(void);
 
