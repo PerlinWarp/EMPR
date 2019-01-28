@@ -49,7 +49,7 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/sd
 
 # Source files provided by the user to build the project
-OBJ		= sd.o 
+OBJ		= $(shell echo *.c | sed s/\\.c/\\.o/g)
 
 # Commands handled by this makefile
 all: 	serial
