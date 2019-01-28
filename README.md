@@ -89,3 +89,7 @@ Output is to PinNum 26 which is actually physically pin number 18 on the breakou
 [Other PWM guide](https://www.exploreembedded.com/wiki/LPC1768:_PWM)
 
 The PWM pins on the board are 23 - 26.
+
+## SDCard 
+
+[Lecture](http://www.dejazzer.com/ee379/lecture_notes/lec12_sd_card.pdf)
