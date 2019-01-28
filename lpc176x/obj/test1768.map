@@ -1,0 +1,724 @@
+Archive member included because of file (symbol)
+
+/opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+                              obj/main.o (memset)
+/opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+                              obj/main.o (strchr)
+/opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+                              obj/main.o (strcpy)
+/opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+                              obj/main.o (strlen)
+
+Allocating common symbols
+Common symbol       size              file
+
+xfunc_in            0x4               obj/xprintf.o
+FatFs               0x234             obj/main.o
+Finfo               0x18              obj/main.o
+xfunc_out           0x4               obj/xprintf.o
+File                0x450             obj/main.o
+Timer               0x4               obj/main.o
+AccSize             0x4               obj/main.o
+Buff                0x4000            obj/main.o
+Dir                 0x30              obj/main.o
+Line                0x100             obj/main.o
+AccDirs             0x2               obj/main.o
+AccFiles            0x2               obj/main.o
+
+Discarded input sections
+
+ .data          0x00000000        0x0 obj/main.o
+ .data          0x00000000        0x0 obj/startup176x.o
+ .bss           0x00000000        0x0 obj/startup176x.o
+ .data          0x00000000        0x0 obj/uart176x.o
+ .data          0x00000000        0x0 obj/rtc176x.o
+ .bss           0x00000000        0x0 obj/rtc176x.o
+ .data          0x00000000        0x0 obj/sound.o
+ .data          0x00000000        0x0 obj/xprintf.o
+ .data          0x00000000        0x0 obj/ff.o
+ .text          0x00000000        0x0 obj/ffunicode.o
+ .data          0x00000000        0x0 obj/ffunicode.o
+ .bss           0x00000000        0x0 obj/ffunicode.o
+ .data          0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+ .bss           0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+ .data          0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+ .bss           0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+ .data          0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+ .bss           0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+ .data          0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+ .bss           0x00000000        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ROM              0x00000000         0x00080000
+RAM              0x10000000         0x00007fe0
+AHBRAM0          0x2007c000         0x00004000
+AHBRAM1          0x20080000         0x00004000
+AHBRAM           0x2007c000         0x00008000
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD obj/main.o
+LOAD obj/startup176x.o
+LOAD obj/uart176x.o
+LOAD obj/rtc176x.o
+LOAD obj/sound.o
+LOAD obj/xprintf.o
+LOAD obj/mmc_176x_ssp.o
+LOAD obj/ff.o
+LOAD obj/ffunicode.o
+LOAD /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a
+LOAD /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/thumb2/libgcc.a
+LOAD /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libm.a
+START GROUP
+LOAD /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/thumb2/libgcc.a
+LOAD /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a
+END GROUP
+
+.text           0x00000000     0x5d1f
+ *(.VECTOR)
+ .VECTOR        0x00000000       0xcc obj/startup176x.o
+                0x00000000                vector
+                0x000002fc                . = 0x2fc
+ *fill*         0x000000cc      0x230 00
+ *(.CRP)
+                0x00000300                . = 0x300
+ *fill*         0x000002fc        0x4 00
+ *(.text .text.*)
+ .text          0x00000300     0x1140 obj/main.o
+                0x000003ac                SysTick_Handler
+                0x000003e0                get_fattime
+                0x0000041e                main
+ .text          0x00001440       0xd8 obj/startup176x.o
+                0x00001440                SVC_Handler
+                0x00001442                Reset_Handler
+                0x00001514                DebugMon_Handler
+                0x00001514                PendSV_Handler
+                0x00001514                NMI_Handler
+                0x00001514                UsageFault_Handler
+                0x00001514                Exception_Trap
+                0x00001514                MemManage_Handler
+                0x00001514                HardFault_Hander
+                0x00001514                BusFault_Handler
+                0x00001516                TIMER2_IRQHandler
+                0x00001516                RIT_IRQHandler
+                0x00001516                I2C0_IRQHandler
+                0x00001516                PWM1_IRQHandler
+                0x00001516                I2C1_IRQHandler
+                0x00001516                EINT2_IRQHandler
+                0x00001516                UART1_IRQHandler
+                0x00001516                EINT3_IRQHandler
+                0x00001516                PLL0_IRQHandler
+                0x00001516                CAN_IRQHandler
+                0x00001516                PLL1_IRQHandler
+                0x00001516                SSP0_IRQHandler
+                0x00001516                I2S_IRQHandler
+                0x00001516                I2C2_IRQHandler
+                0x00001516                RTC_IRQHandler
+                0x00001516                TIMER0_IRQHandler
+                0x00001516                SPI_IRQHandler
+                0x00001516                EINT1_IRQHandler
+                0x00001516                TIMER1_IRQHandler
+                0x00001516                ETHER_IRQHandler
+                0x00001516                UART2_IRQHandler
+                0x00001516                ADC_IRQHandler
+                0x00001516                SSP1_IRQHandler
+                0x00001516                GPDMA_IRQHandler
+                0x00001516                USB_IRQHandler
+                0x00001516                BOD_IRQHandler
+                0x00001516                WDT_IRQHandler
+                0x00001516                QEI_IRQHandler
+                0x00001516                IRQ_Trap
+                0x00001516                EINT0_IRQHandler
+                0x00001516                USBACT_IRQHandler
+                0x00001516                CANACT_IRQHandler
+                0x00001516                UART3_IRQHandler
+                0x00001516                MCPWM_IRQHandler
+ .text          0x00001518      0x1dc obj/uart176x.o
+                0x00001518                UART0_IRQHandler
+                0x000015cc                uart0_test
+                0x000015d8                uart0_getc
+                0x00001604                uart0_putc
+                0x00001654                uart0_init
+ .text          0x000016f4       0xd4 obj/rtc176x.o
+                0x000016f4                rtc_initialize
+                0x00001710                rtc_gettime
+                0x00001790                rtc_settime
+ .text          0x000017c8      0x59c obj/sound.o
+                0x000017c8                TIMER3_IRQHandler
+                0x000018a4                sound_start
+                0x000019a8                sound_stop
+                0x00001a0c                load_wav
+ .text          0x00001d64      0x424 obj/xprintf.o
+                0x00001d64                xputc
+                0x00001d94                xputs
+                0x00001f5a                xfputs
+                0x00001f7c                xprintf
+                0x00001f94                xsprintf
+                0x00001fc0                xfprintf
+                0x00001fe8                put_dump
+                0x00002078                xgets
+                0x000020c8                xfgets
+                0x000020e0                xatoi
+ .text          0x00002188      0x7fc obj/mmc_176x_ssp.o
+                0x0000240c                disk_initialize
+                0x000025c0                disk_status
+                0x000025d0                disk_read
+                0x00002644                disk_write
+                0x000026ec                disk_ioctl
+                0x0000293c                disk_timerproc
+ .text          0x00002984     0x251c obj/ff.o
+                0x00003846                f_mount
+                0x00003894                f_open
+                0x00003a60                f_read
+                0x00003bc4                f_write
+                0x00003d58                f_sync
+                0x00003df2                f_close
+                0x00003e0a                f_chdrive
+                0x00003e2c                f_chdir
+                0x00003e8e                f_getcwd
+                0x00003f9e                f_lseek
+                0x000040ec                f_opendir
+                0x00004150                f_closedir
+                0x00004160                f_readdir
+                0x000041a6                f_findnext
+                0x000041d4                f_findfirst
+                0x000041f0                f_stat
+                0x00004232                f_getfree
+                0x0000430a                f_truncate
+                0x000043b0                f_unlink
+                0x0000446e                f_mkdir
+                0x00004588                f_rename
+                0x0000469a                f_chmod
+                0x000046f4                f_utime
+                0x00004748                f_getlabel
+                0x000047e4                f_setlabel
+                0x00004910                f_mkfs
+ .text          0x00004ea0       0xb4 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+                0x00004ea0                memset
+ .text          0x00004f54      0x10c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+                0x00004f54                strchr
+ .text          0x00005060       0xbc /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+                0x00005060                strcpy
+ .text          0x0000511c       0x60 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+                0x0000511c                strlen
+ *(.gnu.linkonce.t*)
+ *(.gcc_except_table)
+ *(.rodata .rodata.*)
+ .rodata        0x0000517c      0x6c8 obj/main.o
+ .rodata.str1.1
+                0x00005844      0x3e4 obj/main.o
+                                0x3ed (size before relaxing)
+ .rodata.str1.1
+                0x00005c28       0x62 obj/sound.o
+ .rodata.str1.1
+                0x00005c8a       0x1a obj/xprintf.o
+ .rodata        0x00005ca4       0x38 obj/ff.o
+ .rodata.str1.1
+                0x00005cdc       0x43 obj/ff.o
+                                 0x4d (size before relaxing)
+ *(.gnu.linkonce.r*)
+
+.glue_7         0x00005d20        0x0 load address 0x00005d1f
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x00005d20        0x0 load address 0x00005d1f
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x00005d20        0x0 load address 0x00005d1f
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x00005d20        0x0 load address 0x00005d1f
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.ARM.excep
+ *(.ARM.exidx*)
+ *(.ARM.extab*)
+                0x00005d20                . = ALIGN (0x4)
+                0x00005d20                _etext = .
+                0x00005d20                _sidata = .
+
+.data           0x10000000        0x4 load address 0x00005d20
+                0x10000000                _sdata = .
+ *(.data .data.*)
+ .data          0x10000000        0x1 obj/mmc_176x_ssp.o
+ *(.gnu.linkonce.d*)
+                0x10000004                . = ALIGN (0x4)
+ *fill*         0x10000001        0x3 00
+                0x10000004                _edata = .
+
+.bss            0x10000004     0x4914 load address 0x00005d24
+                0x10000004                _sbss = .
+ *(.bss .bss.*)
+ .bss           0x10000004        0x4 obj/main.o
+ .bss           0x10000008      0x10e obj/uart176x.o
+ *fill*         0x10000116        0x2 00
+ .bss           0x10000118        0x4 obj/sound.o
+ .bss           0x1000011c        0x4 obj/xprintf.o
+ .bss           0x10000120        0xc obj/mmc_176x_ssp.o
+ .bss           0x1000012c        0xc obj/ff.o
+ *(.gnu.linkonce.b*)
+ *(COMMON)
+ COMMON         0x10000138     0x47d8 obj/main.o
+                0x10000138                FatFs
+                0x1000036c                Finfo
+                0x10000384                File
+                0x100007d4                Timer
+                0x100007d8                AccSize
+                0x100007dc                Buff
+                0x100047dc                Dir
+                0x1000480c                Line
+                0x1000490c                AccDirs
+                0x1000490e                AccFiles
+ COMMON         0x10004910        0x8 obj/xprintf.o
+                0x10004910                xfunc_in
+                0x10004914                xfunc_out
+                0x10004918                . = ALIGN (0x4)
+                0x10004918                _ebss = .
+
+.stack          0x10004918      0x800 load address 0x0000a638
+ *(.stack)
+ *(.STACK)
+ .STACK         0x10004918      0x800 obj/startup176x.o
+                0x10004918                mstk
+                0x10005118                . = ALIGN (0x4)
+                0x10005118                _end = .
+
+.ahbram0        0x2007c000        0x0
+ *(.ahbram0)
+                0x2007c000                . = ALIGN (0x4)
+
+.ahbram1        0x20080000        0x0
+ *(.ahbram1)
+                0x20080000                . = ALIGN (0x4)
+
+.ahbram         0x2007c000        0x0
+ *(.ahbram)
+                0x2007c000                . = ALIGN (0x4)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.ARM.attributes
+                0x00000000       0x31
+ .ARM.attributes
+                0x00000000       0x31 obj/main.o
+ .ARM.attributes
+                0x00000031       0x31 obj/startup176x.o
+ .ARM.attributes
+                0x00000062       0x31 obj/uart176x.o
+ .ARM.attributes
+                0x00000093       0x31 obj/rtc176x.o
+ .ARM.attributes
+                0x000000c4       0x31 obj/sound.o
+ .ARM.attributes
+                0x000000f5       0x31 obj/xprintf.o
+ .ARM.attributes
+                0x00000126       0x31 obj/mmc_176x_ssp.o
+ .ARM.attributes
+                0x00000157       0x31 obj/ff.o
+ .ARM.attributes
+                0x00000188       0x31 obj/ffunicode.o
+ .ARM.attributes
+                0x000001b9       0x29 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+ .ARM.attributes
+                0x000001e2       0x29 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+ .ARM.attributes
+                0x0000020b       0x29 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+ .ARM.attributes
+                0x00000234       0x29 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+
+.comment        0x00000000       0x2a
+ *(.comment)
+ .comment       0x00000000       0x2a obj/main.o
+                                 0x2b (size before relaxing)
+ .comment       0x00000000       0x2b obj/startup176x.o
+ .comment       0x00000000       0x2b obj/uart176x.o
+ .comment       0x00000000       0x2b obj/rtc176x.o
+ .comment       0x00000000       0x2b obj/sound.o
+ .comment       0x00000000       0x2b obj/xprintf.o
+ .comment       0x00000000       0x2b obj/mmc_176x_ssp.o
+ .comment       0x00000000       0x2b obj/ff.o
+ .comment       0x00000000       0x2b obj/ffunicode.o
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000      0x100
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 obj/main.o
+ .debug_aranges
+                0x00000020       0x20 obj/startup176x.o
+ .debug_aranges
+                0x00000040       0x20 obj/uart176x.o
+ .debug_aranges
+                0x00000060       0x20 obj/rtc176x.o
+ .debug_aranges
+                0x00000080       0x20 obj/sound.o
+ .debug_aranges
+                0x000000a0       0x20 obj/xprintf.o
+ .debug_aranges
+                0x000000c0       0x20 obj/mmc_176x_ssp.o
+ .debug_aranges
+                0x000000e0       0x20 obj/ff.o
+
+.debug_pubnames
+                0x00000000      0x47f
+ *(.debug_pubnames)
+ .debug_pubnames
+                0x00000000       0xa5 obj/main.o
+ .debug_pubnames
+                0x000000a5       0x68 obj/startup176x.o
+ .debug_pubnames
+                0x0000010d       0x63 obj/uart176x.o
+ .debug_pubnames
+                0x00000170       0x45 obj/rtc176x.o
+ .debug_pubnames
+                0x000001b5       0x54 obj/sound.o
+ .debug_pubnames
+                0x00000209       0x9e obj/xprintf.o
+ .debug_pubnames
+                0x000002a7       0x75 obj/mmc_176x_ssp.o
+ .debug_pubnames
+                0x0000031c      0x163 obj/ff.o
+
+.debug_info     0x00000000     0x449a
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000      0x957 obj/main.o
+ .debug_info    0x00000957      0x1d5 obj/startup176x.o
+ .debug_info    0x00000b2c      0x238 obj/uart176x.o
+ .debug_info    0x00000d64      0x19f obj/rtc176x.o
+ .debug_info    0x00000f03      0x5da obj/sound.o
+ .debug_info    0x000014dd      0x52e obj/xprintf.o
+ .debug_info    0x00001a0b      0x674 obj/mmc_176x_ssp.o
+ .debug_info    0x0000207f     0x23d2 obj/ff.o
+ .debug_info    0x00004451       0x49 obj/ffunicode.o
+
+.debug_abbrev   0x00000000      0xcd9
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000      0x1e4 obj/main.o
+ .debug_abbrev  0x000001e4       0xd8 obj/startup176x.o
+ .debug_abbrev  0x000002bc      0x12a obj/uart176x.o
+ .debug_abbrev  0x000003e6       0xe6 obj/rtc176x.o
+ .debug_abbrev  0x000004cc      0x154 obj/sound.o
+ .debug_abbrev  0x00000620      0x1c7 obj/xprintf.o
+ .debug_abbrev  0x000007e7      0x243 obj/mmc_176x_ssp.o
+ .debug_abbrev  0x00000a2a      0x290 obj/ff.o
+ .debug_abbrev  0x00000cba       0x1f obj/ffunicode.o
+
+.debug_line     0x00000000     0x1d68
+ *(.debug_line)
+ .debug_line    0x00000000      0x504 obj/main.o
+ .debug_line    0x00000504      0x114 obj/startup176x.o
+ .debug_line    0x00000618      0x156 obj/uart176x.o
+ .debug_line    0x0000076e      0x123 obj/rtc176x.o
+ .debug_line    0x00000891      0x224 obj/sound.o
+ .debug_line    0x00000ab5      0x296 obj/xprintf.o
+ .debug_line    0x00000d4b      0x368 obj/mmc_176x_ssp.o
+ .debug_line    0x000010b3      0xc98 obj/ff.o
+ .debug_line    0x00001d4b       0x1d obj/ffunicode.o
+
+.debug_frame    0x00000000      0xca4
+ *(.debug_frame)
+ .debug_frame   0x00000000       0x98 obj/main.o
+ .debug_frame   0x00000098       0x50 obj/startup176x.o
+ .debug_frame   0x000000e8       0x78 obj/uart176x.o
+ .debug_frame   0x00000160       0x48 obj/rtc176x.o
+ .debug_frame   0x000001a8       0x84 obj/sound.o
+ .debug_frame   0x0000022c      0x16c obj/xprintf.o
+ .debug_frame   0x00000398      0x154 obj/mmc_176x_ssp.o
+ .debug_frame   0x000004ec      0x720 obj/ff.o
+ .debug_frame   0x00000c0c       0x2c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+ .debug_frame   0x00000c38       0x2c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+ .debug_frame   0x00000c64       0x20 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+ .debug_frame   0x00000c84       0x20 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+
+.debug_str      0x00000000      0xa53
+ *(.debug_str)
+ .debug_str     0x00000000      0x3ac obj/main.o
+                                0x40e (size before relaxing)
+ .debug_str     0x000003ac       0x6e obj/startup176x.o
+                                0x133 (size before relaxing)
+ .debug_str     0x0000041a       0x58 obj/uart176x.o
+                                0x12e (size before relaxing)
+ .debug_str     0x00000472       0x31 obj/rtc176x.o
+                                0x11c (size before relaxing)
+ .debug_str     0x000004a3       0x7a obj/sound.o
+                                0x248 (size before relaxing)
+ .debug_str     0x0000051d       0x91 obj/xprintf.o
+                                0x132 (size before relaxing)
+ .debug_str     0x000005ae      0x113 obj/mmc_176x_ssp.o
+                                0x238 (size before relaxing)
+ .debug_str     0x000006c1      0x386 obj/ff.o
+                                0x6a9 (size before relaxing)
+ .debug_str     0x00000a47        0xc obj/ffunicode.o
+                                 0x84 (size before relaxing)
+
+.debug_loc      0x00000000     0x5ec9
+ *(.debug_loc)
+ .debug_loc     0x00000000      0x4b2 obj/main.o
+ .debug_loc     0x000004b2       0x34 obj/startup176x.o
+ .debug_loc     0x000004e6      0x12f obj/uart176x.o
+ .debug_loc     0x00000615       0x8d obj/rtc176x.o
+ .debug_loc     0x000006a2      0x5ad obj/sound.o
+ .debug_loc     0x00000c4f      0x9b6 obj/xprintf.o
+ .debug_loc     0x00001605      0x99e obj/mmc_176x_ssp.o
+ .debug_loc     0x00001fa3     0x3f26 obj/ff.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+OUTPUT(obj/test1768.elf elf32-littlearm)
+
+.debug_pubtypes
+                0x00000000      0x33d
+ .debug_pubtypes
+                0x00000000       0xb9 obj/main.o
+ .debug_pubtypes
+                0x000000b9       0x1f obj/startup176x.o
+ .debug_pubtypes
+                0x000000d8       0x38 obj/uart176x.o
+ .debug_pubtypes
+                0x00000110       0x40 obj/rtc176x.o
+ .debug_pubtypes
+                0x00000150       0x93 obj/sound.o
+ .debug_pubtypes
+                0x000001e3       0x3f obj/xprintf.o
+ .debug_pubtypes
+                0x00000222       0x68 obj/mmc_176x_ssp.o
+ .debug_pubtypes
+                0x0000028a       0xa1 obj/ff.o
+ .debug_pubtypes
+                0x0000032b       0x12 obj/ffunicode.o
+
+.debug_ranges   0x00000000       0xc0
+ .debug_ranges  0x00000000       0x60 obj/mmc_176x_ssp.o
+ .debug_ranges  0x00000060       0x60 obj/ff.o
+
+Cross Reference Table
+
+Symbol                                            File
+ADC_IRQHandler                                    obj/startup176x.o
+AccDirs                                           obj/main.o
+AccFiles                                          obj/main.o
+AccSize                                           obj/main.o
+BOD_IRQHandler                                    obj/startup176x.o
+Buff                                              obj/main.o
+BusFault_Handler                                  obj/startup176x.o
+CANACT_IRQHandler                                 obj/startup176x.o
+CAN_IRQHandler                                    obj/startup176x.o
+DebugMon_Handler                                  obj/startup176x.o
+Dir                                               obj/main.o
+EINT0_IRQHandler                                  obj/startup176x.o
+EINT1_IRQHandler                                  obj/startup176x.o
+EINT2_IRQHandler                                  obj/startup176x.o
+EINT3_IRQHandler                                  obj/startup176x.o
+ETHER_IRQHandler                                  obj/startup176x.o
+Exception_Trap                                    obj/startup176x.o
+FatFs                                             obj/main.o
+File                                              obj/main.o
+Finfo                                             obj/main.o
+GPDMA_IRQHandler                                  obj/startup176x.o
+HardFault_Hander                                  obj/startup176x.o
+I2C0_IRQHandler                                   obj/startup176x.o
+I2C1_IRQHandler                                   obj/startup176x.o
+I2C2_IRQHandler                                   obj/startup176x.o
+I2S_IRQHandler                                    obj/startup176x.o
+IRQ_Trap                                          obj/startup176x.o
+Line                                              obj/main.o
+MCPWM_IRQHandler                                  obj/startup176x.o
+MemManage_Handler                                 obj/startup176x.o
+NMI_Handler                                       obj/startup176x.o
+PLL0_IRQHandler                                   obj/startup176x.o
+PLL1_IRQHandler                                   obj/startup176x.o
+PWM1_IRQHandler                                   obj/startup176x.o
+PendSV_Handler                                    obj/startup176x.o
+QEI_IRQHandler                                    obj/startup176x.o
+RIT_IRQHandler                                    obj/startup176x.o
+RTC_IRQHandler                                    obj/startup176x.o
+Reset_Handler                                     obj/startup176x.o
+SPI_IRQHandler                                    obj/startup176x.o
+SSP0_IRQHandler                                   obj/startup176x.o
+SSP1_IRQHandler                                   obj/startup176x.o
+SVC_Handler                                       obj/startup176x.o
+SysTick_Handler                                   obj/main.o
+TIMER0_IRQHandler                                 obj/startup176x.o
+TIMER1_IRQHandler                                 obj/startup176x.o
+TIMER2_IRQHandler                                 obj/startup176x.o
+TIMER3_IRQHandler                                 obj/sound.o
+                                                  obj/startup176x.o
+Timer                                             obj/main.o
+UART0_IRQHandler                                  obj/uart176x.o
+                                                  obj/startup176x.o
+UART1_IRQHandler                                  obj/startup176x.o
+UART2_IRQHandler                                  obj/startup176x.o
+UART3_IRQHandler                                  obj/startup176x.o
+USBACT_IRQHandler                                 obj/startup176x.o
+USB_IRQHandler                                    obj/startup176x.o
+UsageFault_Handler                                obj/startup176x.o
+WDT_IRQHandler                                    obj/startup176x.o
+_ebss                                             obj/startup176x.o
+_edata                                            obj/startup176x.o
+_sbss                                             obj/startup176x.o
+_sdata                                            obj/startup176x.o
+_sidata                                           obj/startup176x.o
+disk_initialize                                   obj/mmc_176x_ssp.o
+                                                  obj/ff.o
+                                                  obj/main.o
+disk_ioctl                                        obj/mmc_176x_ssp.o
+                                                  obj/ff.o
+                                                  obj/main.o
+disk_read                                         obj/mmc_176x_ssp.o
+                                                  obj/ff.o
+                                                  obj/main.o
+disk_status                                       obj/mmc_176x_ssp.o
+                                                  obj/ff.o
+disk_timerproc                                    obj/mmc_176x_ssp.o
+                                                  obj/main.o
+disk_write                                        obj/mmc_176x_ssp.o
+                                                  obj/ff.o
+                                                  obj/main.o
+f_chdir                                           obj/ff.o
+                                                  obj/main.o
+f_chdrive                                         obj/ff.o
+f_chmod                                           obj/ff.o
+                                                  obj/main.o
+f_close                                           obj/ff.o
+                                                  obj/main.o
+f_closedir                                        obj/ff.o
+                                                  obj/main.o
+f_findfirst                                       obj/ff.o
+                                                  obj/main.o
+f_findnext                                        obj/ff.o
+                                                  obj/main.o
+f_getcwd                                          obj/ff.o
+                                                  obj/main.o
+f_getfree                                         obj/ff.o
+                                                  obj/main.o
+f_getlabel                                        obj/ff.o
+                                                  obj/main.o
+f_lseek                                           obj/ff.o
+                                                  obj/sound.o
+                                                  obj/main.o
+f_mkdir                                           obj/ff.o
+                                                  obj/main.o
+f_mkfs                                            obj/ff.o
+                                                  obj/main.o
+f_mount                                           obj/ff.o
+                                                  obj/main.o
+f_open                                            obj/ff.o
+                                                  obj/main.o
+f_opendir                                         obj/ff.o
+                                                  obj/main.o
+f_read                                            obj/ff.o
+                                                  obj/sound.o
+                                                  obj/main.o
+f_readdir                                         obj/ff.o
+                                                  obj/main.o
+f_rename                                          obj/ff.o
+                                                  obj/main.o
+f_setlabel                                        obj/ff.o
+                                                  obj/main.o
+f_stat                                            obj/ff.o
+f_sync                                            obj/ff.o
+f_truncate                                        obj/ff.o
+                                                  obj/main.o
+f_unlink                                          obj/ff.o
+                                                  obj/main.o
+f_utime                                           obj/ff.o
+                                                  obj/main.o
+f_write                                           obj/ff.o
+                                                  obj/main.o
+get_fattime                                       obj/main.o
+                                                  obj/ff.o
+load_wav                                          obj/sound.o
+                                                  obj/main.o
+main                                              obj/main.o
+                                                  obj/startup176x.o
+memset                                            /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+                                                  obj/main.o
+mstk                                              obj/startup176x.o
+put_dump                                          obj/xprintf.o
+                                                  obj/main.o
+rtc_gettime                                       obj/rtc176x.o
+                                                  obj/main.o
+rtc_initialize                                    obj/rtc176x.o
+                                                  obj/main.o
+rtc_settime                                       obj/rtc176x.o
+                                                  obj/main.o
+sound_start                                       obj/sound.o
+sound_stop                                        obj/sound.o
+strchr                                            /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+                                                  obj/main.o
+strcpy                                            /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+                                                  obj/main.o
+strlen                                            /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+                                                  obj/main.o
+uart0_getc                                        obj/uart176x.o
+                                                  obj/sound.o
+                                                  obj/main.o
+uart0_init                                        obj/uart176x.o
+                                                  obj/main.o
+uart0_putc                                        obj/uart176x.o
+                                                  obj/main.o
+uart0_test                                        obj/uart176x.o
+                                                  obj/sound.o
+vector                                            obj/startup176x.o
+xatoi                                             obj/xprintf.o
+                                                  obj/main.o
+xfgets                                            obj/xprintf.o
+xfprintf                                          obj/xprintf.o
+xfputs                                            obj/xprintf.o
+xfunc_in                                          obj/xprintf.o
+                                                  obj/main.o
+xfunc_out                                         obj/xprintf.o
+                                                  obj/main.o
+xgets                                             obj/xprintf.o
+                                                  obj/main.o
+xprintf                                           obj/xprintf.o
+                                                  obj/sound.o
+                                                  obj/main.o
+xputc                                             obj/xprintf.o
+                                                  obj/sound.o
+                                                  obj/main.o
+xputs                                             obj/xprintf.o
+                                                  obj/main.o
+xsprintf                                          obj/xprintf.o
