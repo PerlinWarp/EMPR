@@ -20,9 +20,9 @@ class Window(Frame):
     def back(self):
         ser.write(b'CMD:BACK')
     def fwd(self):
-        ser.write(b'CMD:fwd')
+        ser.write(b'CMD:FWD.')
     def pause(self):
-        ser.write(b'CMD:pause')
+        ser.write(b'CMD:PAUS')#All instructions are 7 long, and only the first letter is checked to make a total of 
 
 #use tkinter and pyserial
 #def getInstruction(ser):

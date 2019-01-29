@@ -34,6 +34,6 @@ int WriteText(char*);
 void InitSerInterrupts(void);
 void EnableSerInterrupts(void);
 void EnableSerInterrupts(void);
-
+void ProcessBuffer(void)
 
 #endif

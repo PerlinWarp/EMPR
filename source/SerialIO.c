@@ -25,6 +25,7 @@ void UART0_IRQHandler(void)
 
 void ReceiveText(void)
 {
+
 	uint8_t tmp;
 	uint32_t rLen;
 	while(1)
@@ -34,10 +35,38 @@ void ReceiveText(void)
 		if((rbuf.rx_tail)&(UART_RING_BUFSIZE-1)!=(rbuf.rx_head+1)&(UART_RING_BUFSIZE-1))//if the buffer is full
 		{
 			rbuf.rx[rbuf.rx_head] = tmp;
-			rb.rx_head = (rb.rx_head + 1)&UART_RING_BUFSIZE-1;
+			rbuf.rx_head = (rbuf.rx_head + 1)&(UART_RING_BUFSIZE-1);
 		}
 	}
+	ProcessBuffer();
 }
+
+void ProcessBuffer()
+{
+	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, DISABLE);
+	while(!empty)
+	{
+		char	 cmd[5];
+		memcpy(cmd,&rbuf.rx[rbuf.rx_tail],4);
+		cmd[4] = '\0';
+		if(strcmp("CMD:",cmd)==0)
+		{
+			switch(rbuf.rx[(rbuf.rx_tail+4) & (UART_RING_BUFSIZE-4)])
+			{
+				case 'B':
+
+					break;
+				case 'F':
+					break;
+				case 'P':
+					break;
+			}
+		}
+		rbuf.rx_tail = (rbuf.rx_tail+4) & (UART_RING_BUFSIZE-4);
+	}
+	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, ENABLE);
+}
+
 void TransmitText(void)
 {
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_THRE, DISABLE);
