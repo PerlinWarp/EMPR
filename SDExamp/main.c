@@ -25,11 +25,11 @@ int main (void)
     fr = f_open(&fil, "message.txt", FA_READ);
     if (fr) return (int)fr;
 
-    _DBG(fr);
+
     /* Read every line and display it */
-    // while (f_gets(line, sizeof line, &fil)) {
-    //     printf(line);
-    // }
+    while (f_gets(line, sizeof line, &fil)) {
+     printf(line);
+    }
 
     /* Close the file */
     f_close(&fil);
