@@ -15,9 +15,9 @@
 #define BUTTON_DOWN '#'
 #define BUTTON_UP '*'
 #define BUTTON_SEL 'A'
-
+//Buffer length in bytes
+#define BUF_LENGTH 1000
 #include <math.h>
-#include <stdlib.h>
 #include <stdlib.h>
 
 #include "LPC17xx.h"
@@ -27,7 +27,6 @@
 #include "source/I2C.h"
 #include "source/KeyAccess.h"
 #include "source/Delay.h"
-
 /*
 #include "SD/sd.h"
 #include "ADC/dac.h"
@@ -36,6 +35,7 @@
 */
 volatile int buttonpress;
 volatile char prevKey,key;
+volatile char* Audio_buf;
 
 int SelMenuItem;
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio","A2.Play Audio",

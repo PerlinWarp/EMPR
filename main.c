@@ -88,6 +88,7 @@ void Menu()
                     optionSelected = 1;
                     break;
                 default:
+                    Audio_buf = (char*)malloc(sizeof(char)*BUF_LENGTH);
                     changed =0;
             }
             if(changed)DrawMenu();
@@ -101,6 +102,7 @@ void Menu()
 void RecordLoop()
 {
   //Enable I2S
+  Init_I2S(uint32_t* BufferOut,uint32_t BufferOutWidth,uint32_t* BufferIn,uint32_t BufferInWidth);
   //Check for interrn
 }
 
