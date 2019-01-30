@@ -2,16 +2,11 @@
 
 void UART0_IRQHandler(void)
 {
-	uint32_t tmp,error,intsrc;
+	uint32_t tmp,intsrc =0 ;
 	tmp = intsrc & UART_IIR_INTID_MASK;
-	intsrc = UART_GetIntID(LPC_UART0);
+	intsrc = UART_GetIntId(LPC_UART0);
 	switch(tmp)
 	{
-		/*case UART_IIR_INTID_RLS:
-			error = UART_GetLineStatus(LPC_UART0);
-			error &= (UART_LSE_OE | UART_LSR_PE | UART_LSR_FE | UART_LSR_BI | UART_LSR_RXFE);
-			if(error)UART_IntErr(error);
-			break;*/
 		case UART_IIR_INTID_RDA:
 			ReceiveText();
 			break;
@@ -32,10 +27,10 @@ void ReceiveText(void)
 	{
 		rLen = UART_Receive((LPC_UART_TypeDef *)LPC_UART0, &tmp, 1, NONE_BLOCKING);
 		if(!rLen)return;
-		if((rbuf.rx_tail)&(UART_RING_BUFSIZE-1)!=(rbuf.rx_head+1)&(UART_RING_BUFSIZE-1))//if the buffer is full
+		if(((rbuf.rx_tail)&(UART_RING_BUFSIZE-1))!=((rbuf.rx_head+1)&(UART_RING_BUFSIZE-1)))//if the buffer is full
 		{
 			rbuf.rx[rbuf.rx_head] = tmp;
-			rbuf.rx_head = (rbuf.rx_head + 1)&(UART_RING_BUFSIZE-1);
+			rbuf.rx_head = ((rbuf.rx_head + 1)&(UART_RING_BUFSIZE-1));
 		}
 	}
 	ProcessBuffer();
@@ -43,6 +38,7 @@ void ReceiveText(void)
 
 void ProcessBuffer()
 {
+	int empty = 0;
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, DISABLE);
 	while(!empty)
 	{
@@ -71,13 +67,13 @@ void TransmitText(void)
 {
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_THRE, DISABLE);
 	while (UART_CheckBusy((LPC_UART_TypeDef *)LPC_UART0) == SET);
-	while((rbuf.tx_tail)&(UART_RING_BUFSIZE-1)!=(rbuf.tx_head+1)&(UART_RING_BUFSIZE-1))
+	while(((rbuf.tx_tail)&(UART_RING_BUFSIZE-1))!=((rbuf.tx_head+1)&(UART_RING_BUFSIZE-1)))
 	{
 		if(!(UART_Send((LPC_UART_TypeDef *)LPC_UART0, (uint8_t *)&rbuf.tx[rbuf.tx_tail], 1, NONE_BLOCKING)))break;
-		rbuf.tx_tail = (rbuf.tx_tail + 1)&UART_RING_BUFSIZE-1;
+		rbuf.tx_tail = ((rbuf.tx_tail + 1)&(UART_RING_BUFSIZE-1));
 	}
 	//If there is no more data to send disable transmit interrupt
-	if((rbuf.tx_tail)&(UART_RING_BUFSIZE-1)!=(rbuf.tx_head+1)&(UART_RING_BUFSIZE-1))
+	if(((rbuf.tx_tail)&(UART_RING_BUFSIZE-1))!=((rbuf.tx_head+1)&(UART_RING_BUFSIZE-1)))
 	{
 		UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_THRE, DISABLE);
 		TxIntStat = RESET;
@@ -129,5 +125,5 @@ void InitSerInterrupts(void)
 	NVIC_SetPriority(UART0_IRQn, ((0x01<<3)|0x01));
 	NVIC_EnableIRQ(UART0_IRQn);
 }
-void EnableSerInterrupts(void)NVIC_EnableIRQ(UART0_IRQn);
-void DisableSerInterrupts(void)NVIC_DisableIRQ(UART0_IRQn);
+void EnableSerInterrupts(void){NVIC_EnableIRQ(UART0_IRQn);}
+void DisableSerInterrupts(void){NVIC_DisableIRQ(UART0_IRQn);}
