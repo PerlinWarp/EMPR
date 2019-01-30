@@ -1,7 +1,7 @@
 #include "I2C.h"
 
 void I2CInit(void)
-{	
+{
 	SetupPINS();
 
 	I2C_Init(I2CBUS,100000);
@@ -30,7 +30,7 @@ void SetupPINS(void)
 	PinCFG.Funcnum = 3;
 	PinCFG.OpenDrain = PINSEL_PINMODE_NORMAL;
 	PinCFG.Pinmode = PINSEL_PINMODE_PULLUP;
-	
+
 	PinCFG.Portnum =0;
 	PinCFG.Pinnum = 0;
 	PINSEL_ConfigPin(&PinCFG);
