@@ -1,6 +1,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
@@ -17,7 +18,14 @@
 #define BUTTON_SEL 'A'
 #define BUTTON_SEL_2 'B'
 //Buffer length in bytes
-#define BUF_LENGTH 1000
+#define BUFO_LENGTH 150
+#define BUFI_LENGTH 150
+#define PI 3.1415827
+
+#define DMA_SRC LPC_AHBRAM1_BASE
+#define DMA_DST (DMA_SRC + 0x100UL)
+
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -39,7 +47,8 @@
 volatile int buttonpress;
 volatile char prevKey,key;
 volatile char* Audio_buf;
-
+volatile uint32_t* BufferOut = (uint32_t*) DMA_SRC;
+volatile uint32_t* BufferIn = (uint32_t*) DMA_DST;
 int SelMenuItem;
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "A3.Save to SD  ", "A4.Browse SD   ",
@@ -56,7 +65,7 @@ void PassThroughLoop();
 void RecordLoop();
 void temp();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:

@@ -39,6 +39,9 @@ void TLV320_Setup(){
 void TLV320_EnableDAC()
 {  uint8_t Data[8] = {0x0C,0x00,0x0E,0x02,0x10,0x20,0x12,0x01};//Turn on all, enable i2s mode, change sample rate, activate interface
   TLV320_SendData(Data,8);}
+void TLV320_EnableOutput()
+{  uint8_t Data[16] = {0x1E,0x00,0x0A,0x00,0x05,0xF9,0x08,0x10,0x0C,0x07,0x0E,0x02,0x10,0x00,0x12,0x01};//Enable DAC,Turn on Audio, enable i2s mode, change sample rate, activate interface
+  TLV320_SendData(Data,16);}
 
 void TLV320_SendData(uint8_t* Data,int length)
 {

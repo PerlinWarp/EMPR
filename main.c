@@ -93,6 +93,7 @@ void Menu()
                     if(SelMenuItem < MENUTEXTNUM){
                       menuFuncs[SelMenuItem+1]();
                     }
+
                     break;
                 case 'C':
                 {
@@ -124,8 +125,25 @@ void Menu()
   //Check for interrn
 }*/
 
-/*void PlayLoop()
-{}*/
+void PlayLoop()
+{
+  int i=0;
+  for(i=0;i<BUFO_LENGTH;i++){
+    BufferOut[i] = (uint32_t)(sin(2*i*PI/BUFO_LENGTH)* 3 * 9680+(9680*3));
+  }
+  Init_I2S(BufferOut,BUFO_LENGTH-1,BufferIn,2);
+  TLV320_EnableOutput();
+  EnableOutput();
+  LCDClear();
+  LCDPrint("Audio Mode\nPress Any Key");
+  while(!buttonpress);//Loop until new input
+  char outp[40];
+  sprintf(outp,"%lu\n\r",Channel0_TC);
+  WriteText(outp);
+  DisableOutput();
+  I2S_DeInit(LPC_I2S);
+  buttonpress = 0;
+}
 void PassThroughLoop()
 {
   LCDClear();
@@ -149,4 +167,4 @@ int main()
 
     return 0;
 }
-//void temp(){}//Delete at your earliest convienience
+void temp(){buttonpress = 0;}//Delete at your earliest convienience
