@@ -22,8 +22,6 @@
 #define BUFI_LENGTH 150
 #define PI 3.1415827
 
-#define DMA_SRC LPC_AHBRAM1_BASE
-#define DMA_DST (DMA_SRC + 0x100UL)
 
 
 #include <math.h>
@@ -47,8 +45,8 @@
 volatile int buttonpress;
 volatile char prevKey,key;
 volatile char* Audio_buf;
-volatile uint32_t* BufferOut = (uint32_t*) DMA_SRC;
-volatile uint32_t* BufferIn = (uint32_t*) DMA_DST;
+volatile uint32_t* BufferOut;
+volatile uint32_t* BufferIn;
 int SelMenuItem;
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "A3.Save to SD  ", "A4.Browse SD   ",
