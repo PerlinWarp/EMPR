@@ -2,7 +2,6 @@
 #include "rtc176x.h"
 #include "uart176x.h"
 #include "ff.h"
-#include "diskio.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -17,11 +16,15 @@ void main(void)
     DIR dir;        
     FRESULT fr;
 
-    f_mount(&FatFs, "", 0);
+    char buff[256];
+    fr = f_mount(&FatFs, NULL, 1);
+    sprintf(buff,"%i\n\r", fr);
+    write_usb_serial_blocking(buff, 11);
     
-
-
-    fr = f_opendir(&dir, "/");
+    write_usb_serial_blocking("breakssssss", 11);
+    
+    strcpy(buff, "/");
+    fr = f_opendir(&dir, buff);
     write_usb_serial_blocking("breaks here", 11);
     int i;
     FILINFO fi;
