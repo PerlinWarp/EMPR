@@ -2,41 +2,46 @@
 #include "rtc176x.h"
 #include "uart176x.h"
 #include "ff.h"
-#include "diskio.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <serial.h>
 
-/* Read a text file and display it */
-
-FATFS FatFs;   /* Work area (filesystem object) for logical drive */
-
-int main (void)
+void main(void)
 {
-
     serial_init();
-    write_usb_serial_blocking("aaa",3);
-    FIL fil;        /* File object */
-    char line[100]; /* Line buffer */
-    FRESULT fr;     /* FatFs return code */
+    write_usb_serial_blocking("///////", 7);
 
-    /* Register work area to the default drive */
-    f_mount(&FatFs, "", 0);
-    write_usb_serial_blocking("bbb",3);
+    FATFS FatFs;
+    DIR dir;        
+    FRESULT fr;
 
-    /* Open a text file */
-    fr = f_open(&fil, "/message.txt", FA_READ);
-    if (fr) return (int)fr;
+    char buff[256];
+    fr = f_mount(&FatFs, NULL, 1);
+    sprintf(buff,"%i\n\r", fr);
+    write_usb_serial_blocking(buff, 11);
     
-
-    /* Read every line and display it */
-    while (f_gets(line, sizeof line, &fil)) {
-     write_usb_serial_blocking(line,10);
+    write_usb_serial_blocking("breakssssss", 11);
+    
+    strcpy(buff, "/");
+    fr = f_opendir(&dir, buff);
+    write_usb_serial_blocking("breaks here", 11);
+    int i;
+    FILINFO fi;
+    for (i=0; i < 10; i++){
+        fr = f_readdir(&dir, &fi);
+        if (fi.fattrib == AM_DIR){
+            write_usb_serial_blocking("FOLDER ", 7);
+            write_usb_serial_blocking(fi.fname, 13);
+        } else {
+            write_usb_serial_blocking("FILE ", 5);
+            write_usb_serial_blocking(fi.fname, 13);
+            write_usb_serial_blocking(",", 1);
+            write_usb_serial_blocking("1234", 4);
+            //write_usb_serial_blocking(fi.fsize, 13);
+        }
+        write_usb_serial_blocking("\r\n", 2);
     }
-
-    /* Close the file */
-    f_close(&fil);
-
+    
     return 0;
 }
