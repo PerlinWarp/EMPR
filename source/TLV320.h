@@ -8,9 +8,9 @@
  **************************************************************************/
 #ifndef TLV_H_
 #define TLV_H_
-#include "LPC17xx.h"
-#include "spi.h"
-#include "i2s.h"
+#include "I2C.h"
+//26 for
+#define TLV320_ADDR 0x1A
 /*SPI - CS goes low while the command is active, and high when not used
   SCLK - Pulse for each bit input
   SDIN - Pass instruction here -> address bloc , then data block
@@ -24,6 +24,11 @@
 
 */
 
+void TLV320_ChangeInputVolume(uint8_t newVolume);
+void TLV320_ChangeOutputVolume(uint8_t newVolume);
+void TLV320_EnablePassThrough();
+void TLV320_DisablePassThrough();
 void TLV320_Setup();
-
+void TLV320_SendData(uint8_t* Data,int length);
+void TLV320_EnableOutput();
 #endif

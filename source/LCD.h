@@ -8,8 +8,7 @@
 #include "SerialIO.h"
 #define LCD_ADDR 0x3B
 
-void LCDGoHome();
-void LCDNewLine();
+
 void SendData(uint8_t* Data,int length);
 void LCDEnable();
 void LCDDisable();

@@ -32,21 +32,20 @@ void DMA_IRQHandler()
   }
 }
 
-void Init_I2S(uint32_t* BufferOut,uint32_t BufferOutWidth,uint32_t* BufferIn,uint32_t BufferInWidth)
+void Init_I2S(volatile uint32_t* BufferOut,uint32_t BufferOutWidth,volatile uint32_t* BufferIn,uint32_t BufferInWidth)
 {
   I2S_MODEConf_Type Clock_Config;
   I2S_CFG_Type I2S_Config_Struct;
-  LPC_PINCON->PINSEL0|=0x15540;//Set pins 5-9 as func 1 (i2s)
+  LPC_PINCON->PINSEL0|=0x54000;//Set pins 0.7-0.9 as func 2 (i2s Tx)
+  LPC_PINCON->PINSEL1|=0xA8000;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
   I2S_Init(LPC_I2S);
   ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_STEREO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
-  I2S_FreqConfig(LPC_I2S, 44100, I2S_TX_MODE);//Set frequency for output
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_TX_MODE);//Set frequency for output
   I2S_SetBitRate(LPC_I2S, 0, I2S_RX_MODE);//Set bit rate for input
-
   GPDMA_Channel_CFG_Type CCFG_Struct;
 
   InitializeGPDMA(BufferOut,BufferOutWidth,BufferIn,BufferInWidth,&CCFG_Struct);
-
   I2S_Start(LPC_I2S);
 }
 void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uint8_t stop,uint8_t reset,uint8_t mute)
@@ -70,15 +69,13 @@ void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4p
   I2S_ModeConfig(LPC_I2S,I2S_ClkConfig,I2S_RX_MODE);
 }
 
-void InitializeGPDMA(uint32_t* DataOut,uint32_t OutWidth,uint32_t* DataIn,uint32_t InWidth,GPDMA_Channel_CFG_Type* GPDMA_Cfg)
+void InitializeGPDMA(volatile uint32_t* DataOut,uint32_t OutWidth,volatile uint32_t* DataIn,uint32_t InWidth,GPDMA_Channel_CFG_Type* GPDMA_Cfg)
 {
-
-  /*
-  GPDMA_Cfg->SrcAddr = (uint32_t)DataOut; //The address where the list of values are stored
-  GPDMA_Cfg->DstAddr = (uint32_t); //What memory address to send the data to
-  GPDMA_Cfg->NextLLI = (uint32_t)DMA_Struct; //Once the current list is finished, which DMA_Struct to output afterwards
-  GPDMA_Cfg->Control = NumSamples|(2<<18)|(2<<21)|(1<<26);//Bit pattern to send to the DMA controller to specify the size of the addresses + to increment the source ptr each time
-  */
+  /*GPDMA_LLI_Type GPDMA_LLI_Struct;
+  GPDMA_LLI_Struct.SrcAddr = (uint32_t)DataOut;
+  GPDMA_LLI_Struct.DstAddr = (uint32_t)&(LPC_I2S->I2SDMA1);
+  GPDMA_LLI_Struct.NextLLI = (uint32_t)&GPDMA_LLI_Struct;
+  GPDMA_LLI_Struct.Control = OutWidth|(2<<18)|(2<<21)|(1<<26);*/
   GPDMA_Init();
   LPC_GPDMA->DMACConfig = 0x01;
   NVIC_DisableIRQ (DMA_IRQn);
@@ -91,7 +88,7 @@ void InitializeGPDMA(uint32_t* DataOut,uint32_t OutWidth,uint32_t* DataIn,uint32
   GPDMA_Cfg->TransferType = GPDMA_TRANSFERTYPE_M2P;
   GPDMA_Cfg->SrcConn = 0;
   GPDMA_Cfg->DstConn = GPDMA_CONN_I2S_Channel_0;
-  GPDMA_Cfg->DMALLI = 0;
+  GPDMA_Cfg->DMALLI = 0;//(uint32_t)&GPDMA_LLI_Struct;
 
   GPDMA_Setup(GPDMA_Cfg);
 
