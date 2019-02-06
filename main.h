@@ -21,7 +21,8 @@
 #define BUFO_LENGTH 150
 #define BUFI_LENGTH 150
 #define PI 3.1415827
-
+#define I2S_SRC LPC_AHBRAM1_BASE
+#define I2S_DST (I2S_SRC + 0x1000UL)
 
 
 #include <math.h>
@@ -36,6 +37,7 @@
 #include "source/Delay.h"
 #include "source/TLV320.h"
 #include "source/i2s.h"
+#include "source/i2s_polling.h"
 /*
 #include "SD/sd.h"
 #include "ADC/dac.h"
@@ -61,9 +63,10 @@ void IRQInit();
 void PlayLoop();
 void PassThroughLoop();
 void RecordLoop();
+void I2S_PassThroughLoop();
 void temp();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:
