@@ -1,50 +1,41 @@
 #include <string.h>
-#include "rtc176x.h"
-#include "uart176x.h"
+#include "diskio.h"
 #include "ff.h"
 #include <serial.h>
 #include <stdio.h>
 
 
-
-int main(void)
+void main(void)
 {
     serial_init();
     write_usb_serial_blocking("///////", 7);
 
-    FATFS fs;
-    FRESULT res;
-    char path[256];
+    FATFS FatFs;    // Work area (filesystem object) for logical drive
+    DIR dir;        // Directory object
+    FRESULT fr;
 
+    f_mount(&FatFs, "/", 0);
 
-    res = f_mount(&fs, "/", 0);
-    strcpy(path, "/");
-
-    DIR dir;
-    UINT i;
-    static FILINFO fno;
-
-
-    res = f_opendir(&dir, path);                       /* Open the directory */
-    if (res == FR_OK) {
-        for (;;) {
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-                i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);               /* Enter the directory */
-                if (res != FR_OK) break;
-                path[i] = 0;
-            } else {                                
-               /* It is a file. */
-                char buff[256];
-                sprintf(buff,"%s/%s\n\r",path,fno.fname);
-                write_usb_serial_blocking(buff, 11);
-                //write_usb_serial_blocking("%s/%s\n", path, fno.fname);
-            }
+    fr = f_opendir(&dir, "/");
+    
+    int i;
+    FILINFO fi;
+    for (i=0; i < 10; i++){
+        fr = f_readdir(&dir, &fi);
+        if (fi.fattrib == AM_DIR){
+            write_usb_serial_blocking("FOLDER ", 7);
+            write_usb_serial_blocking(fi.fname, 13);
+        } else {
+            write_usb_serial_blocking("FILE ", 5);
+            char buff[14];
+            sprintf(buff, "/%s\n", fi.fname);
+            write_usb_serial_blocking(buff, 13);
+            write_usb_serial_blocking(",", 1);
+            write_usb_serial_blocking("1234", 4);
+            //write_usb_serial_blocking(fi.fsize, 13);
         }
-        f_closedir(&dir);
+        write_usb_serial_blocking("\r\n", 2);
     }
-
+    
     return 0;
 }
