@@ -57,7 +57,7 @@ void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uin
   I2S_Config_Struct->ws_sel = I2S_MASTER_MODE;
   I2S_Config_Struct->mute = mute;
   I2S_Config(LPC_I2S,I2S_TX_MODE,I2S_Config_Struct);
-  I2S_Config_Struct->ws_sel = I2S_SLAVE_MODE;
+  I2S_Config_Struct->ws_sel = I2S_MASTER_MODE;
   I2S_Config(LPC_I2S,I2S_RX_MODE,I2S_Config_Struct);
 }
 void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout)
@@ -72,11 +72,11 @@ void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4p
 
 void InitializeGPDMA(volatile uint32_t* DataOut,uint32_t OutWidth,volatile uint32_t* DataIn,uint32_t InWidth,GPDMA_Channel_CFG_Type* GPDMA_Cfg)
 {
-  GPDMA_LLI_Type GPDMA_LLI_Struct;
-  GPDMA_LLI_Struct.SrcAddr = (uint32_t)DataOut;
-  GPDMA_LLI_Struct.DstAddr = (uint32_t)&(LPC_I2S->I2SDMA1);
-  GPDMA_LLI_Struct.NextLLI = (uint32_t)&GPDMA_LLI_Struct;
-  GPDMA_LLI_Struct.Control = OutWidth|(2<<18)|(2<<21)|(1<<26);
+  // GPDMA_LLI_Type GPDMA_LLI_Struct;
+  // GPDMA_LLI_Struct.SrcAddr = (uint32_t)DataOut;
+  // GPDMA_LLI_Struct.DstAddr = (uint32_t)&(LPC_I2S->I2SDMA1);
+  // GPDMA_LLI_Struct.NextLLI = (uint32_t)&GPDMA_LLI_Struct;
+  // GPDMA_LLI_Struct.Control = OutWidth|(2<<18)|(2<<21)|(1<<26);
   GPDMA_Init();
   LPC_GPDMA->DMACConfig = 0x01;
   NVIC_DisableIRQ (DMA_IRQn);
@@ -89,7 +89,7 @@ void InitializeGPDMA(volatile uint32_t* DataOut,uint32_t OutWidth,volatile uint3
   GPDMA_Cfg->TransferType = GPDMA_TRANSFERTYPE_M2P;
   GPDMA_Cfg->SrcConn = 0;
   GPDMA_Cfg->DstConn = GPDMA_CONN_I2S_Channel_0;
-  GPDMA_Cfg->DMALLI = (uint32_t)&GPDMA_LLI_Struct;
+  GPDMA_Cfg->DMALLI = 0;//(uint32_t)&GPDMA_LLI_Struct;
 
   GPDMA_Setup(GPDMA_Cfg);
 

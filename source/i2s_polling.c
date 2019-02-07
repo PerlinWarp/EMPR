@@ -2,13 +2,19 @@
 
 /*void I2S_IRQHandler()
 {
-  uint32_t
+  uint32_t data;
   if(I2S_GetIRQStatus(LPC_I2S,I2S_RX_MODE))
   {
-    if(rx)
+    if(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>=I2S_GetIRQDepth(LPC_I2S,I2S_RX_MODE))
     {
-      data = I2S_Receive (LPC_I2S);
-
+      while(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>0)data = I2S_Receive (LPC_I2S);
+    }
+  }
+  else if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
+  {
+    if(tx)
+    {
+      I2S_Send(LPC_I2S,data);
     }
   }
 }*/
@@ -41,12 +47,15 @@ void I2S_Polling_Init(uint32_t freq)
 
 void I2S_Polling_Read( uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length)
 {
+  char  inputData[50];
   unsigned int counter=0;
   uint32_t Dummy;
-  while(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)!=0x00);
+  while(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)==0x00);
   Dummy = I2S_Receive(LPC_I2S);//Dummy receive as first value is often trash
+  // sprintf(inputData,"%d\n\r",Dummy);
+  // WriteText(inputData);
   while(counter<I2S_Pol_Length){
-    while(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)!=0x00);
+    while(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)==0x00);
     I2S_Pol_Buffer[counter] = I2S_Receive(LPC_I2S);
     ++counter;
   }

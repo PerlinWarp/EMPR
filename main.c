@@ -4,6 +4,7 @@ void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
   LPC_GPIOINT->IO0IntClr = (1<<10);
+  WriteText("boopidy doop\n\r");
   key = GetKeyInput();
   if(key != prevKey && key != ' ')
   {
@@ -125,16 +126,14 @@ void Menu()
 
 void PlayLoop()
 {
-  int i=0;
+  int i =0;
   BufferOut = (uint32_t*)malloc(sizeof(uint32_t*)*BUFO_LENGTH);
   BufferIn = (uint32_t*)malloc(sizeof(uint32_t*)*BUFI_LENGTH);
-  for(i=0;i<BUFO_LENGTH;i++){
-    //BufferOut[i] = (uint32_t)(sin(2*i*PI/BUFO_LENGTH)* 3 * 9680+(9680*3));
-    BufferOut[i] = i*80;
-  }
+  for(i=0;i<BUFO_LENGTH;i++)BufferOut[i] = (i%30)*60;
   Init_I2S(BufferOut,BUFO_LENGTH,BufferIn,BUFI_LENGTH);
   TLV320_EnableOutput();
   EnableOutput();
+  EnableInput();
   LCDClear();
   LCDPrint("Audio Mode\nPress Any Key");
   while(!buttonpress);//Loop until new input
@@ -149,22 +148,34 @@ void PlayLoop()
 }
 void I2S_PassThroughLoop()
 {
-  int i =0;
+  //int i =0;
   BufferOut = (uint32_t*)(I2S_SRC);
-  for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
+  //for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
   LCDClear();
   LCDPrint("I2S Passthrough\n......Mode......");
   TLV320_Start_I2S_Polling_Passthrough();
   I2S_Polling_Init(48000);
   while(!buttonpress)
   {
-    //I2S_Polling_Read(BufferOut,0x400);
-    I2S_Polling_Write(BufferOut,0x400);
+    I2S_Polling_Read(BufferOut,1);
+    I2S_Polling_Write(BufferOut,1);
   }
   I2S_DeInit(LPC_I2S);
-  free(BufferOut);
+  //free(BufferOut);
   buttonpress = 0;
 }
+
+/*void I2S_DmaPassThrough(){
+  Init_I2S(BufferOut,BUFO_LENGTH,BufferOut,BUFO_LENGTH);
+  TLV320_Start_I2S_Polling_Passthrough();
+  EnableOutput();
+  LCDClear();
+  LCDPrint("Audio Mode\nPress Any Key");
+  while(!buttonpress);//Loop until new input
+  free(BufferOut);
+  free(BufferIn);
+  buttonpress =0;
+}*/
 void PassThroughLoop()
 {
   LCDClear();
@@ -183,7 +194,6 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
-    TLVTest();
     Menu();
 
 

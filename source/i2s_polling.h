@@ -9,6 +9,7 @@
 #include "lpc17xx_i2s.h"
 #include "lpc17xx_libcfg_default.h"
 #include "i2s.h"
+#include "SerialIO.h"
 
 void I2S_Polling_Init(uint32_t Freq);
 void I2S_Polling_Read(uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length);
