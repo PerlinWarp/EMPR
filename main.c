@@ -7,7 +7,7 @@ void EINT3_IRQHandler(void)
   WriteText("boopidy doop\n\r");
   key = GetKeyInput();
   if(key != prevKey && key != ' ')
-  {
+  {\
     buttonpress  = 1;
     prevKey = key;
   }
