@@ -2,10 +2,8 @@
 #include "rtc176x.h"
 #include "uart176x.h"
 #include "ff.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <serial.h>
+#include <stdio.h>
 
 void main(void)
 {
@@ -17,7 +15,7 @@ void main(void)
     FRESULT fr;
 
     char buff[256];
-    fr = f_mount(&FatFs, NULL, 1);
+    fr = f_mount(&FatFs, "/", 0);
     sprintf(buff,"%i\n\r", fr);
     write_usb_serial_blocking(buff, 11);
     

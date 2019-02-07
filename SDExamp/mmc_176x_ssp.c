@@ -282,8 +282,13 @@ void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 	SSPxCR1 = 0x2;			/* Enable SSP with Master */
 	ATTACH_SSP();			/* Attach SSP module to I/O pads */
 	CS_HIGH();				/* Set CS# high */
+	//For some reason this works
+	int timer;
+	
+	for(timer = 100000; timer; timer--);
 
-	for (Timer1 = 10; Timer1; ) ;	/* 10ms */
+
+	//for (Timer1 = 10; Timer1 ) ;	/* 10ms */
 }
 
 
