@@ -5,12 +5,10 @@ void EINT3_IRQHandler(void)
   LPC_SC->EXTINT = 1<<3;
   LPC_GPIOINT->IO0IntClr = (1<<10);
   key = GetKeyInput();
-  WriteText("IRQ Polled");
   if(key != prevKey && key != ' ')
   {
     buttonpress  = 1;
     prevKey = key;
-    WriteText("button Pressed");
   }
   else if (key == ' ')
   {
@@ -64,14 +62,14 @@ void DrawMenu()
 }
 void Menu()
 {
-    SelMenuItem = 0;
+
+    SelMenuItem =  0;
     int optionSelected = 0,changed =1;
     DrawMenu();
     while(!optionSelected)
     {
         if(buttonpress == 1)
         {
-            WriteText("ButtonFound\n\r");
             switch(key)
             {
                 case BUTTON_UP:
@@ -128,10 +126,13 @@ void Menu()
 void PlayLoop()
 {
   int i=0;
+  BufferOut = (uint32_t*)malloc(sizeof(uint32_t*)*BUFO_LENGTH);
+  BufferIn = (uint32_t*)malloc(sizeof(uint32_t*)*BUFI_LENGTH);
   for(i=0;i<BUFO_LENGTH;i++){
-    BufferOut[i] = (uint32_t)(sin(2*i*PI/BUFO_LENGTH)* 3 * 9680+(9680*3));
+    //BufferOut[i] = (uint32_t)(sin(2*i*PI/BUFO_LENGTH)* 3 * 9680+(9680*3));
+    BufferOut[i] = i*80;
   }
-  Init_I2S(BufferOut,BUFO_LENGTH-1,BufferIn,2);
+  Init_I2S(BufferOut,BUFO_LENGTH,BufferIn,BUFI_LENGTH);
   TLV320_EnableOutput();
   EnableOutput();
   LCDClear();
@@ -142,6 +143,24 @@ void PlayLoop()
   WriteText(outp);
   DisableOutput();
   I2S_DeInit(LPC_I2S);
+  free(BufferOut);
+  free(BufferIn);
+  buttonpress = 0;
+}
+void I2S_PassThroughLoop()
+{
+  BufferOut = (uint32_t*)(I2S_SRC);
+  LCDClear();
+  LCDPrint("I2S Passthrough\n......Mode......");
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000);
+  while(!buttonpress)
+  {
+    I2S_Polling_Read(BufferOut,0x400);
+    I2S_Polling_Write(BufferOut,0x400);
+  }
+  I2S_DeInit(LPC_I2S);
+  free(BufferOut);
   buttonpress = 0;
 }
 void PassThroughLoop()
