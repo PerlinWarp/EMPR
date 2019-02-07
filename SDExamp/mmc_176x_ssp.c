@@ -51,7 +51,7 @@
 		__set_PINSEL(0, 7, 2);	/* SCK1 */\
 		__set_PINSEL(0, 8, 2);	/* MISO1 */\
 		__set_PINSEL(0, 9, 2);	/* MOSI1 */\
-		FIO0DIR |= _BV(6);		/* CS# (P0.6) */\
+		FIO0DIR |= _BV(11);		/* CS# (P0.6) */\
 		}
 #endif
 
@@ -284,7 +284,7 @@ void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 	CS_HIGH();				/* Set CS# high */
 	//For some reason this works
 	int timer;
-	
+
 	for(timer = 100000; timer; timer--);
 
 
