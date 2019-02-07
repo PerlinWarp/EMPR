@@ -1327,41 +1327,41 @@ END GROUP
  .debug_frame   0x00001c70       0xe4 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_clkpwr.o)
  .debug_frame   0x00001d54       0x2c /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_libcfg_default.o)
 
-.debug_str      0x00000000     0x19f3
+.debug_str      0x00000000     0x19f2
  *(.debug_str)
- .debug_str     0x00000000       0x3f crp.o
-                                 0x51 (size before relaxing)
- .debug_str     0x0000003f      0x675 ff.o
-                                0x713 (size before relaxing)
- .debug_str     0x000006b4        0xc ffunicode.o
-                                 0x7f (size before relaxing)
- .debug_str     0x000006c0       0x48 main.o
-                                0x304 (size before relaxing)
- .debug_str     0x00000708      0x11b mmc_176x_ssp.o
-                                0x239 (size before relaxing)
- .debug_str     0x00000823       0x54 rtc176x.o
-                                0x117 (size before relaxing)
- .debug_str     0x00000877      0x2f1 serial.o
-                                0x3ca (size before relaxing)
- .debug_str     0x00000b68       0x75 sound.o
-                                0x243 (size before relaxing)
- .debug_str     0x00000bdd       0x4c startup176x.o
-                                0x10c (size before relaxing)
- .debug_str     0x00000c29       0x58 uart176x.o
-                                0x129 (size before relaxing)
- .debug_str     0x00000c81       0x86 xprintf.o
-                                0x12d (size before relaxing)
- .debug_str     0x00000d07       0x42 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/core_cm3.o
+ .debug_str     0x00000000       0x3e crp.o
+                                 0x50 (size before relaxing)
+ .debug_str     0x0000003e      0x675 ff.o
+                                0x712 (size before relaxing)
+ .debug_str     0x000006b3        0xc ffunicode.o
+                                 0x7e (size before relaxing)
+ .debug_str     0x000006bf       0x48 main.o
+                                0x303 (size before relaxing)
+ .debug_str     0x00000707      0x11b mmc_176x_ssp.o
+                                0x238 (size before relaxing)
+ .debug_str     0x00000822       0x54 rtc176x.o
+                                0x116 (size before relaxing)
+ .debug_str     0x00000876      0x2f1 serial.o
+                                0x3c9 (size before relaxing)
+ .debug_str     0x00000b67       0x75 sound.o
+                                0x242 (size before relaxing)
+ .debug_str     0x00000bdc       0x4c startup176x.o
+                                0x10b (size before relaxing)
+ .debug_str     0x00000c28       0x58 uart176x.o
+                                0x128 (size before relaxing)
+ .debug_str     0x00000c80       0x86 xprintf.o
+                                0x12c (size before relaxing)
+ .debug_str     0x00000d06       0x42 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/core_cm3.o
                                  0xd2 (size before relaxing)
- .debug_str     0x00000d49      0x1d9 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
+ .debug_str     0x00000d48      0x1d9 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
                                 0x2d5 (size before relaxing)
- .debug_str     0x00000f22      0x235 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_pinsel.o)
+ .debug_str     0x00000f21      0x235 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_pinsel.o)
                                 0x359 (size before relaxing)
- .debug_str     0x00001157      0x7a8 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_uart.o)
+ .debug_str     0x00001156      0x7a8 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_uart.o)
                                 0xb32 (size before relaxing)
- .debug_str     0x000018ff       0xc4 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_clkpwr.o)
+ .debug_str     0x000018fe       0xc4 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_clkpwr.o)
                                 0x380 (size before relaxing)
- .debug_str     0x000019c3       0x30 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_libcfg_default.o)
+ .debug_str     0x000019c2       0x30 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_libcfg_default.o)
                                 0x107 (size before relaxing)
 
 .debug_loc      0x00000000     0x2346
