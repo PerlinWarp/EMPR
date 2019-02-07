@@ -1,5 +1,18 @@
 #include "i2s_polling.h"
 
+/*void I2S_IRQHandler()
+{
+  uint32_t
+  if(I2S_GetIRQStatus(LPC_I2S,I2S_RX_MODE))
+  {
+    if(rx)
+    {
+      data = I2S_Receive (LPC_I2S);
+
+    }
+  }
+}*/
+
 
 void I2S_Polling_Init(uint32_t freq)
 {
@@ -10,13 +23,23 @@ void I2S_Polling_Init(uint32_t freq)
   I2S_Init(LPC_I2S);
   ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_STEREO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
-  I2S_FreqConfig(LPC_I2S, freq, I2S_TX_MODE);//Set frequency for output
-  I2S_SetBitRate(LPC_I2S, 0, I2S_RX_MODE);//Set bit rate for input
-  I2S_Start(LPC_I2S);
 
+//  LPC_I2S->I2STXRATE = 0x00;
+  //LPC_I2S->I2STXBITRATE = 0x00;
+  I2S_FreqConfig(LPC_I2S, freq, I2S_TX_MODE);//Set frequency for output
+
+  /*I2S_SetBitRate(LPC_I2S, 0, I2S_RX_MODE);//Set bit rate for input
+
+  I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
+  I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
+
+  NVIC_EnableIRQ(I2S_IRQn);*/
+  I2S_Start(LPC_I2S);
 }
 
-void I2S_Polling_Read(volatile uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length)
+void I2S_Polling_Read( uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length)
 {
   unsigned int counter=0;
   uint32_t Dummy;
@@ -29,7 +52,7 @@ void I2S_Polling_Read(volatile uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length)
   }
 }
 
-void I2S_Polling_Write(volatile uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length)
+void I2S_Polling_Write( uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length)
 {
   unsigned int counter=0;
   while(counter<I2S_Pol_Length){

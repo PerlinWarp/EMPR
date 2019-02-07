@@ -149,14 +149,16 @@ void PlayLoop()
 }
 void I2S_PassThroughLoop()
 {
+  int i =0;
   BufferOut = (uint32_t*)(I2S_SRC);
+  for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
   LCDClear();
   LCDPrint("I2S Passthrough\n......Mode......");
   TLV320_Start_I2S_Polling_Passthrough();
   I2S_Polling_Init(48000);
   while(!buttonpress)
   {
-    I2S_Polling_Read(BufferOut,0x400);
+    //I2S_Polling_Read(BufferOut,0x400);
     I2S_Polling_Write(BufferOut,0x400);
   }
   I2S_DeInit(LPC_I2S);
@@ -181,6 +183,7 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
+    TLVTest();
     Menu();
 
 
