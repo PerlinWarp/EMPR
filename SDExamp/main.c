@@ -5,41 +5,46 @@
 #include <serial.h>
 #include <stdio.h>
 
-void main(void)
+
+
+int main(void)
 {
     serial_init();
     write_usb_serial_blocking("///////", 7);
 
-    FATFS FatFs;
-    DIR dir;        
-    FRESULT fr;
+    FATFS fs;
+    FRESULT res;
+    char path[256];
 
-    char buff[256];
-    fr = f_mount(&FatFs, "/", 0);
-    sprintf(buff,"%i\n\r", fr);
-    write_usb_serial_blocking(buff, 11);
-    
-    write_usb_serial_blocking("breakssssss", 11);
-    
-    strcpy(buff, "/");
-    fr = f_opendir(&dir, buff);
-    write_usb_serial_blocking("breaks here", 11);
-    int i;
-    FILINFO fi;
-    for (i=0; i < 10; i++){
-        fr = f_readdir(&dir, &fi);
-        if (fi.fattrib == AM_DIR){
-            write_usb_serial_blocking("FOLDER ", 7);
-            write_usb_serial_blocking(fi.fname, 13);
-        } else {
-            write_usb_serial_blocking("FILE ", 5);
-            write_usb_serial_blocking(fi.fname, 13);
-            write_usb_serial_blocking(",", 1);
-            write_usb_serial_blocking("1234", 4);
-            //write_usb_serial_blocking(fi.fsize, 13);
+
+    res = f_mount(&fs, "/", 0);
+    strcpy(path, "/");
+
+    DIR dir;
+    UINT i;
+    static FILINFO fno;
+
+
+    res = f_opendir(&dir, path);                       /* Open the directory */
+    if (res == FR_OK) {
+        for (;;) {
+            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+                i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);               /* Enter the directory */
+                if (res != FR_OK) break;
+                path[i] = 0;
+            } else {                                
+               /* It is a file. */
+                char buff[256];
+                sprintf(buff,"%s/%s\n\r",path,fno.fname);
+                write_usb_serial_blocking(buff, 11);
+                //write_usb_serial_blocking("%s/%s\n", path, fno.fname);
+            }
         }
-        write_usb_serial_blocking("\r\n", 2);
+        f_closedir(&dir);
     }
-    
+
     return 0;
 }
