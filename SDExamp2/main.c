@@ -1,72 +1,59 @@
 #include <string.h>
-#include "rtc176x.h"
-#include "uart176x.h"
-#include "xprintf.h"
-#include "ff.h"
 #include "diskio.h"
-#include "sound.h"
-#include <stdlib.h>
-#include <string.h>
+#include "ff.h"
+#include <serial.h>
 #include <stdio.h>
 
-// #include "lpc17xx_uart.h"
-#include "lpc17xx_pinsel.h"
-
-/* Read a text file and display it */
-
-FATFS FatFs;   /* Work area (filesystem object) for logical drive */
-
-void InitSerial(void)
+FRESULT scan_files (
+    char* path        /* Start node to be scanned (***also used as work area***) */
+)
 {
-    UART_CFG_Type UartConfiguration;
-    UART_FIFO_CFG_Type FifoConfiguration;
-    PINSEL_CFG_Type PinConfig;
+    FRESULT res;
+    DIR dir;
+    UINT i;
+    static FILINFO fno;
 
-    PinConfig.Funcnum = 1;
-    PinConfig.OpenDrain = 0;
-    PinConfig.Pinmode = 0;
-    PinConfig.Portnum = 0;
-    PinConfig.Pinnum = 2;
-    PINSEL_ConfigPin(&PinConfig);
-    PinConfig.Pinnum = 3;
-    PINSEL_ConfigPin(&PinConfig);
 
-    UART_ConfigStructInit(&UartConfiguration);
-    UART_FIFOConfigStructInit(&FifoConfiguration);
+    res = f_opendir(&dir, path);                       /* Open the directory */
+    if (res == FR_OK) {
+        for (;;) {
+            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+                i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);
+                res = scan_files(path);                    /* Enter the directory */
+                if (res != FR_OK) break;
+                path[i] = 0;
+            } else {
+                int n;
+                char buffer [250];                                      /* It is a file. */
+                n = sprintf(buffer,"%s/%s\n", path, fno.fname);
+                write_usb_serial_blocking(buffer, n);
+            }
+        }
+        f_closedir(&dir);
+    }
 
-    UART_Init((LPC_UART_TypeDef *)LPC_UART0, &UartConfiguration);
-    UART_FIFOConfig((LPC_UART_TypeDef *)LPC_UART0, &FifoConfiguration);
-    UART_TxCmd((LPC_UART_TypeDef *)LPC_UART0, ENABLE);
-}
-
-int WriteText(char* TexttoWrite)
-{
-    return(UART_Send((LPC_UART_TypeDef *)LPC_UART0,(uint8_t*)TexttoWrite,strlen(TexttoWrite)+1, BLOCKING));
+    return res;
 }
 
 
 int main (void)
 {
-    FIL fil;        /* File object */
-    char line[100]; /* Line buffer */
-    FRESULT fr;     /* FatFs return code */
-    InitSerial();
+    serial_init();
+    write_usb_serial_blocking("-", 1);
 
-    /* Register work area to the default drive */
-    f_mount(&FatFs, "", 0);
-
-    /* Open a text file */
-    fr = f_open(&fil, "message.txt", FA_READ);
-    if (fr) return (int)fr;
+    FATFS fs;
+    FRESULT res;
+    char buff[256];
 
 
-    /* Read every line and display it */
-    while (f_gets(line, sizeof line, &fil)) {
-     WriteText(line);
-    }
+    res = f_mount(&fs, "", 0);
 
-    /* Close the file */
-    f_close(&fil);
+    strcpy(buff, "/");
+    res = scan_files(buff);
+    
 
-    return 0;
+    return res;
 }
