@@ -66,6 +66,7 @@ void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4p
   I2S_ClkConfig->fpin = mode4pin;
   I2S_ClkConfig->mcena = mclkout;
   I2S_ModeConfig(LPC_I2S,I2S_ClkConfig,I2S_TX_MODE);
+  I2S_ClkConfig->fpin = I2S_4PIN_ENABLE;
   I2S_ModeConfig(LPC_I2S,I2S_ClkConfig,I2S_RX_MODE);
 }
 
