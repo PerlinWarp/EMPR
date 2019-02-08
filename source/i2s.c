@@ -80,7 +80,7 @@ void InitializeGPDMA(volatile uint32_t* DataOut,uint32_t OutWidth,volatile uint3
   GPDMA_Init();
   LPC_GPDMA->DMACConfig = 0x01;
   NVIC_DisableIRQ (DMA_IRQn);
-  NVIC_SetPriority(DMA_IRQn, ((0x01<<3)|0x01));
+  NVIC_SetPriority(DMA_IRQn, ((0x01<<5)|0x01));
   GPDMA_Cfg->ChannelNum = 0;
   GPDMA_Cfg->SrcMemAddr = (uint32_t)DataOut;
   GPDMA_Cfg->DstMemAddr = 0;

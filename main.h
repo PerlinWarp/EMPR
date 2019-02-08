@@ -49,7 +49,7 @@ volatile char prevKey,key;
 volatile char* Audio_buf;
  uint32_t* BufferOut;
  uint32_t* BufferIn;
-int SelMenuItem;
+int SelMenuItem,i2s_Interrupt_Mode =0;
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "A3.Save to SD  ", "A4.Browse SD   ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
@@ -64,9 +64,10 @@ void PlayLoop();
 void PassThroughLoop();
 void RecordLoop();
 void I2S_PassThroughLoop();
+void I2S_PassThroughInterrupt();
 void temp();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:

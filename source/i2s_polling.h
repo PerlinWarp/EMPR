@@ -11,10 +11,13 @@
 #include "i2s.h"
 #include "SerialIO.h"
 
-uint32_t* bufferInd;//Pointer to a value
-uint32_t** buffer;//Pointer to a list
+#define I2S_MODE_POLLING 0
+#define I2S_MODE_INTERRUPT 1
+#define BUFFER_SIZE 256
+uint32_t ReadInd,WriteInd;//Pointer to a value
+uint32_t* buffer;//Pointer to a list
 
-void I2S_Polling_Init(uint32_t Freq);
+void I2S_Polling_Init(uint32_t Freq, int i2smode);
 void I2S_Polling_Read(uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length);
 void I2S_Polling_Write(uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length);
 

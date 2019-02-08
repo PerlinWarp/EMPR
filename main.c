@@ -4,12 +4,12 @@ void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
   LPC_GPIOINT->IO0IntClr = (1<<10);
-  WriteText("boopidy doop\n\r");
   key = GetKeyInput();
   if(key != prevKey && key != ' ')
-  {\
+  {
     buttonpress  = 1;
     prevKey = key;
+    if(i2s_Interrupt_Mode)NVIC_DisableIRQ(I2S_IRQn);//Frightful fudge to fix a flooey
   }
   else if (key == ' ')
   {
@@ -28,6 +28,7 @@ void IRQInit()
   LPC_SC->EXTINT = 1<<3; //Clear Pending Interrupts
   key = ' ';
   buttonpress = 0;
+  NVIC_SetPriority(EINT3_IRQn, 0x01);
   NVIC_EnableIRQ(EINT3_IRQn);
   __enable_irq();
 }
@@ -154,12 +155,28 @@ void I2S_PassThroughLoop()
   LCDClear();
   LCDPrint("I2S Passthrough\n......Mode......");
   TLV320_Start_I2S_Polling_Passthrough();
-  I2S_Polling_Init(48000);
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
   while(!buttonpress)
   {
     I2S_Polling_Read(BufferOut,1);
     I2S_Polling_Write(BufferOut,1);
   }
+  I2S_DeInit(LPC_I2S);
+  //free(BufferOut);
+  buttonpress = 0;
+}
+void I2S_PassThroughInterrupt()
+{
+  BufferOut = (uint32_t*)(I2S_SRC);
+  buffer = BufferOut;
+  LCDClear();
+  LCDPrint("I2S Passthrough\n.Interrupt Mode.");
+  TLV320_Start_I2S_Polling_Passthrough();
+  i2s_Interrupt_Mode =1;
+  I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
+  while(!buttonpress);
+  i2s_Interrupt_Mode =0;
+  WriteText("Finis");
   I2S_DeInit(LPC_I2S);
   //free(BufferOut);
   buttonpress = 0;
