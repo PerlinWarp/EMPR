@@ -4,39 +4,6 @@
 #include <serial.h>
 #include <stdio.h>
 
-FRESULT scan_files (
-    char* path        /* Start node to be scanned (***also used as work area***) */
-)
-{
-    FRESULT res;
-    DIR dir;
-    UINT i;
-    static FILINFO fno;
-
-
-    res = f_opendir(&dir, path);                       /* Open the directory */
-    if (res == FR_OK) {
-        for (;;) {
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-                i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
-                res = scan_files(path);                    /* Enter the directory */
-                if (res != FR_OK) break;
-                path[i] = 0;
-            } else {
-                int n;
-                char buffer [250];                                      /* It is a file. */
-                n = sprintf(buffer,"%s/%s\n", path, fno.fname);
-                write_usb_serial_blocking(buffer, n);
-            }
-        }
-        f_closedir(&dir);
-    }
-
-    return res;
-}
 
 /* Read a text file and display it */
 
@@ -56,16 +23,16 @@ int main (void)
     f_mount(&FatFs, "", 0);
 
     /* Open a text file */
-    fr = f_open(&fil, "message.txt", FA_READ);
+    fr = f_open(&fil, "a.wav", FA_READ);
     if (fr) return (int)fr;
 
     /* Read every line and display it */
-    while (f_gets(line, sizeof line, &fil)) {
-         int n;
-        char buffer [250];                                      /* It is a file. */
-        n = sprintf(buffer,"%s\n", line);
-        write_usb_serial_blocking(buffer, n);
-    }
+    uint y;
+    int n;
+    char buffer [250]; 
+    f_read(&fil,buffer,250, &y);
+    //n = sprintf(buffer,"%s\n\r", line);
+    write_usb_serial_blocking(buffer, y);
 
     /* Close the file */
     f_close(&fil);
@@ -73,5 +40,5 @@ int main (void)
     //Unmount the file system
     f_mount(0, "", 0); 
     return 0;
-}
 
+}
