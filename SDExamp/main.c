@@ -23,7 +23,7 @@ int main (void)
     f_mount(&FatFs, "", 0);
 
     /* Open a text file */
-    fr = f_open(&fil, "message.txt", FA_READ);
+    fr = f_open(&fil, "a.wav", FA_READ);
     if (fr) return (int)fr;
 
     /* Read every line and display it */
