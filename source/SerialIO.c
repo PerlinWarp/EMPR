@@ -20,14 +20,12 @@ void UART0_IRQHandler(void)
 
 void ReceiveText(void)
 {
-	uint8_t tmp;
+	uint32_t fillLen = (UART_RING_BUFSIZE -(CHECK_BUFFER(rbuf.rx_tail)-rbuf.rx_head))%UART_RING_BUFSIZE; //Length of buffer possible with current buffer space left
 	uint32_t rLen; // head = front of buffer, where data is read. tail = end, where data is receieved.
-	while(rbuf.rx_head!=CHECK_BUFFER(rbuf.rx_tail))
+	if(rbuf.rx_head!=CHECK_BUFFER(rbuf.rx_tail))
 	{
-		rLen = UART_Receive((LPC_UART_TypeDef *)LPC_UART0, &tmp, 1, NONE_BLOCKING);
-		if(!rLen)break; //return if nothing left to Receive
-		rbuf.rx[rbuf.rx_tail] = tmp;
-		INC_BUFFER(rbuf.rx_tail);
+		rLen = UART_Receive((LPC_UART_TypeDef *)LPC_UART0, &rbuf.rx[rbuf.rx_tail],fillLen, NONE_BLOCKING);
+		rbuf.rx_tail %= rbuf.rx_tail + rLen;
 	}//if buffer is full, disable interrupts until a read takes place
 	if(rbuf.rx_head==CHECK_BUFFER(rbuf.rx_tail)){UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, DISABLE);}
 	else{UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, ENABLE);}
@@ -38,7 +36,7 @@ Input: the place to put the data, plus how much you want
 Output: How much data was actually filled due to buffer emptiness
 */
 uint32_t ReadText(char* data, uint32_t length)
-{
+{//could probably neaten this up with strcpy/ but will leave for now
 	uint32_t counter = 0;
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, ENABLE);
 	while((CHECK_BUFFER(rbuf.rx_head)!=rbuf.rx_tail)&&counter<length)
@@ -96,7 +94,7 @@ void ProcessBuffer()
 
 
 void TransmitText(void)
-{
+{//Lol this function's trash, but isn't used
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_THRE, DISABLE);
 	while (UART_CheckBusy((LPC_UART_TypeDef *)LPC_UART0) == SET);
 	while(rbuf.tx_tail!=CHECK_BUFFER(rbuf.tx_head))
