@@ -61,9 +61,9 @@ int main (void)
 
     /* Read every line and display it */
     while (f_gets(line, sizeof line, &fil)) {
-         int n;
+        int n;
         char buffer [250];                                      /* It is a file. */
-        n = sprintf(buffer,"%s\n", line);
+        n = sprintf(buffer,"%s\n\r", line);
         write_usb_serial_blocking(buffer, n);
     }
 
