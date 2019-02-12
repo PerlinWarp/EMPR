@@ -6,19 +6,15 @@ void I2S_IRQHandler()
   {
     if(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>=I2S_GetIRQDepth(LPC_I2S,I2S_RX_MODE))
     {
-      //while(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>0)
-      //{
          buffer[ReadInd] = I2S_Receive (LPC_I2S);
          ++ReadInd;
          ReadInd %= BUFFER_SIZE;
-      //}
     }
   }
   if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
   {
     if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
     {
-      //while(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)>0 && WriteInd != ReadInd)
       if(WriteInd != ReadInd)
       {
          I2S_Send(LPC_I2S,buffer[WriteInd]);
@@ -53,6 +49,7 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
     I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
     I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
     NVIC_SetPriority(I2S_IRQn, (1 << __NVIC_PRIO_BITS) -1);
+    /*Depending on sitch, fill out buffer here to avoid clicks*/
     NVIC_EnableIRQ(I2S_IRQn);
   }
   else {I2S_Start(LPC_I2S);}

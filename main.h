@@ -65,9 +65,10 @@ void PassThroughLoop();
 void RecordLoop();
 void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
+void UART_Mode();
 void temp();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:

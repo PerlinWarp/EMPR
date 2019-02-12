@@ -35,7 +35,8 @@ if __name__ == "__main__":
     #root.geometry("400x300")
     ser = serial.Serial('/dev/ttyACM0')
     print(ser.name)
-    ser.write('hello')
-    print(ser.read(10))
+    ser.write(b'hello')
+    while (True):
+        print(ser.read(50))
     #app = Window(ser,root)
     #root.mainloop()
