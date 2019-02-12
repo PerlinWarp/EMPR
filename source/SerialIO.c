@@ -50,11 +50,16 @@ void ProcessBuffer()
 			switch(rbuf.rx[(rbuf.rx_tail+4) & (UART_RING_BUFSIZE-4)])
 			{
 				case 'B':
-
+					// buttonpress = 1;
+					// key = 'B';
 					break;
 				case 'F':
+					// buttonpress = 1;
+					// key = '*';
 					break;
 				case 'P':
+					// buttonpress = 1;
+					// key = '#';
 					break;
 			}
 		}

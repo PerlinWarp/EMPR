@@ -3,7 +3,6 @@
 #include "ff.h"
 #include <serial.h>
 #include <stdio.h>
-#include "SerialIO.h"
 
 FRESULT scan_files (
     char* path        /* Start node to be scanned (***also used as work area***) */
@@ -42,8 +41,8 @@ FRESULT scan_files (
 
 int main (void)
 {
-    InitSerial()
-    WriteText("-");
+    serial_init();
+    write_usb_serial_blocking("-", 1);
 
     FATFS fs;
     FRESULT res;

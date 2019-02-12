@@ -1,7 +1,9 @@
 from tkinter import *
 import serial
 import os
-
+#NOTE: Errors will occur if serial module is installed as well as 
+# pyserial. Make sure to pip3 uninstall serial first before
+# pip3 install serial
 class Window(Frame):
     def __init__(self,ser,master=None):
         Frame.__init__(self,master)
@@ -29,8 +31,11 @@ class Window(Frame):
 #    ser.write(b'INPUT')
 
 if __name__ == "__main__":
-    root = Tk()
-    root.geometry("400x300")
+    #root = Tk()
+    #root.geometry("400x300")
     ser = serial.Serial('/dev/ttyACM0')
-    app = Window(ser,root)
-    root.mainloop()
+    print(ser.name)
+    ser.write('hello')
+    print(ser.read(10))
+    #app = Window(ser,root)
+    #root.mainloop()

@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-
+//#include "main.h"//send key data to main for control
 #define UART_RING_BUFSIZE 256
 
 __IO FlagStatus TxIntStat;
