@@ -249,6 +249,7 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
+    WriteText("Start");
     Menu();
 
 

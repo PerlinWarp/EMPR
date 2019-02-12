@@ -142,7 +142,7 @@ void InitSerial(void)
 
 int WriteText(char* TexttoWrite)
 {
-	return(UART_Send((LPC_UART_TypeDef *)LPC_UART0,(uint8_t*)TexttoWrite,strlen(TexttoWrite)+1, BLOCKING));
+	return(UART_Send((LPC_UART_TypeDef *)LPC_UART0,(uint8_t*)TexttoWrite,strlen(TexttoWrite), BLOCKING));
 }
 void InitSerInterrupts(void)
 {

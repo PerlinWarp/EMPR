@@ -35,7 +35,7 @@ if __name__ == "__main__":
     #root.geometry("400x300")
     ser = serial.Serial('/dev/ttyACM0')
     print(ser.name)
-    ser.write(b'weg4314134eg')
+    ser.write('weg4314134eg'.encode('ascii'))
     while (True):
         print(ser.read(1))
     #app = Window(ser,root)
