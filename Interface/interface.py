@@ -11,13 +11,6 @@ def fwd():
     ser.write(b'CMD:FWD.')
 def pause():
     ser.write(b'CMD:PAUS')
-
-    
-def redraw_Canvas();
-
-def on_Resize(self,event):
-    canvas.delete("all")
-    w,h = event.width, event.height
     
 
 def initFrames(root):
