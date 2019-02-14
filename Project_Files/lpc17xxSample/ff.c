@@ -209,7 +209,6 @@
 #define ABORT(fs, res)		{ fp->err = (BYTE)(res); LEAVE_FF(fs, res); }
 
 
-
 /* Re-entrancy related */
 #if FF_FS_REENTRANT
 #if FF_USE_LFN == 1
@@ -651,49 +650,6 @@ static void st_qword (BYTE* ptr, QWORD val)	/* Store an 8-byte word in little-en
 /* String functions                                                      */
 /*-----------------------------------------------------------------------*/
 
-
-int rtc_gettime (RTC *rtc)	/* 1:RTC valid, 0:RTC volatiled */
-{
-	uint32_t d, t;
-
-
-	do {
-		t = LPC_RTC->CTIME0;
-		d = LPC_RTC->CTIME1;
-	} while (t != LPC_RTC->CTIME0 || d != LPC_RTC->CTIME1);
-
-	if (LPC_RTC->RTC_AUX & _BV(4)) {	/* If power fail has been detected, return default time. */
-		rtc->sec = 0; rtc->min = 0; rtc->hour = 0;
-		rtc->wday = 0; rtc->mday = 1; rtc->month = 1; rtc->year = 2014;
-		return 0;
-	}
-
-	rtc->sec = t & 63;
-	rtc->min = (t >> 8) & 63;
-	rtc->hour = (t >> 16) & 31;
-	rtc->wday = (t >> 24) & 7;
-	rtc->mday = d & 31;
-	rtc->month = (d >> 8) & 15;
-	rtc->year = (d >> 16) & 4095;
-	return 1;
-}
-
-
-DWORD get_fattime (void)
-{
-	RTC rtc;
-
-	/* Get local time */
-	rtc_gettime(&rtc);
-
-	/* Pack date and time into a DWORD variable */
-	return	  ((DWORD)(rtc.year - 1980) << 25)
-			| ((DWORD)rtc.month << 21)
-			| ((DWORD)rtc.mday << 16)
-			| ((DWORD)rtc.hour << 11)
-			| ((DWORD)rtc.min << 5)
-			| ((DWORD)rtc.sec >> 1);
-}
 /* Copy memory to memory */
 static void mem_cpy (void* dst, const void* src, UINT cnt)
 {
@@ -6595,3 +6551,4 @@ FRESULT f_setcp (
 	return FR_OK;
 }
 #endif	/* FF_CODE_PAGE == 0 */
+
