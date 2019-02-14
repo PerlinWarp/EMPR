@@ -1,9 +1,8 @@
 #include <string.h>
 #include "diskio.h"
 #include "ff.h"
-#include <serial.h>
+#include <SerialIO.h>
 #include <stdio.h>
-#include "SerialIO.h"
 
 FRESULT scan_files (
     char* path        /* Start node to be scanned (***also used as work area***) */
@@ -30,7 +29,7 @@ FRESULT scan_files (
                 int n;
                 char buffer [250];                                      /* It is a file. */
                 n = sprintf(buffer,"%s/%s\n", path, fno.fname);
-                write_usb_serial_blocking(buffer, n);
+                WriteText(buffer);
             }
         }
         f_closedir(&dir);
@@ -39,22 +38,46 @@ FRESULT scan_files (
     return res;
 }
 
+/* Read a text file and display it */
+
+FATFS FatFs;   /* Work area (filesystem object) for logical drive */
 
 int main (void)
 {
-    InitSerial()
+    InitSerial();
     WriteText("-");
 
-    FATFS fs;
-    FRESULT res;
-    char buff[256];
+    FIL fil;        /* File object */
+    char line[100]; /* Line buffer */
+    FRESULT fr;     /* FatFs return code */
 
 
-    res = f_mount(&fs, "", 0);
+    /* Register work area to the default drive */
+    f_mount(&FatFs, "", 1);
+    WriteText("_\n\r");
+    /* Open a text file */
+    fr = f_open(&fil, "FILE.txt", FA_READ);
+    WriteText("Opened\n\r");
+    if (fr) {
+        char err[50];
+        sprintf(err, "Err No: %i", fr);
+        return (int)fr;
+    }
 
-    strcpy(buff, "/");
-    res = scan_files(buff);
-    
+    /* Read every line and display it */
+    while (f_gets(line, sizeof line, &fil)) {
+        WriteText("reading line\r\n");
+         int n;
+        char buffer [250];                                      /* It is a file. */
+        n = sprintf(buffer,"%s\r\n", line);
+        WriteText(buffer);
+    }
+    WriteText("done reading\r\n");
+    /* Close the file */
+    f_close(&fil);
 
-    return res;
+    //Unmount the file system
+    f_mount(0, "", 0); 
+    return 0;
 }
+
