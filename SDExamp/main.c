@@ -29,11 +29,13 @@ int main (void)
     /* Read every line and display it */
     uint y;
     int n;
-    char buffer [250]; 
-    f_read(&fil,buffer,250, &y);
-    //n = sprintf(buffer,"%s\n\r", line);
-    write_usb_serial_blocking(buffer, y);
-
+    char buffer [0x2000]; 
+    
+    while (!fr){
+        fr = f_read(&fil,buffer,0x2000, &y);
+        //n = sprintf(buffer,"%s\n\r", line);
+        write_usb_serial_blocking(buffer, y);
+    }
     /* Close the file */
     f_close(&fil);
 
