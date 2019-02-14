@@ -4,38 +4,36 @@ import os
 #NOTE: Errors will occur if serial module is installed as well as 
 # pyserial. Make sure to pip3 uninstall serial first before
 # pip3 install serial
-class Window(Frame):
-    def __init__(self,ser,master=None):
-        Frame.__init__(self,master)
-        self.master = master
-        self.init_window()
-        
-    def init_window(self):
-        self.master.title("Audio 'IPod' Interface")
-        self.pack(fill = BOTH,expand =1)
-        backButton = Button(self, text ="Back",command = self.back,relief = FLAT,pady = 20,padx = 20)
-        backButton.grid(row =0,column =0,pady = 10,padx = 25, sticky = S )
-        backImg = PhotoImage(file = os.getcwd() +"/resources/duck.gif")
-        backButton.pack()
-        self.pack(side = BOTTOM)
-       # backButton.config(image=backImg)
-    def back(self):
-        ser.write(b'CMD:BACK')
-    def fwd(self):
-        ser.write(b'CMD:FWD.')
-    def pause(self):
-        ser.write(b'CMD:PAUS')#All instructions are 7 long, and only the first letter is checked to make a total of 
+     
+def back():
+    ser.write(b'CMD:BACK')
+def fwd():
+    ser.write(b'CMD:FWD.')
+def pause():
+    ser.write(b'CMD:PAUS')
+    
 
-#use tkinter and pyserial
-#def getInstruction(ser):
-#    ser.write(b'INPUT')
+def initFrames(root):
+    frames = {}
+    frames[0] = Frame(root,borderwidth = 2,relief = 'flat',background='green')
+    frames[0].grid(row =0,column = 0,sticky = N+S+E+W)
+
+    frames[1] = Frame(root, borderwidth = 2,relief = 'groove',background='orange')
+    frames[1].grid(row=1,column =0,columnspan = 2)
+
+    canvas = Canvas(frames[0],width = 200,height = 100,highlightthickness=0)
+    canvas.bind("<Configure>",on_Resize)
+    canvas.pack(fill = BOTH, expand = 1)
+    backButton = Button(frames[1], text ="Back",command = back,relief = FLAT,pady = 20,padx = 20)
+    backButton.grid(row = 0,column = 0)
+    fwdButton = Button(frames[1], text ="Frwd",command = fwd,relief = FLAT,pady = 20,padx = 20)
+    fwdButton.grid(row = 0,column = 1)
+    return frames
 
 if __name__ == "__main__":
-    #root = Tk()
-    #root.geometry("400x300")
+    root = Tk()
+    root.geometry("400x300")
     ser = serial.Serial('/dev/ttyACM0')
-    print(ser.name)
-    ser.write('hello')
-    print(ser.read(10))
-    #app = Window(ser,root)
-    #root.mainloop()
+    ser.write(b'PCINT')
+    root.title("Audio 'IPod' Interface")
+    frames = initFrames(root)

@@ -24,6 +24,7 @@
 #define I2S_SRC LPC_AHBRAM1_BASE
 #define I2S_DST (I2S_SRC + 0x1000UL)
 
+#define EGG_ON_TOAST(bufd) (bufd+10)
 
 #include <math.h>
 #include <stdlib.h>
@@ -65,9 +66,11 @@ void PassThroughLoop();
 void RecordLoop();
 void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
+void UART_Mode();
+void MASSIVE_TEST();
 void temp();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:

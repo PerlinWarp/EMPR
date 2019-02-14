@@ -106,7 +106,6 @@ void Menu()
                 default:
                   {
                     buttonpress = 0;
-                    //Audio_buf = (char*)malloc(sizeof(char)*BUF_LENGTH);
                     menuFuncs[(int)(key - '0')]();
                   }
             }
@@ -181,7 +180,17 @@ void I2S_PassThroughInterrupt()
   //free(BufferOut);
   buttonpress = 0;
 }
-
+void MASSIVE_TEST()
+{
+  LCDClear();
+  LCDGoHome();
+  char outidy[33];
+  int big = 4;
+  sprintf(outidy,"%s\n%d%d","woahtherehorsey",EGG_ON_TOAST(big),big);
+  LCDPrint(outidy);
+  while(!buttonpress);
+  buttonpress =0;
+}
 /*void I2S_DmaPassThrough(){
   Init_I2S(BufferOut,BUFO_LENGTH,BufferOut,BUFO_LENGTH);
   TLV320_Start_I2S_Polling_Passthrough();
@@ -202,6 +211,35 @@ void PassThroughLoop()
   TLV320_DisablePassThrough();
   buttonpress = 0;
 }
+void UART_Mode()
+{//Note: pyserial likely sends utf 16, which is being split into h0e0l0l0o0
+  //Here, the audio is set to bypass, and the LCD is configured to display any input from UART
+  TLV320_EnablePassThrough();
+  InitSerInterrupts();
+  LCDGoHome();
+  LCDPrint("...UART..MODE...\n________________");
+  char data[17],oldData[17];
+  oldData[17] = '\0';
+  while(!buttonpress)
+  {
+    if(CHECK_BUFFER(rbuf.rx_head)!=rbuf.rx_tail)
+    {
+      /*LCDGoHome();
+      LCDNewLine();*/
+      uint32_t len = ReadText(data, 16);
+      data[len] = '\0';
+      WriteText(data);
+      /*if(strcmp(data,oldData))//If old and new values differ
+      {
+        WriteText(data);
+        strcpy(oldData,data);
+      }*/
+    }
+  }
+  TLV320_DisablePassThrough();
+  buttonpress =0;
+
+}
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
@@ -211,6 +249,7 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
+    WriteText("Start");
     Menu();
 
 

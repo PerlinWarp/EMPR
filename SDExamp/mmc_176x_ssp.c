@@ -284,7 +284,6 @@ void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 	CS_HIGH();				/* Set CS# high */
 	//For some reason this works
 	int timer;
-
 	for(timer = 100000; timer; timer--);
 
 
