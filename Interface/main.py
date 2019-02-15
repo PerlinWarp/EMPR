@@ -6,20 +6,21 @@ import os
 
 class Window(Frame):
     def __init__(self,master = None):
-        Frame.__init__(self,master)
+        Frame.__init__(self,master,borderwidth = 2,relief = 'groove',background = 'orange')
         self.root = master
+        self.width = self.root.winfo_width()
+        self.height = self.root.winfo_height()
         self.ser = serial.Serial('/dev/ttyACM0')
         self.ser.write(b'PCINT')
         self.init_Frames()
 
-    def redraw_Canvas(self,scale):
-        print("no")
+    def redraw_Canvas(self):
+        self.canvas.create_rectangle(50,80,23,30,fill = "blue")
 
     def on_Resize(self,event):
         canvas.delete("all")
-        w,h = event.width, event.height
-        xy = 0,0,w-1,h-1
-        self.redraw_Canvas(xy)
+        self.width,self.height = event.width, event.height
+        self.redraw_Canvas()
 
     def back(self):
         self.ser.write(b'CMD:BACK')
@@ -29,24 +30,27 @@ class Window(Frame):
         self.ser.write(b'CMD:PAUS')
 
     def init_Frames(self):
-        self.frames = {}
+        self.grid(row =0,column =0,sticky = N+S+E+W)
 
-        self.frames[0] = Frame(self, borderwidth = 2,relief = 'groove',background='orange')
-        self.frames[0].grid(row=1,column =0,columnspan = 2)
-
-        self.canvas = Canvas(self,width = self.root.winfo_width(),height = self.root.winfo_height() - 40,highlightthickness=0)
+        self.canvas = Canvas(self,width = 400,height = 280,highlightthickness=0)
         self.canvas.bind("<Configure>",self.on_Resize)
-        #self.canvas.pack(fill = BOTH, expand = 1)
-        self.redraw_Canvas(self.root.winfo_width(),self.root.winfo_height())
+        self.canvas.grid(row = 0,column = 0, sticky = N+W+E)
+        self.redraw_Canvas()
 
-        self.backButton = Button(self.frames[0], text ="Back",command = self.back,relief = FLAT,pady = 20,padx = 20)
+        self.buttonFrame = Frame(self,borderwidth = 2, relief = 'groove',background = 'white')
+        self.buttonFrame.grid(row = 1,column = 0,sticky = S)
+
+        self.backButton = Button(self.buttonFrame, text ="Back",command = self.back,relief = FLAT,pady = 20,padx = 20)
         self.backButton.grid(row = 0,column = 0)
 
-        self.pauseButton = Button(self.frames[0], text ="Paus",command = self.pause,relief = FLAT,pady = 20,padx = 20)
+        self.pauseButton = Button(self.buttonFrame, text ="Paus",command = self.pause,relief = FLAT,pady = 20,padx = 20)
         self.pauseButton.grid(row = 0,column = 1)
 
-        self.fwdButton = Button(self.frames[0], text ="Frwd",command = self.fwd,relief = FLAT,pady = 20,padx = 20)
+        self.fwdButton = Button(self.buttonFrame, text ="Frwd",command = self.fwd,relief = FLAT,pady = 20,padx = 20)
         self.fwdButton.grid(row = 0,column = 2)
+
+        self.rowconfigure(0,weight = 1)
+        self.columnconfigure(0,weight =1)
 
 
 
