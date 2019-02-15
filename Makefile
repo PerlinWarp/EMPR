@@ -49,7 +49,7 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/main
 
 # Source files provided by the user to build the project
-ffcFiles = $(patsubst %.c,%.o,$(wildcard Project_Files/ff13c/source/*.c))
+ffcFiles = $(patsubst %.c,%.o,$(wildcard source/FatFS/*.c))
 sourceFiles := $(patsubst %.c,%.o,$(wildcard source/*.c))
 
 OBJ = main.o $(sourceFiles) $(ffcFiles)

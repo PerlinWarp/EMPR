@@ -40,15 +40,9 @@
 #include "source/TLV320.h"
 #include "source/i2s.h"
 #include "source/i2s_polling.h"
-/*
-#include "SD/sd.h"
-#include "ADC/dac.h"
-#include "Project_Files/spi.h"
-#include "Project_Files/i2s.h"
-*/
 
-#include "Project_Files/ff13c/source/diskio.h"
-#include "Project_Files/ff13c/source/ff.h"
+#include "source/FatFS/diskio.h"
+#include "source/FatFS/ff.h"
 
 volatile int buttonpress;
 volatile char prevKey,key;
@@ -77,20 +71,21 @@ void MASSIVE_TEST();
 void temp();
 void FatRead();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:
     View File List + Display, Navigate
     View Information about the file e.g. size
 PC ACCESS:
-    Communicate to PC
+    Communicate to PC - [DOING]
+    Improve look of pc interface
     Data Visualizer
     External File Manager
 PLAYBACK:
-    Everything
+    Done!
 FILE SYSTEM:
-    Everything
+    Combine with actual project
 */
 
 #endif

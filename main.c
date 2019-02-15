@@ -244,23 +244,22 @@ void UART_Mode()
 
 void FatRead()
 {
+    LCDGoHome();
+    LCDPrint("FatFS Test      \nMode            ");
     WriteText("-");
 
     FIL fil;        /* File object */
-    char line[100]; /* Line buffer */
     FRESULT fr;     /* FatFs return code */
 
-
+    WriteText("Where does it crash?\n\r");
     /* Register work area to the default drive */
     f_mount(&FatFs, "", 0);
-
     /* Open a text file */
     fr = f_open(&fil, "a.wav", FA_READ);
-    if (fr) return (int)fr;
-
+    WriteText("2?\n\r");
+    if (fr) return;// (int)fr;
     /* Read every line and display it */
     uint y;
-    int n;
     char buffer [250];
     f_read(&fil,buffer,250, &y);
     //n = sprintf(buffer,"%s\n\r", line);
@@ -271,7 +270,6 @@ void FatRead()
 
     //Unmount the file system
     f_mount(0, "", 0);
-    return 0;
 
 }
 int main()
