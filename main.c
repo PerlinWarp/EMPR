@@ -28,7 +28,7 @@ void IRQInit()
   LPC_SC->EXTINT = 1<<3; //Clear Pending Interrupts
   key = ' ';
   buttonpress = 0;
-  NVIC_SetPriority(EINT3_IRQn, 0x01);
+  NVIC_SetPriority(EINT3_IRQn, 0x00);
   NVIC_EnableIRQ(EINT3_IRQn);
   __enable_irq();
 }
@@ -244,32 +244,32 @@ void UART_Mode()
 
 void FatRead()
 {
-    LCDGoHome();
-    LCDPrint("FatFS Test      \nMode            ");
-    WriteText("-");
-
-    FIL fil;        /* File object */
-    FRESULT fr;     /* FatFs return code */
-
-    WriteText("Where does it crash?\n\r");
-    /* Register work area to the default drive */
-    f_mount(&FatFs, "", 0);
-    /* Open a text file */
-    fr = f_open(&fil, "a.wav", FA_READ);
-    WriteText("2?\n\r");
-    if (fr) return;// (int)fr;
-    /* Read every line and display it */
-    uint y;
-    char buffer [250];
-    f_read(&fil,buffer,250, &y);
-    //n = sprintf(buffer,"%s\n\r", line);
-    WriteText(buffer);
-
-    /* Close the file */
-    f_close(&fil);
-
-    //Unmount the file system
-    f_mount(0, "", 0);
+    // LCDGoHome();
+    // LCDPrint("FatFS Test      \nMode            ");
+    // WriteText("-");
+    //
+    // FIL fil;        /* File object */
+    // FRESULT fr;     /* FatFs return code */
+    //
+    // WriteText("Where does it crash?\n\r");
+    // /* Register work area to the default drive */
+    // f_mount(&FatFs, "", 0);
+    // /* Open a text file */
+    // fr = f_open(&fil, "a.wav", FA_READ);
+    // WriteText("2?\n\r");
+    // if (fr) return;// (int)fr;
+    // /* Read every line and display it */
+    // uint y;
+    // char buffer [250];
+    // f_read(&fil,buffer,250, &y);
+    // //n = sprintf(buffer,"%s\n\r", line);
+    // WriteText(buffer);
+    //
+    // /* Close the file */
+    // f_close(&fil);
+    //
+    // //Unmount the file system
+    // f_mount(0, "", 0);
 
 }
 int main()

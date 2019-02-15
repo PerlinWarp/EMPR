@@ -6,20 +6,21 @@ void I2S_IRQHandler()
   {
     if(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>=I2S_GetIRQDepth(LPC_I2S,I2S_RX_MODE))
     {
+      if(WriteInd != CHECK_BUFFER(ReadInd))
+      {
          buffer[ReadInd] = I2S_Receive (LPC_I2S);
-         ++ReadInd;
-         ReadInd %= BUFFER_SIZE;
+         INC_BUFFER(ReadInd);
+      }
     }
   }
   if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
   {
     if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
     {
-      if(WriteInd != ReadInd)
+      if(CHECK_BUFFER(WriteInd) != ReadInd)
       {
          I2S_Send(LPC_I2S,buffer[WriteInd]);
-         ++WriteInd;
-         WriteInd %= BUFFER_SIZE;
+         INC_BUFFER(WriteInd);
       }
     }
   }
@@ -39,7 +40,7 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
   I2S_FreqConfig(LPC_I2S, freq, I2S_TX_MODE);//Set frequency for output
   I2S_FreqConfig(LPC_I2S, freq, I2S_RX_MODE);
   if(i2smode){
-    ReadInd = WriteInd =  0;
+    WriteInd = ReadInd =0;
     LPC_I2S->I2STXRATE = 0x00;
     LPC_I2S->I2STXBITRATE = 0x00;
     I2S_SetBitRate(LPC_I2S,0,I2S_TX_MODE);
@@ -48,8 +49,13 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
     I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
     I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
     I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
-    NVIC_SetPriority(I2S_IRQn, (1 << __NVIC_PRIO_BITS) -1);
-    /*Depending on sitch, fill out buffer here to avoid clicks*/
+    NVIC_SetPriority(I2S_IRQn, 0x00);
+    /*fill out buffer here to avoid clicks*/
+    while(WriteInd != CHECK_BUFFER(ReadInd))
+    {
+         buffer[ReadInd] = I2S_Receive (LPC_I2S);
+         INC_BUFFER(ReadInd);
+    }
     NVIC_EnableIRQ(I2S_IRQn);
   }
   else {I2S_Start(LPC_I2S);}

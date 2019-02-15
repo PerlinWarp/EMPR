@@ -22,7 +22,7 @@
 #define	__set_PCLKSEL(p,v)	PCLKSEL[(p) / 16] = (PCLKSEL[(p) / 16] & ~(3 << ((p) * 2 % 32))) | (v << ((p) * 2 % 32))
 #define __set_PINSEL(p,b,v)		PINSEL[(p) * 2 + (b) / 16] = (PINSEL[(p) * 2 + (b) / 16] & ~(3 << ((b) * 2 % 32))) | (v << ((b) * 2 % 32))
 
-#define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
+#define SSP_CH	0	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define	CCLK		100000000UL	/* cclk frequency [Hz] */
 #define PCLK_SSP	50000000UL	/* PCLK frequency to be supplied for SSP [Hz] */
