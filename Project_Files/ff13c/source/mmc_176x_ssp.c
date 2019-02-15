@@ -12,7 +12,7 @@
 /-------------------------------------------------------------------------*/
 #include "LPC17xx.h"
 #include "diskio.h"
-#define	_BV(bit) (1<<(bit))
+
 
 #define	PCLKSEL		( (volatile uint32_t*)0x400FC1A8)
 #define	PINSEL		( (volatile uint32_t*)0x4002C000)

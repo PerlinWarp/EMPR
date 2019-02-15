@@ -28,6 +28,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "LPC17xx.h"
 
@@ -45,6 +46,10 @@
 #include "Project_Files/spi.h"
 #include "Project_Files/i2s.h"
 */
+
+#include "Project_Files/ff13c/source/diskio.h"
+#include "Project_Files/ff13c/source/ff.h"
+
 volatile int buttonpress;
 volatile char prevKey,key;
 volatile char* Audio_buf;
@@ -54,6 +59,7 @@ int SelMenuItem,i2s_Interrupt_Mode =0;
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "A3.Save to SD  ", "A4.Browse SD   ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
+FATFS FatFs;
 
 void Menu();
 void DrawMenu();
@@ -69,6 +75,7 @@ void I2S_PassThroughInterrupt();
 void UART_Mode();
 void MASSIVE_TEST();
 void temp();
+void FatRead();
 
 void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&PassThroughLoop,&PassThroughLoop,&PassThroughLoop,&temp};
 /*

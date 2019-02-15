@@ -240,6 +240,40 @@ void UART_Mode()
   buttonpress =0;
 
 }
+
+
+void FatRead()
+{
+    WriteText("-");
+
+    FIL fil;        /* File object */
+    char line[100]; /* Line buffer */
+    FRESULT fr;     /* FatFs return code */
+
+
+    /* Register work area to the default drive */
+    f_mount(&FatFs, "", 0);
+
+    /* Open a text file */
+    fr = f_open(&fil, "a.wav", FA_READ);
+    if (fr) return (int)fr;
+
+    /* Read every line and display it */
+    uint y;
+    int n;
+    char buffer [250];
+    f_read(&fil,buffer,250, &y);
+    //n = sprintf(buffer,"%s\n\r", line);
+    WriteText(buffer);
+
+    /* Close the file */
+    f_close(&fil);
+
+    //Unmount the file system
+    f_mount(0, "", 0);
+    return 0;
+
+}
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
