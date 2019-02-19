@@ -10,70 +10,101 @@
 / * Redistributions of source code must retain the above copyright notice.
 /
 /-------------------------------------------------------------------------*/
-#include "LPC17xx.h"
-#include "diskio.h"
-
 
 #define	PCLKSEL		( (volatile uint32_t*)0x400FC1A8)
 #define	PINSEL		( (volatile uint32_t*)0x4002C000)
 #define	PCONP			(*(volatile uint32_t*)0x400FC0C4)
-
+#define	_BV(bit) (1<<(bit))
 #define	__set_PCONP(p,v)	PCONP = (PCONP & ~(1 << (p))) | (1 << (p))
 #define	__set_PCLKSEL(p,v)	PCLKSEL[(p) / 16] = (PCLKSEL[(p) / 16] & ~(3 << ((p) * 2 % 32))) | (v << ((p) * 2 % 32))
 #define __set_PINSEL(p,b,v)		PINSEL[(p) * 2 + (b) / 16] = (PINSEL[(p) * 2 + (b) / 16] & ~(3 << ((b) * 2 % 32))) | (v << ((b) * 2 % 32))
 
-#define SSP_CH	0	/* SSP channel to use (0:SSP0, 1:SSP1) */
+#define	SSP0CR0		(*(volatile uint32_t*)0x40088000)
+#define	SSP0CR1		(*(volatile uint32_t*)0x40088004)
+#define	SSP0DR		(*(volatile uint32_t*)0x40088008)
+#define	SSP0SR		(*(volatile uint32_t*)0x4008800C)
+#define	SSP0CPSR	(*(volatile uint32_t*)0x40088010)
+#define	SSP0IMSC	(*(volatile uint32_t*)0x40088014)
+#define	SSP0RIS		(*(volatile uint32_t*)0x40088018)
+#define	SSP0MIS		(*(volatile uint32_t*)0x4008801C)
+#define	SSP0ICR		(*(volatile uint32_t*)0x40088020)
+#define	SSP0DMACR	(*(volatile uint32_t*)0x40088024)
+#define	SSP1CR0		(*(volatile uint32_t*)0x40030000)
+#define	SSP1CR1		(*(volatile uint32_t*)0x40030004)
+#define	SSP1DR		(*(volatile uint32_t*)0x40030008)
+#define	SSP1SR		(*(volatile uint32_t*)0x4003000C)
+#define	SSP1CPSR	(*(volatile uint32_t*)0x40030010)
+#define	SSP1IMSC	(*(volatile uint32_t*)0x40030014)
+#define	SSP1RIS		(*(volatile uint32_t*)0x40030018)
+#define	SSP1MIS		(*(volatile uint32_t*)0x4003001C)
+#define	SSP1ICR		(*(volatile uint32_t*)0x40030020)
+#define	SSP1DMACR	(*(volatile uint32_t*)0x40030024)
+#define	FIO0CLR0	(*(volatile uint8_t*)0x2009C01C)
+#define	FIO0CLR2	(*(volatile uint8_t*)0x2009C01E)
+#define	FIO0SET0	(*(volatile uint8_t*)0x2009C018)
+#define	FIO0SET2	(*(volatile uint8_t*)0x2009C01A)
+#define	FIO0DIR		(*(volatile uint32_t*)0x2009C000)
+#define	FIO2PIN1	(*(volatile uint8_t*)0x2009C055)
+#define PCLKDIV_4	0
+#define PCLKDIV_1	1
+#define PCLKDIV_2	2
+#define PCLKDIV_8	3
+#define	PCLK_SSP1	10
+#define	PCLK_SSP0	21
+#define	PCSSP1	10
+
+#define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define	CCLK		100000000UL	/* cclk frequency [Hz] */
 #define PCLK_SSP	50000000UL	/* PCLK frequency to be supplied for SSP [Hz] */
 #define SCLK_FAST	25000000UL	/* SCLK frequency under normal operation [Hz] */
 #define	SCLK_SLOW	400000UL	/* SCLK frequency under initialization [Hz] */
 
-#define	MMC_CD		(!(LPC_GPIO2->FIOPIN2 & _BV(1)))	/* Card detect (yes:true, no:false, default:true) */
+#define	MMC_CD		(!(FIO2PIN1 & _BV(1)))	/* Card detect (yes:true, no:false, default:true) */
 #define	MMC_WP		0						/* Write protected (yes:true, no:false, default:false) */
 
 #if SSP_CH == 0
-#define	SSPxDR		LPC_SSP0->DR
-#define	SSPxSR		LPC_SSP0->SR
-#define	SSPxCR0		LPC_SSP0->CR0
-#define	SSPxCR1		LPC_SSP0->CR1
-#define	SSPxCPSR	LPC_SSP0->CPSR
-#define	CS_LOW()	{LPC_GPIO0->FIOCLR2 = _BV(0);}	/* Set P0.16 low *///Major changes here
-#define	CS_HIGH()	{LPC_GPIO0->FIOSET2 = _BV(0);}	/* Set P0.16 high *///Major changes here
-#define PCSSPx		21
-#define	PCLKSSPx	21
+#define	SSPxDR		SSP0DR
+#define	SSPxSR		SSP0SR
+#define	SSPxCR0		SSP0CR0
+#define	SSPxCR1		SSP0CR1
+#define	SSPxCPSR	SSP0CPSR
+#define	CS_LOW()	{FIO0CLR2 = _BV(0);}	/* Set P0.16 low */
+#define	CS_HIGH()	{FIO0SET2 = _BV(0);}	/* Set P0.16 high */
+#define PCSSPx		PCSSP0
+#define	PCLKSSPx	PCLK_SSP0
 #define ATTACH_SSP() {\
 		__set_PINSEL(0, 15, 2);	/* SCK0 */\
 		__set_PINSEL(0, 17, 2);	/* MISO0 */\
 		__set_PINSEL(0, 18, 2);	/* MOSI0 */\
-		LPC_GPIO0->FIODIR2 |= _BV(0);		/* CS# (P0.16) */\
+		FIO0DIR |= _BV(21);		/* CS# (P0.16) */\
 		}
 #elif SSP_CH == 1
-#define	SSPxDR		LPC_SSP1->DR
-#define	SSPxSR		LPC_SSP1->SR
-#define	SSPxCR0		LPC_SSP1->CR0
-#define	SSPxCR1		LPC_SSP1->CR1
-#define	SSPxCPSR	LPC_SSP1->CPSR
-#define	CS_LOW()	{LPC_GPIO0->FIOCLR0 = _BV(6);}	/* Set P0.6 low */ //Major changes here
-#define	CS_HIGH()	{LPC_GPIO0->FIOSET0 = _BV(6);}	/* Set P0.6 high *///Major changes here
-#define PCSSPx		10
-#define	PCLKSSPx	10
+#define	SSPxDR		SSP1DR
+#define	SSPxSR		SSP1SR
+#define	SSPxCR0		SSP1CR0
+#define	SSPxCR1		SSP1CR1
+#define	SSPxCPSR	SSP1CPSR
+#define	CS_LOW()	{FIO0CLR0 = _BV(6);}	/* Set P0.6 low */
+#define	CS_HIGH()	{FIO0SET0 = _BV(6);}	/* Set P0.6 high */
+#define PCSSPx		PCSSP1
+#define	PCLKSSPx	PCLK_SSP1
 #define ATTACH_SSP() {\
 		__set_PINSEL(0, 7, 2);	/* SCK1 */\
 		__set_PINSEL(0, 8, 2);	/* MISO1 */\
 		__set_PINSEL(0, 9, 2);	/* MOSI1 */\
-		LPC_GPIO0->FIODIR0 |= _BV(6);		/* CS# (P0.6) */\
+		FIO0DIR |= _BV(11);		/* CS# (P0.6) */\
 		}
 #endif
 
 #if PCLK_SSP * 1 == CCLK
-#define PCLKDIV_SSP	1
+#define PCLKDIV_SSP	PCLKDIV_1
 #elif PCLK_SSP * 2 == CCLK
-#define PCLKDIV_SSP	2
+#define PCLKDIV_SSP	PCLKDIV_2
 #elif PCLK_SSP * 4 == CCLK
-#define PCLKDIV_SSP	0
+#define PCLKDIV_SSP	PCLKDIV_4
 #elif PCLK_SSP * 8 == CCLK
-#define PCLKDIV_SSP	3
+#define PCLKDIV_SSP	PCLKDIV_8
 #else
 #error Invalid CCLK:PCLK_SSP combination.
 #endif
@@ -89,11 +120,8 @@
    Module Private Functions
 
 ---------------------------------------------------------------------------*/
-
-
-//#include "LPC176x.h"
-
-
+#include "diskio.h"
+#include <stdint.h>
 
 /* MMC/SD command */
 #define CMD0	(0)			/* GO_IDLE_STATE */
@@ -294,8 +322,12 @@ void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 	SSPxCR1 = 0x2;			/* Enable SSP with Master */
 	ATTACH_SSP();			/* Attach SSP module to I/O pads */
 	CS_HIGH();				/* Set CS# high */
+	//For some reason this works
+	int timer;
+	for(timer = 100000; timer; timer--);
 
-	for (Timer1 = 10; Timer1; ) ;	/* 10ms */
+
+	//for (Timer1 = 10; Timer1 ) ;	/* 10ms */
 }
 
 

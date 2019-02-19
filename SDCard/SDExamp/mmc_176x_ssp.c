@@ -11,6 +11,48 @@
 /
 /-------------------------------------------------------------------------*/
 
+#define	PCLKSEL		( (volatile uint32_t*)0x400FC1A8)
+#define	PINSEL		( (volatile uint32_t*)0x4002C000)
+#define	PCONP			(*(volatile uint32_t*)0x400FC0C4)
+#define	_BV(bit) (1<<(bit))
+#define	__set_PCONP(p,v)	PCONP = (PCONP & ~(1 << (p))) | (1 << (p))
+#define	__set_PCLKSEL(p,v)	PCLKSEL[(p) / 16] = (PCLKSEL[(p) / 16] & ~(3 << ((p) * 2 % 32))) | (v << ((p) * 2 % 32))
+#define __set_PINSEL(p,b,v)		PINSEL[(p) * 2 + (b) / 16] = (PINSEL[(p) * 2 + (b) / 16] & ~(3 << ((b) * 2 % 32))) | (v << ((b) * 2 % 32))
+
+#define	SSP0CR0		(*(volatile uint32_t*)0x40088000)
+#define	SSP0CR1		(*(volatile uint32_t*)0x40088004)
+#define	SSP0DR		(*(volatile uint32_t*)0x40088008)
+#define	SSP0SR		(*(volatile uint32_t*)0x4008800C)
+#define	SSP0CPSR	(*(volatile uint32_t*)0x40088010)
+#define	SSP0IMSC	(*(volatile uint32_t*)0x40088014)
+#define	SSP0RIS		(*(volatile uint32_t*)0x40088018)
+#define	SSP0MIS		(*(volatile uint32_t*)0x4008801C)
+#define	SSP0ICR		(*(volatile uint32_t*)0x40088020)
+#define	SSP0DMACR	(*(volatile uint32_t*)0x40088024)
+#define	SSP1CR0		(*(volatile uint32_t*)0x40030000)
+#define	SSP1CR1		(*(volatile uint32_t*)0x40030004)
+#define	SSP1DR		(*(volatile uint32_t*)0x40030008)
+#define	SSP1SR		(*(volatile uint32_t*)0x4003000C)
+#define	SSP1CPSR	(*(volatile uint32_t*)0x40030010)
+#define	SSP1IMSC	(*(volatile uint32_t*)0x40030014)
+#define	SSP1RIS		(*(volatile uint32_t*)0x40030018)
+#define	SSP1MIS		(*(volatile uint32_t*)0x4003001C)
+#define	SSP1ICR		(*(volatile uint32_t*)0x40030020)
+#define	SSP1DMACR	(*(volatile uint32_t*)0x40030024)
+#define	FIO0CLR0	(*(volatile uint8_t*)0x2009C01C)
+#define	FIO0CLR2	(*(volatile uint8_t*)0x2009C01E)
+#define	FIO0SET0	(*(volatile uint8_t*)0x2009C018)
+#define	FIO0SET2	(*(volatile uint8_t*)0x2009C01A)
+#define	FIO0DIR		(*(volatile uint32_t*)0x2009C000)
+#define	FIO2PIN1	(*(volatile uint8_t*)0x2009C055)
+#define PCLKDIV_4	0
+#define PCLKDIV_1	1
+#define PCLKDIV_2	2
+#define PCLKDIV_8	3
+#define	PCLK_SSP1	10
+#define	PCLK_SSP0	21
+#define	PCSSP1	10
+
 #define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define	CCLK		100000000UL	/* cclk frequency [Hz] */
@@ -35,7 +77,7 @@
 		__set_PINSEL(0, 15, 2);	/* SCK0 */\
 		__set_PINSEL(0, 17, 2);	/* MISO0 */\
 		__set_PINSEL(0, 18, 2);	/* MOSI0 */\
-		FIO0DIR |= _BV(16);		/* CS# (P0.16) */\
+		FIO0DIR |= _BV(21);		/* CS# (P0.16) */\
 		}
 #elif SSP_CH == 1
 #define	SSPxDR		SSP1DR
@@ -78,10 +120,8 @@
    Module Private Functions
 
 ---------------------------------------------------------------------------*/
-
-#include "LPC176x.h"
 #include "diskio.h"
-
+#include <stdint.h>
 
 /* MMC/SD command */
 #define CMD0	(0)			/* GO_IDLE_STATE */
@@ -747,4 +787,3 @@ void disk_timerproc (void)
 	}
 	Stat = s;
 }
-
