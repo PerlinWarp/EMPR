@@ -21,17 +21,6 @@
 
 #ifndef FF_DEFINED
 #define FF_DEFINED	86604	/* Revision ID */
-#include "LPC17xx.h"
-
-typedef struct {
-	uint16_t	year;	/* 1..4095 */
-	uint8_t	month;	/* 1..12 */
-	uint8_t	mday;	/* 1.. 31 */
-	uint8_t	wday;	/* 1..7 */
-	uint8_t	hour;	/* 0..23 */
-	uint8_t	min;	/* 0..59 */
-	uint8_t	sec;	/* 0..59 */
-} RTC;
 
 #ifdef __cplusplus
 extern "C" {
@@ -324,7 +313,6 @@ FRESULT f_setcp (WORD cp);											/* Set current code page */
 int f_putc (TCHAR c, FIL* fp);										/* Put a character to the file */
 int f_puts (const TCHAR* str, FIL* cp);								/* Put a string to the file */
 int f_printf (FIL* fp, const TCHAR* str, ...);						/* Put a formatted string to the file */
-int rtc_gettime (RTC *rtc);
 TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the file */
 
 #define f_eof(fp) ((int)((fp)->fptr == (fp)->obj.objsize))

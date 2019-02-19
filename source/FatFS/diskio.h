@@ -6,8 +6,6 @@
 #ifndef _DISKIO_DEFINED
 #define _DISKIO_DEFINED
 
-#define	_BV(bit) (1<<(bit))
-
 #ifdef __cplusplus
 extern "C" {
 #endif

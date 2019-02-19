@@ -37,6 +37,7 @@ uint32_t AddTextToBuffer(char* data, uint32_t length);
 
 void InitSerial(void);
 int WriteText(char*);
+int write_usb_serial_blocking(char *buf,int length);
 
 void InitSerInterrupts(void);
 void EnableSerInterrupts(void);

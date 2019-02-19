@@ -249,27 +249,32 @@ void FatRead()
     WriteText("-");
 
     FIL fil;        /* File object */
+    char line[100]; /* Line buffer */
     FRESULT fr;     /* FatFs return code */
+
 
     /* Register work area to the default drive */
     f_mount(&FatFs, "", 0);
+
     /* Open a text file */
     fr = f_open(&fil, "a.wav", FA_READ);
-    WriteText("2?\n\r");
-    if (fr) return;// (int)fr;
+    if (fr) return (int)fr;
+
     /* Read every line and display it */
     uint y;
-    char buffer [250];
-    f_read(&fil,buffer,250, &y);
-    //n = sprintf(buffer,"%s\n\r", line);
-    WriteText(buffer);
+    int n;
+    char buffer [0x2000];
 
+    while (!fr){
+        fr = f_read(&fil,buffer,0x2000, &y);
+        //n = sprintf(buffer,"%s\n\r", line);
+        write_usb_serial_blocking(buffer,y);
+    }
     /* Close the file */
     f_close(&fil);
 
     //Unmount the file system
     f_mount(0, "", 0);
-
 }
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
