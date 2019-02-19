@@ -10,7 +10,7 @@
 / * Redistributions of source code must retain the above copyright notice.
 /
 /-------------------------------------------------------------------------*/
-
+/**PULLED FROM LPC_176x.h**/
 #define	PCLKSEL		( (volatile uint32_t*)0x400FC1A8)
 #define	PINSEL		( (volatile uint32_t*)0x4002C000)
 #define	PCONP			(*(volatile uint32_t*)0x400FC0C4)
@@ -52,7 +52,7 @@
 #define	PCLK_SSP1	10
 #define	PCLK_SSP0	21
 #define	PCSSP1	10
-
+/**_______________End ____pulle_d_______**/
 #define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define	CCLK		100000000UL	/* cclk frequency [Hz] */
