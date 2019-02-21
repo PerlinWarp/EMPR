@@ -295,11 +295,12 @@ void Read2Audio()
     /* Open a text file */
     fr = f_open(&fil, "a.wav", FA_READ);
     if (fr) return (int)fr;
-
+    TLV320_Start_I2S_Polling_Passthrough();
     /* Read every line and display it */
-
+    WriteText("Enabling Interrupts");
     I2S_A_Polling_Init(48000,I2S_MODE_INTERRUPT);
-
+    
+    WriteText("MEME");
     while(fre){}
     /* Close the file */
     f_close(&fil);

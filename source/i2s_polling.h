@@ -21,6 +21,7 @@ uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
 
 FIL fil;        /* File object */
+uint y;
 uint32_t ReadAudInd;//Pointer to a value
 FRESULT fre;     /* FatFs return code */
 char audioBuff [0xFF];

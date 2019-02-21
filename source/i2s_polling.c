@@ -20,17 +20,20 @@ void I2S_IRQHandler()
   {
     if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
     {
+
        I2S_Send(LPC_I2S,audioBuff[ReadAudInd]);
        INC_BUFFER(ReadAudInd);
+
        if(!fre) //While we have not reached the end of the file.
        {
           if(ReadAudInd==0)
           {
-            uint y;
-            f_read(&fil,audioBuff,0xFF, &y);
+            fre = f_read(&fil,audioBuff,0xFF, &y);
+            write_usb_serial_blocking(audioBuff,y);
+
           }
       }else{
-        //
+        WriteText("garb egges\n\r");
         NVIC_DisableIRQ(I2S_IRQn);
       }
     }
@@ -74,6 +77,7 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
 
 void I2S_A_Polling_Init(uint32_t freq,int i2smode)
 {
+  fre = f_read(&fil,audioBuff,0xFF, &y);
   I2S_MODEConf_Type Clock_Config;
   I2S_CFG_Type I2S_Config_Struct;
   LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
