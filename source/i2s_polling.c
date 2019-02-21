@@ -29,7 +29,7 @@ void I2S_IRQHandler()
           //if(ReadAudInd==0)
           //{
           WriteText("garbis\n\r");
-          fre = f_read(&fil,audioBuff,0xFF, &y);
+          fre = f_read(&fil,audioBuff,0x0F, &y);
           char bop[10];
           sprintf(bop,"%i\n\r",y);
           WriteText(bop);

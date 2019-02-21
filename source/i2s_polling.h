@@ -24,7 +24,7 @@ FIL fil;        /* File object */
 uint y;
 uint32_t ReadAudInd;//Pointer to a value
 FRESULT fre;     /* FatFs return code */
-char audioBuff [0xFF];
+char audioBuff [0x0F];
 
 
 void I2S_Polling_Init(uint32_t Freq, int i2smode);
