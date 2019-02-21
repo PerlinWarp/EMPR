@@ -271,6 +271,8 @@ void FatRead()
 
         write_usb_serial_blocking(buffer,y);
     }
+    WriteText("Closing the file \n");
+    
     /* Close the file */
     f_close(&fil);
 

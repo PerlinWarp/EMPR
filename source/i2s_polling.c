@@ -26,12 +26,16 @@ void I2S_IRQHandler()
 
        if(!fre) //While we have not reached the end of the file.
        {
-          if(ReadAudInd==0)
-          {
-            fre = f_read(&fil,audioBuff,0xFF, &y);
-            write_usb_serial_blocking(audioBuff,y);
+          //if(ReadAudInd==0)
+          //{
+          WriteText("garbis\n\r");
+          fre = f_read(&fil,audioBuff,0xFF, &y);
+          char bop[10];
+          sprintf(bop,"%i\n\r",y);
+          WriteText(bop);
+          //write_usb_serial_blocking(audioBuff,y);
 
-          }
+          //}
       }else{
         WriteText("garb egges\n\r");
         NVIC_DisableIRQ(I2S_IRQn);
