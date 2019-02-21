@@ -11,6 +11,7 @@
 /
 /-------------------------------------------------------------------------*/
 /**PULLED FROM LPC_176x.h**/
+#include "LPC17xx.h"
 #define	PCLKSEL		( (volatile uint32_t*)0x400FC1A8)
 #define	PINSEL		( (volatile uint32_t*)0x4002C000)
 #define	PCONP			(*(volatile uint32_t*)0x400FC0C4)
@@ -42,6 +43,7 @@
 #define	FIO0CLR0	(*(volatile uint8_t*)0x2009C01C)
 #define	FIO0CLR2	(*(volatile uint8_t*)0x2009C01E)
 #define	FIO0SET0	(*(volatile uint8_t*)0x2009C018)
+#define	FIO0DIR2	(*(volatile uint8_t*)0x2009C002)
 #define	FIO0SET2	(*(volatile uint8_t*)0x2009C01A)
 #define	FIO0DIR		(*(volatile uint32_t*)0x2009C000)
 #define	FIO2PIN1	(*(volatile uint8_t*)0x2009C055)
@@ -52,8 +54,9 @@
 #define	PCLK_SSP1	10
 #define	PCLK_SSP0	21
 #define	PCSSP1	10
+#define	PCSSP0	21
 /**_______________End ____pulle_d_______**/
-#define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
+#define SSP_CH	0	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define	CCLK		100000000UL	/* cclk frequency [Hz] */
 #define PCLK_SSP	50000000UL	/* PCLK frequency to be supplied for SSP [Hz] */
@@ -77,16 +80,17 @@
 		__set_PINSEL(0, 15, 2);	/* SCK0 */\
 		__set_PINSEL(0, 17, 2);	/* MISO0 */\
 		__set_PINSEL(0, 18, 2);	/* MOSI0 */\
-		FIO0DIR |= _BV(21);		/* CS# (P0.16) */\
-		}
+		__set_PINSEL(0, 16, 0);	/* MOSI0 */\
+		FIO0DIR2 |= _BV(0);		/* CS# (P0.16) */\
+	}
 #elif SSP_CH == 1
 #define	SSPxDR		SSP1DR
 #define	SSPxSR		SSP1SR
 #define	SSPxCR0		SSP1CR0
 #define	SSPxCR1		SSP1CR1
 #define	SSPxCPSR	SSP1CPSR
-#define	CS_LOW()	{FIO0CLR0 = _BV(6);}	/* Set P0.6 low */
-#define	CS_HIGH()	{FIO0SET0 = _BV(6);}	/* Set P0.6 high */
+#define	CS_LOW()	{FIO0CLR0 = _BV(11);}	/* Set P0.6 low */
+#define	CS_HIGH()	{FIO0SET0 = _BV(11);}	/* Set P0.6 high */
 #define PCSSPx		PCSSP1
 #define	PCLKSSPx	PCLK_SSP1
 #define ATTACH_SSP() {\

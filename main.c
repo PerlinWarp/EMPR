@@ -252,13 +252,23 @@ void FatRead()
     char line[100]; /* Line buffer */
     FRESULT fr;     /* FatFs return code */
 
-
+    SSP_Cmd(LPC_SSP0,ENABLE);
     /* Register work area to the default drive */
-    f_mount(&FatFs, "", 0);
-
+    fr = f_mount(&FatFs, "", 0);
+    if (fr)
+    {
+      sprintf(line, "Not Mounted WIth Code: %d\n\r",fr);
+      WriteText(line);
+      return (int)fr;
+    }
     /* Open a text file */
     fr = f_open(&fil, "a.wav", FA_READ);
-    if (fr) return (int)fr;
+    if (fr)
+    {
+      sprintf(line, "Exited with Error Code: %d\n\r",fr);
+      WriteText(line);
+      return (int)fr;
+    }
 
     /* Read every line and display it */
     uint y;

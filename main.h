@@ -31,7 +31,7 @@
 #include <string.h>
 
 #include "LPC17xx.h"
-
+#include "lpc17xx_ssp.h"
 #include "source/SerialIO.h"
 #include "source/LCD.h"
 #include "source/I2C.h"
