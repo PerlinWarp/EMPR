@@ -69,9 +69,10 @@ void I2S_PassThroughInterrupt();
 void UART_Mode();
 void MASSIVE_TEST();
 void temp();
-void FatRead();
+void FatRead();    //Reading a WAV file from the SD
+void Read2Audio(); //Playing audio to board
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&FatRead,&Read2Audio,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:

@@ -245,7 +245,7 @@ void UART_Mode()
 void FatRead()
 {
     LCDGoHome();
-    LCDPrint("FatFS Test      \nMode            ");
+    LCDPrint("FatFS Audio Read\nMode            ");
     WriteText("-");
 
     FIL fil;        /* File object */
@@ -268,6 +268,7 @@ void FatRead()
     while (!fr){
         fr = f_read(&fil,buffer,0x2000, &y);
         //n = sprintf(buffer,"%s\n\r", line);
+
         write_usb_serial_blocking(buffer,y);
     }
     /* Close the file */
@@ -276,6 +277,38 @@ void FatRead()
     //Unmount the file system
     f_mount(0, "", 0);
 }
+/*
+  
+*/
+void Read2Audio()
+{
+    LCDGoHome();
+    LCDPrint("FatFS Audio Play\nMode            ");
+    WriteText("-");
+    char line[100]; /* Line buffer */
+    FRESULT fr;     /* FatFs return code */
+
+
+    /* Register work area to the default drive */
+    f_mount(&FatFs, "", 0);
+
+    /* Open a text file */
+    fr = f_open(&fil, "a.wav", FA_READ);
+    if (fr) return (int)fr;
+
+    /* Read every line and display it */
+
+    I2S_A_Polling_Init(48000,I2S_MODE_INTERRUPT);
+
+    while(fre){}
+    /* Close the file */
+    f_close(&fil);
+
+    //Unmount the file system
+    f_mount(0, "", 0);
+}
+
+
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
