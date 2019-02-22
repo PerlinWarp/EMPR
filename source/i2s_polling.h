@@ -14,17 +14,22 @@
 #include "FatFS/diskio.h"
 #include "FatFS/ff.h"
 
+#define I2S_RING_BUFSIZE 0x0F
+#define I2S_BIT_MASK (I2S_RING_BUFSIZE - 1)
+#define I2S_INC_BUFFER(bufd) (bufd = (bufd+1)&I2S_BIT_MASK)
+#define I2S_CHECK_BUFFER(bufd) ((bufd+1)&I2S_BIT_MASK)
+
 #define I2S_MODE_POLLING 0
 #define I2S_MODE_INTERRUPT 1
-#define BUFFER_SIZE 256
 uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
 
 FIL fil;        /* File object */
 uint y;
+uint i;
 uint32_t ReadAudInd;//Pointer to a value
 FRESULT fre;     /* FatFs return code */
-char audioBuff [0x0F];
+char audioBuff [I2S_RING_BUFSIZE];
 
 
 void I2S_Polling_Init(uint32_t Freq, int i2smode);

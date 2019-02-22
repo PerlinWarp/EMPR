@@ -124,73 +124,73 @@ void Menu()
   //Check for interrn
 }*/
 
-void PlayLoop()
-{
-  int i =0;
-  BufferOut = (uint32_t*)malloc(sizeof(uint32_t*)*BUFO_LENGTH);
-  BufferIn = (uint32_t*)malloc(sizeof(uint32_t*)*BUFI_LENGTH);
-  for(i=0;i<BUFO_LENGTH;i++)BufferOut[i] = (i%30)*60;
-  Init_I2S(BufferOut,BUFO_LENGTH,BufferIn,BUFI_LENGTH);
-  TLV320_EnableOutput();
-  EnableOutput();
-  EnableInput();
-  LCDClear();
-  LCDPrint("Audio Mode\nPress Any Key");
-  while(!buttonpress);//Loop until new input
-  char outp[40];
-  sprintf(outp,"%lu\n\r",Channel0_TC);
-  WriteText(outp);
-  DisableOutput();
-  I2S_DeInit(LPC_I2S);
-  free(BufferOut);
-  free(BufferIn);
-  buttonpress = 0;
-}
-void I2S_PassThroughLoop()
-{
-  //int i =0;
-  BufferOut = (uint32_t*)(I2S_SRC);
-  //for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
-  LCDClear();
-  LCDPrint("I2S Passthrough\n......Mode......");
-  TLV320_Start_I2S_Polling_Passthrough();
-  I2S_Polling_Init(48000,I2S_MODE_POLLING);
-  while(!buttonpress)
-  {
-    I2S_Polling_Read(BufferOut,1);
-    I2S_Polling_Write(BufferOut,1);
-  }
-  I2S_DeInit(LPC_I2S);
-  //free(BufferOut);
-  buttonpress = 0;
-}
-void I2S_PassThroughInterrupt()
-{
-  BufferOut = (uint32_t*)(I2S_SRC);
-  buffer = BufferOut;
-  LCDClear();
-  LCDPrint("I2S Passthrough\n.Interrupt Mode.");
-  TLV320_Start_I2S_Polling_Passthrough();
-  i2s_Interrupt_Mode =1;
-  I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
-  while(!buttonpress);
-  i2s_Interrupt_Mode =0;
-  WriteText("Finis");
-  I2S_DeInit(LPC_I2S);
-  //free(BufferOut);
-  buttonpress = 0;
-}
-void MASSIVE_TEST()
-{
-  LCDClear();
-  LCDGoHome();
-  char outidy[33];
-  int big = 4;
-  sprintf(outidy,"%s\n%d%d","woahtherehorsey",EGG_ON_TOAST(big),big);
-  LCDPrint(outidy);
-  while(!buttonpress);
-  buttonpress =0;
-}
+// void PlayLoop()
+// {
+//   int i =0;
+//   BufferOut = (uint32_t*)malloc(sizeof(uint32_t*)*BUFO_LENGTH);
+//   BufferIn = (uint32_t*)malloc(sizeof(uint32_t*)*BUFI_LENGTH);
+//   for(i=0;i<BUFO_LENGTH;i++)BufferOut[i] = (i%30)*60;
+//   Init_I2S(BufferOut,BUFO_LENGTH,BufferIn,BUFI_LENGTH);
+//   TLV320_EnableOutput();
+//   EnableOutput();
+//   EnableInput();
+//   LCDClear();
+//   LCDPrint("Audio Mode\nPress Any Key");
+//   while(!buttonpress);//Loop until new input
+//   char outp[40];
+//   sprintf(outp,"%lu\n\r",Channel0_TC);
+//   WriteText(outp);
+//   DisableOutput();
+//   I2S_DeInit(LPC_I2S);
+//   free(BufferOut);
+//   free(BufferIn);
+//   buttonpress = 0;
+// }
+// void I2S_PassThroughLoop()
+// {
+//   //int i =0;
+//   BufferOut = (uint32_t*)(I2S_SRC);
+//   //for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
+//   LCDClear();
+//   LCDPrint("I2S Passthrough\n......Mode......");
+//   TLV320_Start_I2S_Polling_Passthrough();
+//   I2S_Polling_Init(48000,I2S_MODE_POLLING);
+//   while(!buttonpress)
+//   {
+//     I2S_Polling_Read(BufferOut,1);
+//     I2S_Polling_Write(BufferOut,1);
+//   }
+//   I2S_DeInit(LPC_I2S);
+//   //free(BufferOut);
+//   buttonpress = 0;
+// }
+// void I2S_PassThroughInterrupt()
+// {
+//   BufferOut = (uint32_t*)(I2S_SRC);
+//   buffer = BufferOut;
+//   LCDClear();
+//   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
+//   TLV320_Start_I2S_Polling_Passthrough();
+//   i2s_Interrupt_Mode =1;
+//   I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
+//   while(!buttonpress);
+//   i2s_Interrupt_Mode =0;
+//   WriteText("Finis");
+//   I2S_DeInit(LPC_I2S);
+//   //free(BufferOut);
+//   buttonpress = 0;
+// }
+// void MASSIVE_TEST()
+// {
+//   LCDClear();
+//   LCDGoHome();
+//   char outidy[33];
+//   int big = 4;
+//   sprintf(outidy,"%s\n%d%d","woahtherehorsey",EGG_ON_TOAST(big),big);
+//   LCDPrint(outidy);
+//   while(!buttonpress);
+//   buttonpress =0;
+// }
 /*void I2S_DmaPassThrough(){
   Init_I2S(BufferOut,BUFO_LENGTH,BufferOut,BUFO_LENGTH);
   TLV320_Start_I2S_Polling_Passthrough();
@@ -299,6 +299,7 @@ void Read2Audio()
     if (fr) return (int)fr;
     TLV320_Start_I2S_Polling_Passthrough();
     /* Read every line and display it */
+    fre = f_lseek(&fil, 0x20636);
     WriteText("Enabling Interrupts");
     I2S_A_Polling_Init(48000,I2S_MODE_INTERRUPT);
     

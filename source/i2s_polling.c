@@ -9,10 +9,10 @@ void I2S_IRQHandler()
   {
     if(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>=I2S_GetIRQDepth(LPC_I2S,I2S_RX_MODE))
     {
-      if(WriteInd != CHECK_BUFFER(ReadInd))
+      if(WriteInd != I2S_CHECK_BUFFER(ReadInd))
       {
          buffer[ReadInd] = I2S_Receive (LPC_I2S);
-         INC_BUFFER(ReadInd);
+         I2S_INC_BUFFER(ReadInd);
       }
     }
   }
@@ -22,20 +22,26 @@ void I2S_IRQHandler()
     {
 
        I2S_Send(LPC_I2S,audioBuff[ReadAudInd]);
-       INC_BUFFER(ReadAudInd);
+       I2S_INC_BUFFER(ReadAudInd);
 
        if(!fre) //While we have not reached the end of the file.
        {
-          //if(ReadAudInd==0)
-          //{
+          if(ReadAudInd==0)
+          {
           WriteText("garbis\n\r");
-          fre = f_read(&fil,audioBuff,0x0F, &y);
-          char bop[10];
-          sprintf(bop,"%i\n\r",y);
-          WriteText(bop);
-          //write_usb_serial_blocking(audioBuff,y);
+          char aids[10];
+          i++;
+          sprintf(aids,"%i\n\r",i);
+          WriteText(aids);
+          fre = f_read(&fil,audioBuff,y, &y);
+          // char bop[10];
+          // sprintf(bop,"%i\n\r",y);
+          // WriteText(bop);
+          char aidss[I2S_RING_BUFSIZE];
+          sprintf(aidss,"%x\n\r",*audioBuff);
+          write_usb_serial_blocking(aidss,y);
 
-          //}
+          }
       }else{
         WriteText("garb egges\n\r");
         NVIC_DisableIRQ(I2S_IRQn);
@@ -81,7 +87,7 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
 
 void I2S_A_Polling_Init(uint32_t freq,int i2smode)
 {
-  fre = f_read(&fil,audioBuff,0xFF, &y);
+  fre = f_read(&fil,audioBuff,I2S_RING_BUFSIZE, &y);
   I2S_MODEConf_Type Clock_Config;
   I2S_CFG_Type I2S_Config_Struct;
   LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
