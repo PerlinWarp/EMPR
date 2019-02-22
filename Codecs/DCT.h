@@ -10,6 +10,7 @@ https://github.com/ccrma/sndtools/blob/master/src/rt_ctflpc/dct.c
 #include <stdlib.h>
 
 #define PI 3.14159265358979
+#define INVROOT2 0.7071067814
 
 #ifndef __LPC17xx_H__
 typedef unsigned long uint32_t;
@@ -20,7 +21,6 @@ typedef unsigned short int uint16_t;
 
 
 /*Bit reversal code nabbed from the linux kernel*/
-
 const char byte_rev_table[256] = {
 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
 	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
@@ -55,13 +55,11 @@ const char byte_rev_table[256] = {
 	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
-
-
 static inline char __bitrev8(char byte) return byte_rev_table[byte];
 static inline uint16_t __bitrev16(uint16_t x) return (__bitrev8(x & 0xff) << 8) | __bitrev8(x >> 8);
-
-
 /************************************************/
+
+
 
 void DCT(float* series, uint8_t length);
 void InverseDCT(float* series);
