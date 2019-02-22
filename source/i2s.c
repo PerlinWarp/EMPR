@@ -1,7 +1,14 @@
 #include "i2s.h"
 
+uint8_t I2S_ihf_Index;
+static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&i2s_wav_play_16_bit};
+
 void I2S_IRQHandler()
 {
+  I2S_int_Handler_Funcs[I2S_ihf_Index]();
+}
+
+void i2s_int_Passthrough(){
   if(I2S_GetIRQStatus(LPC_I2S,I2S_RX_MODE))
   {
     if(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>=I2S_GetIRQDepth(LPC_I2S,I2S_RX_MODE))
@@ -25,7 +32,47 @@ void I2S_IRQHandler()
     }
   }
 }
+void i2s_wav_play_16_bit()
+{
+  if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
+  {
+    if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
+    {
+      if(CHECK_BUFFER(WriteInd) != ReadInd)
+      {
+         buffer[WriteInd] = bswap_32(buffer[WriteInd]);
+         //__bit_rev(buffer[WriteInd]);
+         I2S_Send(LPC_I2S,buffer[WriteInd]);
+         INC_BUFFER(WriteInd);
+      }
+    }
+  }
+}
 
+void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample)
+{
+  I2S_MODEConf_Type Clock_Config;
+  I2S_CFG_Type I2S_Config_Struct;
+  LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
+  LPC_PINCON->PINSEL1|=PINS023_025RX;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
+  I2S_Init(LPC_I2S);
+  ConfInit(&I2S_Config_Struct, BitsPerSample[1],NumChannels[1],I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
+  ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
+  I2S_FreqConfig(LPC_I2S, BASE_FREQUENCY, I2S_TX_MODE);//Set frequency for output
+  I2S_FreqConfig(LPC_I2S, BASE_FREQUENCY, I2S_RX_MODE);
+  WriteInd = ReadInd =0;
+  LPC_I2S->I2STXRATE = 0x00;
+  LPC_I2S->I2STXBITRATE = 0x00;
+  I2S_SetBitRate(LPC_I2S,0,I2S_TX_MODE);
+  I2S_Start(LPC_I2S);
+  I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
+  NVIC_SetPriority(I2S_IRQn, 0x03);
+
+  TLV320_PlayWav();
+  I2S_ihf_Index = 1;
+  NVIC_EnableIRQ(I2S_IRQn);
+}
 
 void I2S_Polling_Init(uint32_t freq,int i2smode)
 {
@@ -49,13 +96,14 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
     I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
     I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
     I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
-    NVIC_SetPriority(I2S_IRQn, 0x00);
+    NVIC_SetPriority(I2S_IRQn, 0x03);
     /*fill out buffer here to avoid clicks*/
     while(WriteInd != CHECK_BUFFER(ReadInd))
     {
          buffer[ReadInd] = I2S_Receive (LPC_I2S);
          INC_BUFFER(ReadInd);
     }
+    I2S_ihf_Index =0;
     NVIC_EnableIRQ(I2S_IRQn);
   }
   else {I2S_Start(LPC_I2S);}

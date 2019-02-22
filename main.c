@@ -66,7 +66,6 @@ void DrawMenu()
 }
 void Menu()
 {
-
     SelMenuItem =  0;
     int optionSelected = 0,changed =1;
     DrawMenu();
@@ -162,6 +161,23 @@ void PassThroughLoop()
   TLV320_DisablePassThrough();
   buttonpress = 0;
 }
+
+void Play_Audio()
+{
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  char fpath[100];// = browse_Files();
+
+  fr = f_mount(&FatFs, "", 0);
+  if(fr)return;
+  fr = f_open(&fil, fpath, FA_READ);
+  if(fr)return;
+  WAVE_HEADER w = Wav_Init(&fil);
+  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample);
+
+}
+
 void UART_Mode()
 {//Note: pyserial likely sends utf 16, which is being split into h0e0l0l0o0
   //Here, the audio is set to bypass, and the LCD is configured to display any input from UART

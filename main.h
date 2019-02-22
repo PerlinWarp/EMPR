@@ -40,6 +40,7 @@
 #include "source/TLV320.h"
 #include "source/i2s.h"
 #include "source/interrupt_handlers.h"
+#include "source/Wave.h"
 
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
@@ -64,7 +65,7 @@ void DrawMenu();
 void DrawArrows();
 void IRQInit();
 
-
+void Play_Audio();
 void PassThroughLoop();
 void RecordLoop();
 void I2S_PassThroughLoop();
@@ -73,23 +74,14 @@ void UART_Mode();
 void temp();
 void FatRead();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&temp,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&temp,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&Play_Audio,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&temp,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
 
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 /*
-TO DO:
-NAVIGATION:
-    View File List + Display, Navigate
-    View Information about the file e.g. size
-PC ACCESS:
-    Communicate to PC - [DOING]
-    Improve look of pc interface
-    Data Visualizer
-    External File Manager
-PLAYBACK:
-    Done!
-FILE SYSTEM:
-    Combine with actual project
+Menu Organisation:
+
+
+
 */
 
 #endif

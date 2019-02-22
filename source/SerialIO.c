@@ -132,6 +132,8 @@ void InitSerial(void)
 	PinConfig.Pinnum = 3;
 	PINSEL_ConfigPin(&PinConfig);
 
+	UartConfiguration.Baud_rate = 921600;
+
 	UART_ConfigStructInit(&UartConfiguration);
 	UART_FIFOConfigStructInit(&FifoConfiguration);
 
