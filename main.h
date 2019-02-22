@@ -39,7 +39,7 @@
 #include "source/Delay.h"
 #include "source/TLV320.h"
 #include "source/i2s.h"
-#include "source/i2s_polling.h"
+#include "source/interrupt_handlers.h"
 
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
@@ -49,7 +49,11 @@ volatile char prevKey,key;
 volatile char* Audio_buf;
  uint32_t* BufferOut;
  uint32_t* BufferIn;
-int SelMenuItem,i2s_Interrupt_Mode =0;
+int SelMenuItem;
+
+uint8_t int_Handler_Enable=0,int_Handler_Index =0;
+
+
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "A3.Save to SD  ", "A4.Browse SD   ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
@@ -61,17 +65,17 @@ void DrawArrows();
 void IRQInit();
 
 
-void PlayLoop();
 void PassThroughLoop();
 void RecordLoop();
 void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
 void UART_Mode();
-void MASSIVE_TEST();
 void temp();
 void FatRead();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&temp,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&temp,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
+
+void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 /*
 TO DO:
 NAVIGATION:

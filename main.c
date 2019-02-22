@@ -9,13 +9,14 @@ void EINT3_IRQHandler(void)
   {
     buttonpress  = 1;
     prevKey = key;
-    if(i2s_Interrupt_Mode)NVIC_DisableIRQ(I2S_IRQn);//Frightful fudge to fix a flooey
+    if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
   }
   else if (key == ' ')
   {
     prevKey = ' ';
   }
 }
+
 void IRQInit()
 {
   LPC_PINCON->PINSEL4|=0x4000000;
@@ -117,36 +118,6 @@ void Menu()
     }
 
 }
-
-/*void RecordLoop()
-{
-  //Enable I2S
-  //Init_I2S(uint32_t* BufferOut,uint32_t BufferOutWidth,uint32_t* BufferIn,uint32_t BufferInWidth);
-  //Check for interrn
-}*/
-
-void PlayLoop()
-{
-  int i =0;
-  BufferOut = (uint32_t*)malloc(sizeof(uint32_t*)*BUFO_LENGTH);
-  BufferIn = (uint32_t*)malloc(sizeof(uint32_t*)*BUFI_LENGTH);
-  for(i=0;i<BUFO_LENGTH;i++)BufferOut[i] = (i%30)*60;
-  Init_I2S(BufferOut,BUFO_LENGTH,BufferIn,BUFI_LENGTH);
-  TLV320_EnableOutput();
-  EnableOutput();
-  EnableInput();
-  LCDClear();
-  LCDPrint("Audio Mode\nPress Any Key");
-  while(!buttonpress);//Loop until new input
-  char outp[40];
-  sprintf(outp,"%lu\n\r",Channel0_TC);
-  WriteText(outp);
-  DisableOutput();
-  I2S_DeInit(LPC_I2S);
-  free(BufferOut);
-  free(BufferIn);
-  buttonpress = 0;
-}
 void I2S_PassThroughLoop()
 {
   //int i =0;
@@ -172,37 +143,16 @@ void I2S_PassThroughInterrupt()
   LCDClear();
   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
   TLV320_Start_I2S_Polling_Passthrough();
-  i2s_Interrupt_Mode =1;
+  int_Handler_Enable =1;
   I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
   while(!buttonpress);
-  i2s_Interrupt_Mode =0;
+  int_Handler_Enable =0;
   WriteText("Finis");
   I2S_DeInit(LPC_I2S);
   //free(BufferOut);
   buttonpress = 0;
 }
-void MASSIVE_TEST()
-{
-  LCDClear();
-  LCDGoHome();
-  char outidy[33];
-  int big = 4;
-  sprintf(outidy,"%s\n%d%d","woahtherehorsey",EGG_ON_TOAST(big),big);
-  LCDPrint(outidy);
-  while(!buttonpress);
-  buttonpress =0;
-}
-/*void I2S_DmaPassThrough(){
-  Init_I2S(BufferOut,BUFO_LENGTH,BufferOut,BUFO_LENGTH);
-  TLV320_Start_I2S_Polling_Passthrough();
-  EnableOutput();
-  LCDClear();
-  LCDPrint("Audio Mode\nPress Any Key");
-  while(!buttonpress);//Loop until new input
-  free(BufferOut);
-  free(BufferIn);
-  buttonpress =0;
-}*/
+
 void PassThroughLoop()
 {
   LCDClear();
@@ -225,23 +175,15 @@ void UART_Mode()
   {
     if(CHECK_BUFFER(rbuf.rx_head)!=rbuf.rx_tail)
     {
-      /*LCDGoHome();
-      LCDNewLine();*/
       uint32_t len = ReadText(data, 16);
       data[len] = '\0';
       WriteText(data);
-      /*if(strcmp(data,oldData))//If old and new values differ
-      {
-        WriteText(data);
-        strcpy(oldData,data);
-      }*/
     }
   }
   TLV320_DisablePassThrough();
   buttonpress =0;
 
 }
-
 
 void FatRead()
 {
