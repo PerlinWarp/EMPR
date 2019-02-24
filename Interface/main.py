@@ -1,7 +1,6 @@
 from tkinter import *
 import serial
-import os
-from os import listdir
+from os import *
 from os.path import isfile,join
 
 class betterButton(Button):
@@ -52,7 +51,7 @@ class Window(Frame):
         self.root = master
         self.width = self.root.winfo_width()
         self.height = self.root.winfo_height()
-        #self.ser = serial.Serial('/dev/ttyACM0')
+        #self.ser = serial.Serial('/dev/ttyACM0',921600)
         #self.ser.write(b'PCINT')
         self.load_images()
         self.init_Frames()
