@@ -33,7 +33,7 @@ class embedFS(FS):
             
     def listdir(self,path):
         """Returns a list of """
-        FS.listdir(self, path):
+        FS.listdir(self, path)
         dirs = []
         errs = {"SUCCESS":_noERR,"FAIL_NOPATH":_raiseRNF,"FAIL_NOTDIR":_raiseDE}
         with self._lock:
@@ -55,7 +55,7 @@ class embedFS(FS):
         with self._lock:
             ser.reset_input_buffer()
             ser.write(bytes("makedir:"+path+"|",'utf-8'))
-        if !reacreate:
+        if (not reacreate):
             errs.get(d[:-1])()
         return self.opendir(path)
     

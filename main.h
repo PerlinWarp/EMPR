@@ -73,8 +73,8 @@ void I2S_PassThroughInterrupt();
 void UART_Mode();
 void temp();
 void FatRead();
-
-void (*menuFuncs[])(void) = {&PassThroughLoop,&Play_Audio,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&temp,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
+void PC_Mode();
+void (*menuFuncs[])(void) = {&PassThroughLoop,&Play_Audio,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&PC_Mode,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
 
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 /*

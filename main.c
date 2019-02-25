@@ -245,6 +245,15 @@ void FatRead()
     //Unmount the file system
     f_mount(0, "", 0);
 }
+
+void PC_Mode()
+{
+  WriteText("CONNECT");
+  while(!);//Wait until response from PC is recorded
+  //enable decoding from device
+  while(!)//wait until instruction is recieved
+  //do each task
+}
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
