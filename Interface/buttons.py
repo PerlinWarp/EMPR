@@ -35,13 +35,13 @@ class menuButton(betterButton):
         self.base = base
         self.name = buttonName
         betterButton.__init__(self,parent,root,"menuButton",**options)
-        self.config(text = self.name,compound = TOP)
+        self.config(text = self.name,compound = BOTTOM)
     def _on_Click(self):
         self.base.switch(self.name)
 
 class exitButton(menuButton):
     def _on_Click(self):
-        exit()
+        self.base.root.destroy()
         
 class pauseButton(serialButton):
     def __init__(self,parent,root,buttonName,**options):
