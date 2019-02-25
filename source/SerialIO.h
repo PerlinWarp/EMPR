@@ -27,6 +27,7 @@ typedef struct
 }UART_Ring_Buffer;
 
 UART_Ring_Buffer rbuf;
+volatile uint8_t notConnected = 1;
 
 void ReceiveText(void);
 void TransmitText(void);

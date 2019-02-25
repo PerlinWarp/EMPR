@@ -249,7 +249,7 @@ void FatRead()
 void PC_Mode()
 {
   WriteText("CONNECT");
-  while(!);//Wait until response from PC is recorded
+  while(!notConnected);//Wait until response from PC is recorded
   //enable decoding from device
   while(!)//wait until instruction is recieved
   //do each task

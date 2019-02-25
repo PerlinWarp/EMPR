@@ -31,6 +31,7 @@ void ReceiveText(void)
 	}//if buffer is full, disable interrupts until a read takes place
 	if(rbuf.rx_head==CHECK_BUFFER(rbuf.rx_tail)){UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, DISABLE);}
 	else{UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, ENABLE);}
+	if(rbuf.rx[rbuf.rx_tail] == '|')ProcessBuffer();
 }
 /*
 Retrieves a length of data from the buffer
