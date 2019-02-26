@@ -45,10 +45,19 @@ void i2s_wav_play_16_bit()
          I2S_Send(LPC_I2S,buffer[WriteInd]);
          INC_BUFFER(WriteInd);
       }
+      else()
+      {
+        //Read Buffer full and reset write and readInd
+      }
     }
   }
 }
+/*
+To do this, we are going to create a small read write buffer of
+since i2s must be disabled while we read, it is pointless to have a large buffer, as we have to wait for refills each time.
 
+
+*/
 void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample)
 {
   I2S_MODEConf_Type Clock_Config;

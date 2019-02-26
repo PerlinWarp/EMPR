@@ -95,12 +95,15 @@ void ProcessBuffer()
 
 void connect(char* instruction)
 {
-	if(!strcmp(instruction,"ACK"))notConnected =1;
-	switch(instruction[0])
-	{
-		case 'X':
-
+	if(!strcmp(instruction,"ACK")){
+		Connected =1;
+		return;
 	}
+	switch(instruction[0])
+ 	{
+	 	case 'X':
+
+	 }
 }
 
 void TransmitText(void)
@@ -161,7 +164,7 @@ int write_usb_serial_blocking(char *buf,int length)
 void InitSerInterrupts(void)
 {
 	menuIndex =0;
-	notConnected = 1;
+	Connected = 0;
 	TxIntStat = RESET;
 	rbuf.rx_head = 0;
 	rbuf.rx_tail = 0;

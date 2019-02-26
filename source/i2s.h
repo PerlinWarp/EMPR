@@ -15,12 +15,12 @@
 #define I2S_MODE_INTERRUPT 1
 #define BUFFER_SIZE 256
 #define BASE_FREQUENCY 48000
+#define WAVE_BUFFER_LEN 2
 
 //#define __bit_rev(val) ((val * 0x0802LU & 0x22110LU) | (val * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16
 
 uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
-
 
 
 void I2S_Polling_Init(uint32_t Freq, int i2smode);

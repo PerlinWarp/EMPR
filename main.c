@@ -1,5 +1,17 @@
 #include "main.h"
 
+static inline void SD_READ()
+{
+  NVIC_DisableIRQ(I2S_IRQn);//Disable i2s interrupts
+  CS_LOW();//Enable chip select
+  f_read(&fil,buffer,0x2000, &y);
+  CS_HIGH();//Disable chip select
+  NVIC_EnableIRQ(I2S_IRQn);
+  //enable i2s interrupts
+}
+
+
+
 void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
@@ -168,7 +180,7 @@ void Play_Audio()
   char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
   char fpath[100];// = browse_Files();
-
+  buffer = (uint32_t*)(I2S_SRC);
   fr = f_mount(&FatFs, "", 0);
   if(fr)return;
   fr = f_open(&fil, fpath, FA_READ);
@@ -200,7 +212,12 @@ void UART_Mode()
   buttonpress =0;
 
 }
+/*
+SSP:
+Deselect sets the SSP pin high
+Select sets the SSP pin low
 
+*/
 void FatRead()
 {
     LCDGoHome();
@@ -252,7 +269,7 @@ void PC_Mode()
   LCDPrint("****PC**MODE****\n****************");
   InitSerInterrupts();
   WriteText("CONNECT|");
-  while(!notConnected);//Wait until response from PC is recorded
+  while(!Connected);//Wait until response from PC is recorded
 
   //enable decoding from device
   //wait until instruction is recieved
