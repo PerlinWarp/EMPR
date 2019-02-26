@@ -164,22 +164,32 @@ void Menu()
 //   //free(BufferOut);
 //   buttonpress = 0;
 // }
-// void I2S_PassThroughInterrupt()
-// {
-//   BufferOut = (uint32_t*)(I2S_SRC);
-//   buffer = BufferOut;
-//   LCDClear();
-//   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
-//   TLV320_Start_I2S_Polling_Passthrough();
-//   i2s_Interrupt_Mode =1;
-//   I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
-//   while(!buttonpress);
-//   i2s_Interrupt_Mode =0;
-//   WriteText("Finis");
-//   I2S_DeInit(LPC_I2S);
-//   //free(BufferOut);
-//   buttonpress = 0;
-// }
+void I2S_PassThroughInterrupt()
+{
+
+  FRESULT fr;     /* FatFs return code */
+  f_mount(&FatFs, "", 0);
+  fr = f_open(&fil, "a.wav", FA_READ);
+  fre = f_lseek(&fil, 512);
+  WriteText("initializedfatfs\n\r");
+
+  BufferOut = (uint32_t*)(I2S_SRC);
+  buffer = BufferOut;
+  memset((void*)I2S_SRC,0,I2S_RING_BUFSIZE*4);
+  fr = f_read(&fil,buffer,I2S_RING_BUFSIZE*4, &y);
+
+  LCDClear();
+  LCDPrint("I2S Passthrough\n.Interrupt Mode.");
+  TLV320_Start_I2S_Polling_Passthrough();
+  i2s_Interrupt_Mode =1;
+  I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
+  while(!buttonpress);
+  i2s_Interrupt_Mode =0;
+  WriteText("Finis");
+  I2S_DeInit(LPC_I2S);
+  //free(BufferOut);
+  buttonpress = 0;
+}
 // void MASSIVE_TEST()
 // {
 //   LCDClear();
@@ -257,7 +267,7 @@ void FatRead()
     f_mount(&FatFs, "", 0);
 
     /* Open a text file */
-    fr = f_open(&fil, "a.wav", FA_READ);
+    fr = f_open(&fil, "meme.wav", FA_READ);
     if (fr) return (int)fr;
 
     /* Read every line and display it */
@@ -284,6 +294,7 @@ void FatRead()
 */
 void Read2Audio()
 {
+    buffer = (uint32_t*)(I2S_SRC);
     LCDGoHome();
     LCDPrint("FatFS Audio Play\nMode            ");
     WriteText("-");
@@ -295,19 +306,21 @@ void Read2Audio()
     f_mount(&FatFs, "", 0);
 
     /* Open a text file */
-    fr = f_open(&fil, "a.wav", FA_READ);
+    fr = f_open(&fil, "meme.wav", FA_READ);
     if (fr) return (int)fr;
     TLV320_Start_I2S_Polling_Passthrough();
     /* Read every line and display it */
-    fre = f_lseek(&fil, 0x20636);
+    fre = f_lseek(&fil, 512);
     WriteText("Enabling Interrupts");
+    i2s_Interrupt_Mode =1;
     I2S_A_Polling_Init(48000,I2S_MODE_INTERRUPT);
     
     WriteText("MEME");
     while(fre){}
     /* Close the file */
+    I2S_DeInit(LPC_I2S);
     f_close(&fil);
-
+    i2s_Interrupt_Mode =0;
     //Unmount the file system
     f_mount(0, "", 0);
 }

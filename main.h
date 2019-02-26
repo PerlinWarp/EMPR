@@ -72,7 +72,7 @@ void temp();
 void FatRead();    //Reading a WAV file from the SD
 void Read2Audio(); //Playing audio to board
 
-void (*menuFuncs[])(void) = {&Read2Audio,&Read2Audio,&Read2Audio,&Read2Audio,&Read2Audio,&Read2Audio,&FatRead,&Read2Audio,&Read2Audio,&temp};
+void (*menuFuncs[])(void) = {&I2S_PassThroughInterrupt,&Read2Audio,&Read2Audio,&Read2Audio,&Read2Audio,&Read2Audio,&FatRead,&Read2Audio,&Read2Audio,&temp};
 /*
 TO DO:
 NAVIGATION:

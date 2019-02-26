@@ -5,47 +5,12 @@
 
 void I2S_IRQHandler()
 {
-  if(I2S_GetIRQStatus(LPC_I2S,I2S_RX_MODE))
-  {
-    if(I2S_GetLevel(LPC_I2S,I2S_RX_MODE)>=I2S_GetIRQDepth(LPC_I2S,I2S_RX_MODE))
-    {
-      if(WriteInd != I2S_CHECK_BUFFER(ReadInd))
-      {
-         buffer[ReadInd] = I2S_Receive (LPC_I2S);
-         I2S_INC_BUFFER(ReadInd);
-      }
-    }
-  }
   if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
   {
     if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
     {
-
-       I2S_Send(LPC_I2S,audioBuff[ReadAudInd]);
-       I2S_INC_BUFFER(ReadAudInd);
-
-       if(!fre) //While we have not reached the end of the file.
-       {
-          if(ReadAudInd==0)
-          {
-          WriteText("garbis\n\r");
-          char aids[10];
-          i++;
-          sprintf(aids,"%i\n\r",i);
-          WriteText(aids);
-          fre = f_read(&fil,audioBuff,y, &y);
-          // char bop[10];
-          // sprintf(bop,"%i\n\r",y);
-          // WriteText(bop);
-          char aidss[I2S_RING_BUFSIZE];
-          sprintf(aidss,"%x\n\r",*audioBuff);
-          write_usb_serial_blocking(aidss,y);
-
-          }
-      }else{
-        WriteText("garb egges\n\r");
-        NVIC_DisableIRQ(I2S_IRQn);
-      }
+         I2S_Send(LPC_I2S,buffer[WriteInd]);
+         INC_BUFFER(WriteInd);
     }
   }
 }
@@ -74,11 +39,20 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
     I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
     I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
     NVIC_SetPriority(I2S_IRQn, 0x00);
+    WriteText("test");
     /*fill out buffer here to avoid clicks*/
-    while(WriteInd != CHECK_BUFFER(ReadInd))
+    
+    WriteText("test2");
+    char output[10];
+    int i =0;
+    for(i=0;i<I2S_RING_BUFSIZE;i++)
     {
-         buffer[ReadInd] = I2S_Receive (LPC_I2S);
-         INC_BUFFER(ReadInd);
+      buffer[i] = (i/(I2S_RING_BUFSIZE/2))*5000;
+    }
+    for(i=0;i<I2S_RING_BUFSIZE-1;i++)
+    {
+      sprintf(output,"0x%x",buffer[i]);
+      WriteText(output);
     }
     NVIC_EnableIRQ(I2S_IRQn);
   }
@@ -87,7 +61,7 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
 
 void I2S_A_Polling_Init(uint32_t freq,int i2smode)
 {
-  fre = f_read(&fil,audioBuff,I2S_RING_BUFSIZE, &y);
+  
   I2S_MODEConf_Type Clock_Config;
   I2S_CFG_Type I2S_Config_Struct;
   LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
@@ -97,9 +71,8 @@ void I2S_A_Polling_Init(uint32_t freq,int i2smode)
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
 
   I2S_FreqConfig(LPC_I2S, freq, I2S_TX_MODE);//Set frequency for output
-  I2S_FreqConfig(LPC_I2S, freq, I2S_RX_MODE);
   if(i2smode){
-    ReadAudInd =0;
+    WriteInd =0;
     LPC_I2S->I2STXRATE = 0x00;
     LPC_I2S->I2STXBITRATE = 0x00;
     I2S_SetBitRate(LPC_I2S,0,I2S_TX_MODE);
@@ -115,6 +88,11 @@ void I2S_A_Polling_Init(uint32_t freq,int i2smode)
     //      buffer[ReadInd] = I2S_Receive (LPC_I2S);
     //      INC_BUFFER(ReadInd);
     // }
+    int i;
+    for(i=0;i<I2S_RING_BUFSIZE;i++)
+    {
+      buffer[i] = (i/(I2S_RING_BUFSIZE/2))*5000;
+    }
     NVIC_EnableIRQ(I2S_IRQn);
   }
   else {I2S_Start(LPC_I2S);}
