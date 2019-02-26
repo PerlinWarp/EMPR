@@ -248,10 +248,14 @@ void FatRead()
 
 void PC_Mode()
 {
-  WriteText("CONNECT");
+  LCDGoHome();
+  LCDPrint("****PC**MODE****\n****************");
+  InitSerInterrupts();
+  WriteText("CONNECT|");
   while(!notConnected);//Wait until response from PC is recorded
+
   //enable decoding from device
-  while(!)//wait until instruction is recieved
+  //wait until instruction is recieved
   //do each task
 }
 int main()
@@ -263,7 +267,6 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
-    WriteText("Start");
     Menu();
 
 

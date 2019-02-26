@@ -92,12 +92,13 @@ class PlayScreen(Window):
 class MainMenu(Window):
     
     def animate_duck(self):
-        if self.ser.in_waiting > 0:
-            d = self.ser.read_until('|')
-            if d == "CONNECT":
-                self.serConnected == True
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until(b'|')
+            if d.endswith(b"CONNECT|"):
+                self.serConnected = True
                 self.widgets["loading"].place_forget()
-                self.ser.write("ACK|")
+                self.widgets["duck"].place_forget()
+                self.frame.ser.write(b"ACK|")
         if self.serConnected == False:
             self.widgets["duck"].config(image = self.photos["duck"+str(self.fr)+".gif"])
             self.fr= (self.fr+1) % 12

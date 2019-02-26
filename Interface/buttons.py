@@ -31,17 +31,18 @@ class serialButton(betterButton):
         print(self.buttonName+'|')
 
 class menuButton(betterButton):
-    def __init__(self,parent,root,base,buttonName,**options):
-        self.base = base
+    def __init__(self,parent,root,frame,buttonName,**options):
+        self.frame = frame
         self.name = buttonName
         betterButton.__init__(self,parent,root,"menuButton",**options)
+        self.text = Label(self.frame,text = "buttonName")
         self.config(text = self.name,compound = BOTTOM)
     def _on_Click(self):
-        self.base.switch(self.name)
+        self.frame.switch(self.name)
 
 class exitButton(menuButton):
     def _on_Click(self):
-        self.base.root.destroy()
+        self.frame.root.destroy()
         
 class pauseButton(serialButton):
     def __init__(self,parent,root,buttonName,**options):

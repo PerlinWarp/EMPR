@@ -11,7 +11,7 @@ if __name__ == "__main__":
     root.geometry("800x600")
     root.resizable(False,False)
     root.title("Audio 'IPod' Interface")
-    ser = 0
-    #ser = self.ser = serial.Serial('/dev/ttyACM0',921600)
+    ser = serial.Serial('/dev/ttyACM0',timeout = 0.5)
+    ser.flushInput()
     app = WindowManager(ser,root)
     root.mainloop()
