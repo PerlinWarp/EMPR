@@ -9,7 +9,7 @@
 #define LCD_ADDR 0x3B
 
 
-void SendData(uint8_t* Data,int length);
+void SendData(uint8_t * data, int length);
 void LCDEnable();
 void LCDDisable();
 void LCDGoHome();
