@@ -213,7 +213,7 @@ void FatRead()
 
     SSP_Cmd(LPC_SSP0,ENABLE);
     /* Register work area to the default drive */
-    fr = f_mount(&FatFs, "", 0);
+    fr = f_mount(&FatFs, "", 1);
     if (fr)
     {
       sprintf(line, "Not Mounted WIth Code: %d\n\r",fr);
@@ -267,8 +267,8 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
-    Menu();
-
+    //Menu();
+    FatRead();
 
     return 0;
 }

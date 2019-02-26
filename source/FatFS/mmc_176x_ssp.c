@@ -67,38 +67,38 @@
 #define	MMC_WP		0						/* Write protected (yes:true, no:false, default:false) */
 
 #if SSP_CH == 0
-#define	SSPxDR		SSP0DR
-#define	SSPxSR		SSP0SR
-#define	SSPxCR0		SSP0CR0
-#define	SSPxCR1		SSP0CR1
-#define	SSPxCPSR	SSP0CPSR
-#define	CS_LOW()	{FIO0CLR2 = _BV(0);}	/* Set P0.16 low */
-#define	CS_HIGH()	{FIO0SET2 = _BV(0);}	/* Set P0.16 high */
-#define PCSSPx		PCSSP0
-#define	PCLKSSPx	PCLK_SSP0
-#define ATTACH_SSP() {\
-		__set_PINSEL(0, 15, 2);	/* SCK0 */\
-		__set_PINSEL(0, 17, 2);	/* MISO0 */\
-		__set_PINSEL(0, 18, 2);	/* MOSI0 */\
-		__set_PINSEL(0, 16, 0);	/* MOSI0 */\
-		FIO0DIR2 |= _BV(0);		/* CS# (P0.16) */\
-	}
-#elif SSP_CH == 1
-#define	SSPxDR		SSP1DR
-#define	SSPxSR		SSP1SR
-#define	SSPxCR0		SSP1CR0
-#define	SSPxCR1		SSP1CR1
-#define	SSPxCPSR	SSP1CPSR
-#define	CS_LOW()	{FIO0CLR0 = _BV(11);}	/* Set P0.6 low */
-#define	CS_HIGH()	{FIO0SET0 = _BV(11);}	/* Set P0.6 high */
-#define PCSSPx		PCSSP1
-#define	PCLKSSPx	PCLK_SSP1
-#define ATTACH_SSP() {\
-		__set_PINSEL(0, 7, 2);	/* SCK1 */\
-		__set_PINSEL(0, 8, 2);	/* MISO1 */\
-		__set_PINSEL(0, 9, 2);	/* MOSI1 */\
-		FIO0DIR |= _BV(11);		/* CS# (P0.6) */\
+	#define	SSPxDR		SSP0DR
+	#define	SSPxSR		SSP0SR
+	#define	SSPxCR0		SSP0CR0
+	#define	SSPxCR1		SSP0CR1
+	#define	SSPxCPSR	SSP0CPSR
+	#define	CS_LOW()	{FIO0CLR2 = _BV(1);}	/* Set P0.16 low */
+	#define	CS_HIGH()	{FIO0SET2 = _BV(1);}	/* Set P0.16 high */
+	#define PCSSPx		PCSSP0
+	#define	PCLKSSPx	PCLK_SSP0
+	#define ATTACH_SSP() {\
+			__set_PINSEL(0, 15, 2);	/* SCK0 */\
+			__set_PINSEL(0, 17, 2);	/* MISO0 */\
+			__set_PINSEL(0, 18, 2);	/* MOSI0 */\
+			FIO0DIR2 |= _BV(1);		/* CS# (P0.16) */\
 		}
+
+#elif SSP_CH == 1
+	#define	SSPxDR		SSP1DR
+	#define	SSPxSR		SSP1SR
+	#define	SSPxCR0		SSP1CR0
+	#define	SSPxCR1		SSP1CR1
+	#define	SSPxCPSR	SSP1CPSR
+	#define	CS_LOW()	{FIO0CLR0 = _BV(11);}	/* Set P0.6 low */
+	#define	CS_HIGH()	{FIO0SET0 = _BV(11);}	/* Set P0.6 high */
+	#define PCSSPx		PCSSP1
+	#define	PCLKSSPx	PCLK_SSP1
+	#define ATTACH_SSP() {\
+			__set_PINSEL(0, 7, 2);	/* SCK1 */\
+			__set_PINSEL(0, 8, 2);	/* MISO1 */\
+			__set_PINSEL(0, 9, 2);	/* MOSI1 */\
+			FIO0DIR |= _BV(11);		/* CS# (P0.6) */\
+			}
 #endif
 
 #if PCLK_SSP * 1 == CCLK
