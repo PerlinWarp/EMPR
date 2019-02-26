@@ -38,16 +38,22 @@ void i2s_wav_play_16_bit()
   {
     if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
     {
-      if(CHECK_BUFFER(WriteInd) != ReadInd)
+      if(WriteInd < BUFFER_SIZE)
       {
          buffer[WriteInd] = bswap_32(buffer[WriteInd]);
          //__bit_rev(buffer[WriteInd]);
          I2S_Send(LPC_I2S,buffer[WriteInd]);
-         INC_BUFFER(WriteInd);
+         ++WriteInd;
       }
-      else()
+      else
       {
         //Read Buffer full and reset write and readInd
+        unsigned int count = SD_READ(fileptr,buffer,BUFFER_SIZE);
+        if(count<BUFFER_SIZE)
+        {
+          NVIC_DisableIRQ(I2S_IRQn);
+          //Maybe send some data back to the embed when this happens
+        }
       }
     }
   }
@@ -58,7 +64,7 @@ since i2s must be disabled while we read, it is pointless to have a large buffer
 
 
 */
-void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample)
+void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample,FIL* fil)
 {
   I2S_MODEConf_Type Clock_Config;
   I2S_CFG_Type I2S_Config_Struct;
@@ -69,7 +75,7 @@ void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample)
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
   I2S_FreqConfig(LPC_I2S, BASE_FREQUENCY, I2S_TX_MODE);//Set frequency for output
   I2S_FreqConfig(LPC_I2S, BASE_FREQUENCY, I2S_RX_MODE);
-  WriteInd = ReadInd =0;
+  WriteInd = 0;
   LPC_I2S->I2STXRATE = 0x00;
   LPC_I2S->I2STXBITRATE = 0x00;
   I2S_SetBitRate(LPC_I2S,0,I2S_TX_MODE);
@@ -77,9 +83,11 @@ void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample)
   I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
   I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
   NVIC_SetPriority(I2S_IRQn, 0x03);
-
+  fileptr = fil;
   TLV320_PlayWav();
   I2S_ihf_Index = 1;
+  //Read a buffer of audio into the data
+  SD_READ(filptr,buffer,BUFFER_SIZE);//read the buffer full
   NVIC_EnableIRQ(I2S_IRQn);
 }
 

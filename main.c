@@ -1,14 +1,5 @@
 #include "main.h"
 
-static inline void SD_READ()
-{
-  NVIC_DisableIRQ(I2S_IRQn);//Disable i2s interrupts
-  CS_LOW();//Enable chip select
-  f_read(&fil,buffer,0x2000, &y);
-  CS_HIGH();//Disable chip select
-  NVIC_EnableIRQ(I2S_IRQn);
-  //enable i2s interrupts
-}
 
 
 
@@ -185,9 +176,15 @@ void Play_Audio()
   if(fr)return;
   fr = f_open(&fil, fpath, FA_READ);
   if(fr)return;
+  CS_HIGH();//Disable chip select until next use
   WAVE_HEADER w = Wav_Init(&fil);
-  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample);
-
+  int_Handler_Enable =1;
+  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
+  while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+  CS_LOW();
+  f_close(fil);
 }
 
 void UART_Mode()
@@ -270,7 +267,19 @@ void PC_Mode()
   InitSerInterrupts();
   WriteText("CONNECT|");
   while(!Connected);//Wait until response from PC is recorded
+  Connected =0;
+  LCDGoHome();
+  LCDPrint("****PC**MODE****\n***CONNECTED.***");
+  while(!Connected);//Wait for next input
+  /*
+  Possible inputs:
+  Play - load the song specified, send the song length back to the embed, send a start flag when song starts so embed can keep track of position in song
+        |Pause -stop the song, sending a timestamp to the pc interface
+                |Play - restart the song, sending a timestamp to the pc interface
+        |Next - Play the next song (open up directory and select next song before play
+        |Back - Restart the song (f_seekl(fil,44))
 
+  */
   //enable decoding from device
   //wait until instruction is recieved
   //do each task

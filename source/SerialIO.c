@@ -101,9 +101,12 @@ void connect(char* instruction)
 	}
 	switch(instruction[0])
  	{
-	 	case 'X':
-
-	 }
+	 		case 'P':
+			Connected =1;
+			break;
+			default:
+			break;
+	}
 }
 
 void TransmitText(void)
