@@ -12,9 +12,11 @@
 //Note, this only works while the buffer is a power of 2, so UART_BIT_MASK is all ones.
 #define UART_RING_BUFSIZE 256
 #define UART_BIT_MASK (UART_RING_BUFSIZE - 1)
+#define INSTR_MAX_LEN 15
 #define INC_BUFFER(bufd) (bufd = (bufd+1)&UART_BIT_MASK)
+#define DEC_BUFFER(bufd) (bufd = ((bufd==0)?UART_BIT_MASK:(bufd-1)))
 #define CHECK_BUFFER(bufd) ((bufd+1)&UART_BIT_MASK)
-
+#define CHECK_DEC_BUFFER(bufd) ((bufd==0) ? (UART_BIT_MASK):(bufd-1) )
 __IO FlagStatus TxIntStat;
 typedef struct
 {
@@ -27,7 +29,7 @@ typedef struct
 }UART_Ring_Buffer;
 
 UART_Ring_Buffer rbuf;
-volatile uint8_t notConnected = 1;
+volatile uint8_t Connected;
 
 void ReceiveText(void);
 void TransmitText(void);

@@ -27,21 +27,24 @@ class betterButton(Button):
 class serialButton(betterButton):
     def _on_Click(self):
         betterButton._on_Click(self)
-        #self.ser.write(bytes(self.buttonName+'|'))#The bar symbol will be used for separating messages
-        print(self.buttonName+'|')
+        self.root.frame.ser.write(bytes(self.buttonName+'|','utf-8'))#The bar symbol will be used for separating messages
 
 class menuButton(betterButton):
-    def __init__(self,parent,root,base,buttonName,**options):
-        self.base = base
+    def __init__(self,parent,root,frame,buttonName,**options):
+        self.frame = frame
         self.name = buttonName
         betterButton.__init__(self,parent,root,"menuButton",**options)
+        self.text = Label(self.frame,text = "buttonName")
         self.config(text = self.name,compound = BOTTOM)
     def _on_Click(self):
-        self.base.switch(self.name)
+        self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))
+        self.frame.switch(self.name)
 
 class exitButton(menuButton):
     def _on_Click(self):
-        self.base.root.destroy()
+        self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))
+        self.frame.root.destroy()
+        
         
 class pauseButton(serialButton):
     def __init__(self,parent,root,buttonName,**options):

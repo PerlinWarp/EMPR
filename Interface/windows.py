@@ -13,7 +13,7 @@ class WindowManager(Frame):
         self.ser = ser
         self.width = self.winfo_width()
         self.height = self.winfo_height()
-        self.currentScreen = "load"
+        self.currentScreen = "menu"
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
@@ -104,30 +104,41 @@ class PlaceWindow(Window):
         for filename in files:
             if filename.endswith(".gif") and filename[:-4] in self.imageSet:
                 image = Image.open("resources/"+filename)
-                #width,height =image.size
                 self.photos[filename] = ImageTk.PhotoImage(image)
                 if image.is_animated:
                     self.frameCounts[filename] = image.n_frames
                     for frame in range(0,image.n_frames):
-                        #temp = Image.new("RGBA",(width,height),(255,255,255,0))#draw transparent rectangle of correct size
                         image.seek(frame)
                         fname = filename[:-4]+str(frame)+".gif"
                         #temp.paste(image,(width,height),image)
                         self.photos[fname] = ImageTk.PhotoImage(image)
             elif filename.endswith("_pressed.gif") and filename[:-12] in self.imageSet:
                 self.photos[filename] = PhotoImage(file = "resources/"+filename)
+    def place_transparency_animation(self,bkd,ani,x,y):
+        animation = Image.open("resources/"+ani+".gif")
+        width,height = animation.size
+        background = Image.open("resources/"+bkd+".png").convert("RGBA")
+        background = background.crop((x,y,x+width,y+height))
         
-
+        for i in range(self.frameCounts[ani +".gif"]):
+            animation.seek(i)
+            temp = animation.convert("RGBA")
+            for j,px in enumerate(temp.getdata()):
+                    y = j // width
+                    x = j % width
+                    temp.putpixel((x, y), (px[0], px[1], px[2], min(255,765-sum(px[:3]))))
+            self.photos[ani +str(i)+".gif"] = ImageTk.PhotoImage(Image.alpha_composite(background,temp))
 
 class MainMenu(PlaceWindow):
     
     def animate_duck(self):
-        if self.frame.ser.in_waiting > 0:
-            d = self.frame.ser.read_until('|')
-            if d == "CONNECT":
-                self.serConnected == True
-                self.widgets["loading"].place_forget()
-                self.frame.ser.write("ACK|")
+ #       if self.frame.ser.in_waiting > 0:
+ #           d = self.frame.ser.read_until(b'|')
+ #           if d.endswith(b"CONNECT|"):
+ #               self.serConnected = True
+ #               self.widgets["loading"].place_forget()
+ #               self.widgets["duck"].place_forget()
+ #               self.frame.ser.write(b"ACK|")
         if self.serConnected == False:
             self.widgets["duck"].config(image = self.photos["duck"+str(self.fr)+".gif"])
             self.fr= (self.fr+1) % 12
@@ -148,6 +159,7 @@ class MainMenu(PlaceWindow):
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
+        self.place_transparency_animation("menubkg","duck",700,30)
         self.widgets["duck"].place(x = 700,y =30)
         self.widgets["loading"].place(x=700,y = 120)
         self.widgets["button_Area"].place(x = 80,y =180 )
@@ -185,6 +197,7 @@ class loadingScreen(PlaceWindow):
         self.widgets["load_big"]  = Label(self.frame, image=self.photos["load_big.gif"])
     def show_All(self):
         self.widgets["menubkg"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.place_transparency_animation("menubkg","load_big",360,420)
         self.widgets["load_big"].place(x = 360,y =420)
         self.animate()
     def animate(self):#Todo: generalize animate class

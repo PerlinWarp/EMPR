@@ -1,5 +1,8 @@
 #include "main.h"
 
+
+
+
 void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
@@ -168,14 +171,20 @@ void Play_Audio()
   char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
   char fpath[100];// = browse_Files();
-
+  buffer = (uint32_t*)(I2S_SRC);
   fr = f_mount(&FatFs, "", 0);
   if(fr)return;
   fr = f_open(&fil, fpath, FA_READ);
   if(fr)return;
+  CS_HIGH();//Disable chip select until next use
   WAVE_HEADER w = Wav_Init(&fil);
-  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample);
-
+  int_Handler_Enable =1;
+  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
+  while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+  CS_LOW();
+  f_close(fil);
 }
 
 void UART_Mode()
@@ -200,7 +209,12 @@ void UART_Mode()
   buttonpress =0;
 
 }
+/*
+SSP:
+Deselect sets the SSP pin high
+Select sets the SSP pin low
 
+*/
 void FatRead()
 {
     LCDGoHome();
@@ -248,10 +262,26 @@ void FatRead()
 
 void PC_Mode()
 {
-  WriteText("CONNECT");
-  while(!notConnected);//Wait until response from PC is recorded
+  LCDGoHome();
+  LCDPrint("****PC**MODE****\n****************");
+  InitSerInterrupts();
+  WriteText("CONNECT|");
+  while(!Connected);//Wait until response from PC is recorded
+  Connected =0;
+  LCDGoHome();
+  LCDPrint("****PC**MODE****\n***CONNECTED.***");
+  while(!Connected);//Wait for next input
+  /*
+  Possible inputs:
+  Play - load the song specified, send the song length back to the embed, send a start flag when song starts so embed can keep track of position in song
+        |Pause -stop the song, sending a timestamp to the pc interface
+                |Play - restart the song, sending a timestamp to the pc interface
+        |Next - Play the next song (open up directory and select next song before play
+        |Back - Restart the song (f_seekl(fil,44))
+
+  */
   //enable decoding from device
-  while(!)//wait until instruction is recieved
+  //wait until instruction is recieved
   //do each task
 }
 int main()
@@ -263,7 +293,6 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
-    WriteText("Start");
     Menu();
 
 

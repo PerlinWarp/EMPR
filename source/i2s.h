@@ -11,16 +11,17 @@
 #include "SerialIO.h"
 #include "TLV320.h"
 #include "Wave.h"
+#include "SD.h"
 #define I2S_MODE_POLLING 0
 #define I2S_MODE_INTERRUPT 1
 #define BUFFER_SIZE 256
 #define BASE_FREQUENCY 48000
+#define WAVE_BUFFER_LEN 2
 
 //#define __bit_rev(val) ((val * 0x0802LU & 0x22110LU) | (val * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16
-
+FIL* fileptr;
 uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
-
 
 
 void I2S_Polling_Init(uint32_t Freq, int i2smode);
@@ -31,7 +32,7 @@ void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uin
 void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout);
 
 
-void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample);
+void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample,FIL* fil);
 
 
 void i2s_int_Passthrough();
