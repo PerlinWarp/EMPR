@@ -1,6 +1,12 @@
 #include "MadeUpLosslessEncoder.h"
 
+/*
+Resources:
+https://github.com/ccrma/sndtools/blob/master/src/rt_ctflpc/lpc.cpp
+https://courses.cs.ut.ee/MTAT.05.127/2019_spring/uploads/Main/DC_Lecture_14.pdf
 
+
+*/
 mule_Header* ReadHeader(char* buf,unsigned int bufLength)
 {
   mule_Header* header;

@@ -1,5 +1,8 @@
 #include "main.h"
 
+
+
+
 void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
@@ -9,13 +12,14 @@ void EINT3_IRQHandler(void)
   {
     buttonpress  = 1;
     prevKey = key;
-    if(i2s_Interrupt_Mode)NVIC_DisableIRQ(I2S_IRQn);//Frightful fudge to fix a flooey
+    if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
   }
   else if (key == ' ')
   {
     prevKey = ' ';
   }
 }
+
 void IRQInit()
 {
   LPC_PINCON->PINSEL4|=0x4000000;
@@ -58,13 +62,13 @@ void DrawMenu()
       default:
         sprintf(inputBuf,"%s%s\n%s%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1],lfill2);
     }
-
+    free(lfill1);
+    free(lfill2);
     LCDGoHome();
     LCDPrint(inputBuf);
 }
 void Menu()
 {
-
     SelMenuItem =  0;
     int optionSelected = 0,changed =1;
     DrawMenu();
@@ -116,36 +120,6 @@ void Menu()
     }
 
 }
-
-/*void RecordLoop()
-{
-  //Enable I2S
-  //Init_I2S(uint32_t* BufferOut,uint32_t BufferOutWidth,uint32_t* BufferIn,uint32_t BufferInWidth);
-  //Check for interrn
-}*/
-
-void PlayLoop()
-{
-  int i =0;
-  BufferOut = (uint32_t*)malloc(sizeof(uint32_t*)*BUFO_LENGTH);
-  BufferIn = (uint32_t*)malloc(sizeof(uint32_t*)*BUFI_LENGTH);
-  for(i=0;i<BUFO_LENGTH;i++)BufferOut[i] = (i%30)*60;
-  Init_I2S(BufferOut,BUFO_LENGTH,BufferIn,BUFI_LENGTH);
-  TLV320_EnableOutput();
-  EnableOutput();
-  EnableInput();
-  LCDClear();
-  LCDPrint("Audio Mode\nPress Any Key");
-  while(!buttonpress);//Loop until new input
-  char outp[40];
-  sprintf(outp,"%lu\n\r",Channel0_TC);
-  WriteText(outp);
-  DisableOutput();
-  I2S_DeInit(LPC_I2S);
-  free(BufferOut);
-  free(BufferIn);
-  buttonpress = 0;
-}
 void I2S_PassThroughLoop()
 {
   //int i =0;
@@ -171,16 +145,17 @@ void I2S_PassThroughInterrupt()
   LCDClear();
   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
   TLV320_Start_I2S_Polling_Passthrough();
-  i2s_Interrupt_Mode =1;
+  int_Handler_Enable =1;
   I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
   while(!buttonpress);
-  i2s_Interrupt_Mode =0;
+  int_Handler_Enable =0;
   WriteText("Finis");
   I2S_DeInit(LPC_I2S);
   //free(BufferOut);
   buttonpress = 0;
 }
 
+<<<<<<< HEAD
 void FileSelection() {
   char path[32] = "/", header[16];
   char **filenames = SDMallocFilenames();
@@ -295,6 +270,8 @@ uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount) {
   free(BufferIn);
   buttonpress =0;
 }*/
+=======
+>>>>>>> master
 void PassThroughLoop()
 {
   LCDClear();
@@ -304,6 +281,29 @@ void PassThroughLoop()
   TLV320_DisablePassThrough();
   buttonpress = 0;
 }
+
+void Play_Audio()
+{
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  char fpath[100];// = browse_Files();
+  buffer = (uint32_t*)(I2S_SRC);
+  fr = f_mount(&FatFs, "", 0);
+  if(fr)return;
+  fr = f_open(&fil, fpath, FA_READ);
+  if(fr)return;
+  CS_HIGH();//Disable chip select until next use
+  WAVE_HEADER w = Wav_Init(&fil);
+  int_Handler_Enable =1;
+  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
+  while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+  CS_LOW();
+  f_close(fil);
+}
+
 void UART_Mode()
 {//Note: pyserial likely sends utf 16, which is being split into h0e0l0l0o0
   //Here, the audio is set to bypass, and the LCD is configured to display any input from UART
@@ -317,24 +317,21 @@ void UART_Mode()
   {
     if(CHECK_BUFFER(rbuf.rx_head)!=rbuf.rx_tail)
     {
-      /*LCDGoHome();
-      LCDNewLine();*/
       uint32_t len = ReadText(data, 16);
       data[len] = '\0';
       WriteText(data);
-      /*if(strcmp(data,oldData))//If old and new values differ
-      {
-        WriteText(data);
-        strcpy(oldData,data);
-      }*/
     }
   }
   TLV320_DisablePassThrough();
   buttonpress =0;
 
 }
+/*
+SSP:
+Deselect sets the SSP pin high
+Select sets the SSP pin low
 
-
+*/
 void FatRead()
 {
     LCDGoHome();
@@ -378,6 +375,31 @@ void FatRead()
 
     //Unmount the file system
     f_mount(0, "", 0);
+}
+
+void PC_Mode()
+{
+  LCDGoHome();
+  LCDPrint("****PC**MODE****\n****************");
+  InitSerInterrupts();
+  WriteText("CONNECT|");
+  while(!Connected);//Wait until response from PC is recorded
+  Connected =0;
+  LCDGoHome();
+  LCDPrint("****PC**MODE****\n***CONNECTED.***");
+  while(!Connected);//Wait for next input
+  /*
+  Possible inputs:
+  Play - load the song specified, send the song length back to the embed, send a start flag when song starts so embed can keep track of position in song
+        |Pause -stop the song, sending a timestamp to the pc interface
+                |Play - restart the song, sending a timestamp to the pc interface
+        |Next - Play the next song (open up directory and select next song before play
+        |Back - Restart the song (f_seekl(fil,44))
+
+  */
+  //enable decoding from device
+  //wait until instruction is recieved
+  //do each task
 }
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3

@@ -1,36 +1,42 @@
-/***********************************************************************//**
- * @file		I2S.h
- * @brief		Contains all macro definitions and function prototypes
- * 				support for I2S with DMA on LPC1768
- * @version		0.1
- * @date		23. January. 2019
- * @author		Idris Al-Ghabra
- **************************************************************************/
-#ifndef I2S_H_
-#define I2S_H_
+#ifndef I2S_POL_H_
+#define I2S_POL_H_
+
+
+#define PINS7_9TX 0x54000
+#define PINS023_025RX 0xA8000
 
 #include "LPC17xx.h"
 #include "lpc17xx_i2s.h"
 #include "lpc17xx_libcfg_default.h"
-#include "lpc17xx_gpdma.h"
-#include "lpc17xx_pinsel.h"
 #include "SerialIO.h"
-#include "Delay.h"
+#include "TLV320.h"
+#include "Wave.h"
+#include "SD.h"
+#define I2S_MODE_POLLING 0
+#define I2S_MODE_INTERRUPT 1
+#define BUFFER_SIZE 256
+#define BASE_FREQUENCY 48000
+#define WAVE_BUFFER_LEN 2
 
-    __IO uint32_t Channel0_TC;
-    __IO uint32_t Channel0_Err;
-    __IO uint32_t Channel1_TC;
-    __IO uint32_t Channel1_Err;
+//#define __bit_rev(val) ((val * 0x0802LU & 0x22110LU) | (val * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16
+FIL* fileptr;
+uint32_t ReadInd,WriteInd;//Pointer to a value
+uint32_t* buffer;//Pointer to a list
 
-    void DMA_IRQHandler();
-    void Init_I2S(volatile uint32_t* BufferOut,uint32_t BufferOutWidth,volatile uint32_t* BufferIn,uint32_t BufferInWidth);
-    void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uint8_t stop,uint8_t reset,uint8_t mute);
-    void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout);
-    void InitializeGPDMA(volatile uint32_t* DataOut,uint32_t OutWidth,volatile uint32_t* DataIn,uint32_t InWidth,GPDMA_Channel_CFG_Type* GPDMA_Cfg);
-    void EnableInput();
-    void EnableOutput();
-    void DisableInput();
-    void DisableOutput();
+
+void I2S_Polling_Init(uint32_t Freq, int i2smode);
+void I2S_Polling_Read(uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length);
+void I2S_Polling_Write(uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length);
+
+void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uint8_t stop,uint8_t reset,uint8_t mute);
+void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout);
+
+
+void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample,FIL* fil);
+
+
+void i2s_int_Passthrough();
+void i2s_wav_play_16_bit();
 
 
 

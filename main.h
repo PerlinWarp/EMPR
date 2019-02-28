@@ -41,16 +41,22 @@
 #include "source/i2s.h"
 #include "source/i2s_polling.h"
 #include "source/SD.h"
-   
+#include "source/interrupt_handlers.h"
+#include "source/Wave.h"
+
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
-
+//#include "source/FatFS/mmc_176x_ssp.c"
 volatile int buttonpress;
 volatile char prevKey,key;
 volatile char* Audio_buf;
  uint32_t* BufferOut;
  uint32_t* BufferIn;
-int SelMenuItem,i2s_Interrupt_Mode =0;
+int SelMenuItem;
+
+uint8_t int_Handler_Enable=0,int_Handler_Index =0;
+
+
 char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "A3.Save to SD  ", "A4.Browse SD   ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
@@ -61,8 +67,7 @@ void DrawMenu();
 void DrawArrows();
 void IRQInit();
 
-
-void PlayLoop();
+void Play_Audio();
 void PassThroughLoop();
 void RecordLoop();
 void I2S_PassThroughLoop();
@@ -72,22 +77,15 @@ uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
 void temp();
 void FatRead();
+void PC_Mode();
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&PC_Mode,&FileSelection,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&FileSelection,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
-TO DO:
-NAVIGATION:
-    View File List + Display, Navigate
-    View Information about the file e.g. size
-PC ACCESS:
-    Communicate to PC - [DOING]
-    Improve look of pc interface
-    Data Visualizer
-    External File Manager
-PLAYBACK:
-    Done!
-FILE SYSTEM:
-    Combine with actual project
+Menu Organisation:
+
+
+
 */
 
 #endif
