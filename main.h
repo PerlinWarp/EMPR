@@ -17,6 +17,9 @@
 #define BUTTON_UP '*'
 #define BUTTON_SEL 'A'
 #define BUTTON_SEL_2 'B'
+#define BUTTON_CONFIRM '0'
+#define BUTTON_CANCEL '8'
+
 //Buffer length in bytes
 #define BUFO_LENGTH 150
 #define BUFI_LENGTH 150
@@ -42,7 +45,7 @@
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
-#include "source/SD.h"
+
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
 //#include "source/FatFS/mmc_176x_ssp.c"
