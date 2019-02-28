@@ -6,5 +6,8 @@
 source/*.o
 main.o
 
-# Genarated binaries 
+# Genarated binaries
 bin/*
+
+#compiled python files
+*.pyc
