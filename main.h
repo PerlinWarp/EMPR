@@ -40,7 +40,8 @@
 #include "source/TLV320.h"
 #include "source/i2s.h"
 #include "source/i2s_polling.h"
-
+#include "source/SD.h"
+   
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
 
@@ -67,11 +68,12 @@ void RecordLoop();
 void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
 void UART_Mode();
-void MASSIVE_TEST();
+uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
+void FileSelection();
 void temp();
 void FatRead();
 
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&MASSIVE_TEST,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
+void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&FileSelection,&FatRead,&PassThroughLoop,&PassThroughLoop,&temp};
 /*
 TO DO:
 NAVIGATION:

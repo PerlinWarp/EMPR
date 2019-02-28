@@ -180,16 +180,109 @@ void I2S_PassThroughInterrupt()
   //free(BufferOut);
   buttonpress = 0;
 }
-void MASSIVE_TEST()
-{
+
+void FileSelection() {
+  char path[32] = "/", header[16];
+  char **filenames = SDMallocFilenames();
+  uint8_t fileCount, chosenIndex;
+  while(1) {
+    fileCount = SDGetFiles(path, filenames);
+
+    sprintf(header, "%s:\n", path);
+
+    chosenIndex = ShowFileSelection(filenames, header, fileCount);
+
+    if (chosenIndex == 100) { // move up a directory
+      int lastIdx = strlen(path) - 1;
+      while (path[lastIdx] != '/') {
+        path[lastIdx] = 0x00;
+        lastIdx -= 1;
+      }
+      if(lastIdx > 0) {
+        path[lastIdx] = 0x00; // elmchan does not like trailing slash
+        continue;
+      } else {
+        break;
+      }
+    }
+
+   if(filenames[chosenIndex][0] == 'd') {
+      int curlen = strlen(path);
+      sprintf(path + curlen, "/%s", filenames[chosenIndex] + 2);
+   } else {
+
+    // DO SOMETHING WITH filenames[chosenIndex] HERE
+
+    WriteText("chosen file: ");
+    WriteText(filenames[chosenIndex]);
+    WriteText("\n\r");
+    break;
+   }
+  }
+
+  if (chosenIndex == 100) {
+    WriteText("selection cancelled");
+  }
+
+  SDFreeFilenames(filenames);
+}
+
+// interactive menu to choose one of the `filenames` displayed on line 2 of LCD
+// line 1 is always `header`, fileCount is len(filenames)
+// # - down, * - up, 0 - select file/enter directory, 8 - go up directory/cancel selection
+uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount) {
   LCDClear();
   LCDGoHome();
-  char outidy[33];
-  int big = 4;
-  sprintf(outidy,"%s\n%d%d","woahtherehorsey",EGG_ON_TOAST(big),big);
-  LCDPrint(outidy);
-  while(!buttonpress);
-  buttonpress =0;
+
+  uint8_t offset = 0;
+  char line[16];
+  // char patline1[] = "Dir %s:"
+  char patline2[7] = "> %13s";
+  // char line2[16];
+  // WriteText(filenames[0]);
+
+  while(1) {
+    LCDGoHome();
+    // sprintf(line, patl1, filenames[offset]);
+    LCDPrint(header);
+    if (fileCount == 0) {
+      LCDPrint("<EMPTY>");
+    } else {
+      sprintf(line, patline2, filenames[offset]);
+      LCDPrint(line);
+    }
+    
+    while(!buttonpress);
+    buttonpress = 0;
+
+    switch (key) {
+        case '#':
+          if (offset + 1 < fileCount) {
+            offset += 1;
+
+          } else {
+            offset = 0;
+          }
+          break;
+        case '*':
+          if (offset - 1 >= 0) {
+            offset -= 1;
+          } else {
+            offset = fileCount - 1;
+          }
+          break;
+        case '0':
+          WriteText("Selected: ");
+          WriteText(filenames[offset]);
+          WriteText("\n\r");
+          return offset;
+        case '8':
+          WriteText("Moving up...");
+          return 100;
+    }
+  }
+  
+
 }
 /*void I2S_DmaPassThrough(){
   Init_I2S(BufferOut,BUFO_LENGTH,BufferOut,BUFO_LENGTH);
@@ -295,7 +388,6 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
-    WriteText("Start");
     Menu();
 
 
