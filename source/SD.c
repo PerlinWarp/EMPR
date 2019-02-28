@@ -32,13 +32,13 @@ void sd_deinit() {
     f_mount(0, "", 0);
 }
 
-#define MAX_FILE_COUNT 32
+#define MAX_FILE_COUNT 16
 
 char** SDMallocFilenames() {
-    char** filenames = (char**)malloc(32*sizeof(char*)); // max 128 filenames for now
+    char** filenames = (char**)malloc(MAX_FILE_COUNT*sizeof(char*)); // max 128 filenames for now
     int i = 0;
     for (i = 0; i < MAX_FILE_COUNT; i ++ ) {
-        filenames[i] = (char*)malloc(14 * sizeof(char));
+        filenames[i] = (char*)malloc(16 * sizeof(char));
     }
     return filenames;
 }
@@ -48,6 +48,33 @@ void SDFreeFilenames(char** filenames) {
         free(filenames[i]);
     }
     free(filenames);
+}
+
+uint8_t SDGetDirectories(char *path, char** result) {
+	int stack_begin = 0;
+	int stack_len = 1;
+	result[0] = path;
+
+	int i;
+	char buff[64];
+	char** thisDir = SDMallocFilenames();
+	while(stack_begin < stack_len) {
+		int thisDirLen = SDGetFiles(result[stack_begin], thisDir);
+
+		for (i=0; i<thisDirLen; i++) {
+			if (thisDir[i][0] == 'd') {
+				sprintf(buff, "%s/%s", result[stack_begin], thisDir[i] + 2);
+				strcpy(result[stack_len], buff);
+				stack_len++;
+			}
+		}
+
+		stack_begin ++;
+	}
+
+	SDFreeFilenames(thisDir);
+
+	return stack_len;
 }
 
 uint8_t SDGetFiles(char* path, char** result) {

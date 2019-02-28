@@ -15,6 +15,7 @@ FATFS fs;
 void SDPrintFresult(FRESULT fr);
 // void SDInit(void);
 uint8_t SDGetFiles(char* path, char** result);
+uint8_t SDGetDirectories(char *path, char** result);
 
 char** SDMallocFilenames();
 void SDFreeFilenames(char** filenames);
