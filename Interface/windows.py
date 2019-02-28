@@ -4,6 +4,7 @@ from os import *
 from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
+from random import randint
 class WindowManager(Frame):
     def __init__(self,ser,master = None,width=800,height=600):
         self.width = width
@@ -11,6 +12,7 @@ class WindowManager(Frame):
         Frame.__init__(self,master,borderwidth = 0,relief = FLAT,background = "#BDC3C7",width = self.width,height = self.height)#outside frame containing all menus etc
         self.root = master
         self.ser = ser
+        self.many_ducks = False
         self.width = self.winfo_width()
         self.height = self.winfo_height()
         #Change this to menu or play to switch between the windows
@@ -34,7 +36,6 @@ class Window():
         self.serConnected = False
         self.widgets = {}
         self.init_widgets()      
-
     def init_widgets(self):
         pass     
               
@@ -81,6 +82,11 @@ class PlaceWindow(Window):
     def hide_All(self):
         for widget in self.widgets:
             self.widgets[widget].place_forget()#remove objects without destroying them
+    def show_All(self):
+        if self.frame.many_ducks == True:
+            for i in range(15):
+                self.widgets["many_ducks"+str(i)] = size_rotate_Label(self.frame, "duck",randint(1,200),randint(1,200),randint(0,360))
+                self.widgets["many_ducks"+str(i)].place(x=randint(0,800),y = randint(0,600))
 
 class MainMenu(PlaceWindow):
     
@@ -109,6 +115,7 @@ class MainMenu(PlaceWindow):
         self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
 
     def show_All(self):
+        
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
         self.widgets["duck"].place(x = 700,y =30)
         self.widgets["loading"].place(x=700,y = 120)
@@ -118,6 +125,7 @@ class MainMenu(PlaceWindow):
         self.widgets["browseButton"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
         self.widgets["exitButton"].place(x=130,y =470)
+        PlaceWindow.show_All(self)
         self.animate_duck()
 
 class Settings(PlaceWindow):
@@ -128,12 +136,15 @@ class Settings(PlaceWindow):
         
         self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
         self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","play")
+        self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
         self.widgets["area"].place(x = 200,y =100 )
-        self.widgets["cancelButton"].place(x=439,y=432)
-        self.widgets["okButton"].place(x= 520,y = 432)
+        self.widgets["okButton"].place(x=439,y=432)
+        self.widgets["cancelButton"].place(x= 520,y = 432)
+        self.widgets["duckButton"].place(x= 452,y = 186)
+        PlaceWindow.show_All(self)
 
 class Browse(PlaceWindow):
     
@@ -170,6 +181,7 @@ class Browse(PlaceWindow):
         self.widgets["browseButton"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
         self.widgets["exitButton"].place(x=130,y =470)
+        PlaceWindow.show_All(self)
         self.animate_duck()
         
         
@@ -187,6 +199,7 @@ class loadingScreen(PlaceWindow):
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["load_big"].place(x = 360,y =420)
+        PlaceWindow.show_All(self)
         self.animate()
     def animate(self):
         if self.frame.ser.in_waiting > 0:

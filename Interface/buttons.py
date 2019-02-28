@@ -47,7 +47,9 @@ class hoverButton(betterButton):
     def _on_Click(self):
         self.frame.switch(self.menu)
 
-class cancelButton()
+class duckButton(hoverButton):
+    def _on_Click(self):
+        self.frame.many_ducks = not self.frame.many_ducks
 
 class exitButton(menuButton):
     def _on_Click(self):
@@ -72,7 +74,15 @@ class betterLabel(Label):
     def __init__(self,frame,imageLoc,**options):
         self.image = PhotoImage(file = "resources/"+imageLoc+".gif")
         Label.__init__(self,frame,image =self.image,borderwidth = 0,**options)
-
+        
+class size_rotate_Label(Label):
+    def __init__(self,frame,imageLoc,width,height,angle,**options):
+        self.image = Image.open("resources/"+imageLoc+".gif")
+        self.image = self.image.rotate(angle)
+        self.image = self.image.resize((width,height),Image.NEAREST)
+        self.image = ImageTk.PhotoImage(self.image)
+        Label.__init__(self,frame,image =self.image,borderwidth = 0,**options)
+        
 class animatedLabel(Label):
     def __init__(self,frame,imageLoc,**options):
         self.images = []
