@@ -56,7 +56,7 @@
 #define	PCSSP1	10
 #define	PCSSP0	21
 /**_______________End ____pulle_d_______**/
-#define SSP_CH	0	/* SSP channel to use (0:SSP0, 1:SSP1) */
+#define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define	CCLK		100000000UL	/* cclk frequency [Hz] */
 #define PCLK_SSP	50000000UL	/* PCLK frequency to be supplied for SSP [Hz] */
