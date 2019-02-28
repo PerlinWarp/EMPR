@@ -55,10 +55,38 @@ int SD_Test (void) {
   return 0;
 }
 
+void Mount_Test(void) {
+
+}
+
 int main (void) {
   InitSerial();
   WriteText("Start\n");
-  SD_Test();
+
+  char i;
+	FRESULT result;
+	UINT s1; 
+	//RTCTime rtc;
+	DSTATUS status;
+	FATFS drive;		/* File system object for each logical drive */
+	FIL file;			// File objects
+  char buf[40]="SD card experiment\r\n";
+
+  WriteText("Begin Disk Init\n");
+  status = disk_initialize(0); //Prepare the card
+  WriteText("Disk Initialised\n");
+	result = f_mount(&drive, "", 0); //Open card
+  WriteText("Disk Mounted\n");
+	result = f_open(&file, "test.txt", FA_CREATE_NEW);//The new file is formed.
+	result = f_close(&file); //Close the file created
+	result = f_open(&file, "test.txt", FA_WRITE);// Open the file for writing
+	for(i=0;i<5;i++) result = f_write(&file, buf,strlen(buf), &s1);//file type.	
+	result = f_close(&file); //Close file
+	result = f_open(&file, "test.txt", FA_WRITE);//Open the file again.
+	result = f_lseek(&file, file.fptr);//Go to the end of the file
+	result = f_write(&file, "Add to the end of the file",27, &s1);//Write to end the file.
+	result = f_close(&file);// Close the file.
+
   WriteText("Test Complete\n");
   return 0;
 }

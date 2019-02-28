@@ -43,15 +43,15 @@
 #define	SSPxCR0		SSP1CR0
 #define	SSPxCR1		SSP1CR1
 #define	SSPxCPSR	SSP1CPSR
-#define	CS_LOW()	{FIO0CLR0 = _BV(6);}	/* Set P0.6 low */
-#define	CS_HIGH()	{FIO0SET0 = _BV(6);}	/* Set P0.6 high */
+#define	CS_LOW()	{FIO0CLR0 = _BV(11);}	/* Set P0.6 low */
+#define	CS_HIGH()	{FIO0SET0 = _BV(11);}	/* Set P0.6 high */
 #define PCSSPx		PCSSP1
 #define	PCLKSSPx	PCLK_SSP1
 #define ATTACH_SSP() {\
 		__set_PINSEL(0, 7, 2);	/* SCK1 */\
 		__set_PINSEL(0, 8, 2);	/* MISO1 */\
 		__set_PINSEL(0, 9, 2);	/* MOSI1 */\
-		FIO0DIR |= _BV(6);		/* CS# (P0.6) */\
+		FIO0DIR |= _BV(11);		/* CS# (P0.6) */\
 		}
 #endif
 
