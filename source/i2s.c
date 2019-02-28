@@ -87,7 +87,7 @@ void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample,FIL* fi
   TLV320_PlayWav();
   I2S_ihf_Index = 1;
   //Read a buffer of audio into the data
-  SD_READ(filptr,buffer,BUFFER_SIZE);//read the buffer full
+  SD_READ(fileptr,buffer,BUFFER_SIZE);//read the buffer full
   NVIC_EnableIRQ(I2S_IRQn);
 }
 

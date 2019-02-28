@@ -13,7 +13,7 @@ class WindowManager(Frame):
         self.ser = ser
         self.width = self.winfo_width()
         self.height = self.winfo_height()
-        self.currentScreen = "menu"
+        self.currentScreen = "play"
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
@@ -30,25 +30,11 @@ class Window():
         self.width = width
         self.height = height
         self.serConnected = False
-        self.fr = 0
-        self.load_image_set()
-        self.load_images()
         self.widgets = {}
         self.init_widgets()      
-    def load_image_set(self):#create a dictionary specifying all 
-        pass
 
     def init_widgets(self):
-        pass
-        
-    def load_images(self):
-        self.photos = {}
-        files = [f for f in listdir('resources') if isfile(join('resources', f))]# get all files in path
-        for filename in files:
-            if filename.endswith(".gif") and filename[:-4] in self.imageSet:
-                self.photos[filename] = PhotoImage(file="resources/"+filename)
-            elif filename.endswith("_pressed.gif") and filename[:-12] in self.imageSet:
-                self.photos[filename] = PhotoImage(file = "resources/"+filename)
+        pass     
               
     def hide_All(self):#hide all widgets on grid
         for widget in self.widgets:
@@ -60,8 +46,6 @@ class Window():
 
 
 class PlayScreen(Window):
-    def load_image_set(self):
-        self.imageSet = ["left","right","play","pause"]
         
     def redraw_Canvas(self):
         self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
@@ -96,70 +80,34 @@ class PlaceWindow(Window):
         for widget in self.widgets:
             print(widget)
             self.widgets[widget].place_forget()#remove objects without destroying them
-            
-    def load_images(self):#load images changed to handle animated gifs
-        self.photos = {}
-        self.frameCounts = {}
-        files = [f for f in listdir('resources') if isfile(join('resources', f))]# get all files in path
-        for filename in files:
-            if filename.endswith(".gif") and filename[:-4] in self.imageSet:
-                image = Image.open("resources/"+filename)
-                self.photos[filename] = ImageTk.PhotoImage(image)
-                if image.is_animated:
-                    self.frameCounts[filename] = image.n_frames
-                    for frame in range(0,image.n_frames):
-                        image.seek(frame)
-                        fname = filename[:-4]+str(frame)+".gif"
-                        #temp.paste(image,(width,height),image)
-                        self.photos[fname] = ImageTk.PhotoImage(image)
-            elif filename.endswith("_pressed.gif") and filename[:-12] in self.imageSet:
-                self.photos[filename] = PhotoImage(file = "resources/"+filename)
-    def place_transparency_animation(self,bkd,ani,x,y):
-        animation = Image.open("resources/"+ani+".gif")
-        width,height = animation.size
-        background = Image.open("resources/"+bkd+".png").convert("RGBA")
-        background = background.crop((x,y,x+width,y+height))
-        
-        for i in range(self.frameCounts[ani +".gif"]):
-            animation.seek(i)
-            temp = animation.convert("RGBA")
-            for j,px in enumerate(temp.getdata()):
-                    y = j // width
-                    x = j % width
-                    temp.putpixel((x, y), (px[0], px[1], px[2], min(255,765-sum(px[:3]))))
-            self.photos[ani +str(i)+".gif"] = ImageTk.PhotoImage(Image.alpha_composite(background,temp))
 
 class MainMenu(PlaceWindow):
     
     def animate_duck(self):
- #       if self.frame.ser.in_waiting > 0:
- #           d = self.frame.ser.read_until(b'|')
- #           if d.endswith(b"CONNECT|"):
- #               self.serConnected = True
- #               self.widgets["loading"].place_forget()
- #               self.widgets["duck"].place_forget()
- #               self.frame.ser.write(b"ACK|")
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until(b'|')
+            if d.endswith(b"CONNECT|"):
+                self.serConnected = True
+                self.widgets["loading"].place_forget()
+                self.widgets["duck"].place_forget()
+                self.frame.ser.write(b"ACK|")
         if self.serConnected == False:
-            self.widgets["duck"].config(image = self.photos["duck"+str(self.fr)+".gif"])
-            self.fr= (self.fr+1) % 12
+            self.widgets["duck"].inc_image()
             self.frame.after(40,self.animate_duck)#repeat every 40 ms
             
-    def load_image_set(self):
-        self.imageSet = ["pc98ico","menubkg","plantpot","mbed_logo","duck","menuButton","buttonBox","menuplay","menusettings","menubrowse","menuexit"]
     def init_widgets(self):
-        self.widgets["background"]  = Label(self.frame, image=self.photos["menubkg.gif"])
-        self.widgets["duck"]  = Label(self.frame, image=self.photos["duck.gif"])
+        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("plantpot",450,350),("mbed_logo",80,90)])
+        self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
         self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
-        self.widgets["button_Area"] = Label(self.frame, image=self.photos["buttonBox.gif"],borderwidth = 0)
+        self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
         
-        self.widgets["backButton"] = menuButton(self.frame,self,self.frame,"play")
-        self.widgets["browseButton"] = menuButton(self.frame,self,self.frame,"browse")
-        self.widgets["pauseButton"] = menuButton(self.frame,self,self.frame,"settings") 
-        self.widgets["exitButton"] = exitButton(self.frame,self,self.frame,"exit")
+        self.widgets["backButton"] = menuButton(self.frame,self,"play")
+        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
+        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
+        self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
-        self.place_transparency_animation("menubkg","duck",700,30)
         self.widgets["duck"].place(x = 700,y =30)
         self.widgets["loading"].place(x=700,y = 120)
         self.widgets["button_Area"].place(x = 80,y =180 )
@@ -170,54 +118,30 @@ class MainMenu(PlaceWindow):
         self.widgets["exitButton"].place(x=130,y =470)
         self.animate_duck()
         
-            
-    def load_images(self):
-        self.fr = 0
-        PlaceWindow.load_images(self)
-        #for i in range(0,12):
-        #    self.photos["duck"+str(i)+".gif"] = Image.open()
-        #    self.photos["duck"+str(i)+".gif"] = PhotoImage(file = "resources/duck.gif",format= "gif -index "+str(i))
-        self.photos["menubkg.gif"] = Image.open("resources/menubkg.png").convert("RGBA")
-        self.photos["plantpot.gif"] = Image.open("resources/plantpot.png").convert("RGBA")
-        self.photos["mbed_logo.gif"] = Image.open("resources/mbed_logo.png").convert("RGBA")
-        self.photos["menubkg.gif"].paste(self.photos["mbed_logo.gif"],(80,90),self.photos["mbed_logo.gif"])
-        self.photos["menubkg.gif"].paste(self.photos["plantpot.gif"],(450,350),self.photos["plantpot.gif"])
         
-        self.photos["menubkg.gif"] = ImageTk.PhotoImage(self.photos["menubkg.gif"])
 
         
 
 class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
         self.frame.switch("menu")
-    def init_widgets(self):#Note: the order that widgets are instantiated defines their layer 
+    def init_widgets(self):
         self.frame.bind("<Escape>",self.return_to_menu)
         self.frame.focus_set()
-        self.widgets["menubkg"]  = Label(self.frame, image=self.photos["menubkg.gif"])
-        self.widgets["load_big"]  = Label(self.frame, image=self.photos["load_big.gif"])
+        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("connecting",150,500),("embedfs",250,150)])
+        self.widgets["load_big"]  = transparencyLabel(self.frame, "load_big","menubkg",360,420)
     def show_All(self):
-        self.widgets["menubkg"].place(x=0,y=0,relwidth = 1,relheight =1)
-        self.place_transparency_animation("menubkg","load_big",360,420)
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["load_big"].place(x = 360,y =420)
         self.animate()
-    def animate(self):#Todo: generalize animate class
-#        if self.frame.ser.in_waiting > 0:
-#            d = self.frame.ser.read_until('|')
-#            if d == "CONNECT":
-#                self.serConnected == True
-#                self.frame.switch("play")
-#                self.frame.ser.write("ACK|")
+    def animate(self):
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until('|')
+            if d == "CONNECT":
+                self.serConnected == True
+                self.frame.switch("play")
+                self.frame.ser.write("ACK|")
         if self.serConnected == False:
-            self.widgets["load_big"].config(image = self.photos["load_big"+str(self.fr)+".gif"])
-            self.fr = (self.fr+1) % self.frameCounts["load_big.gif"]
+            self.widgets["load_big"].inc_image()
             self.frame.after(70,self.animate)#repeat every 40 ms
-    def load_image_set(self):
-        self.imageSet = ["load_big"]
-    def load_images(self):
-        PlaceWindow.load_images(self)
-        self.photos["menubkg.gif"] = Image.open("resources/menubkg.png").convert("RGBA")
-        self.photos["connecting.gif"] = Image.open("resources/connecting.png").convert("RGBA")
-        self.photos["embedfs.gif"] = Image.open("resources/embedfs.png").convert("RGBA")
-        self.photos["menubkg.gif"].paste(self.photos["embedfs.gif"],(250,150),self.photos["embedfs.gif"])
-        self.photos["menubkg.gif"].paste(self.photos["connecting.gif"],(150,500),self.photos["connecting.gif"])
-        self.photos["menubkg.gif"] = ImageTk.PhotoImage(self.photos["menubkg.gif"])
+        
