@@ -132,7 +132,7 @@ class Settings(PlaceWindow):
                 print("5 was pressed")
                 self.frame.ser.write(b"ACK|")
         if self.serConnected == False:
-            self.widgets["duck"].inc_image()TLV320_PlayWav();
+            self.widgets["duck"].inc_image()
             self.frame.after(40,self.animate_duck)#repeat every 40 ms
             
     def init_widgets(self):
