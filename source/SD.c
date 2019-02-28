@@ -54,7 +54,6 @@ uint8_t SDGetFiles(char* path, char** result) {
     sd_init();
     DIR dir;
     char buff[64];
-    WriteText(path);
     FRESULT res = f_opendir(&dir, path);
     #if SD_DEBUG == 1
     WriteText("Reading Files: ");
@@ -67,7 +66,6 @@ uint8_t SDGetFiles(char* path, char** result) {
         SDPrintFresult(res);
         
         while(fno.fname[0] != 0 && i < MAX_FILE_COUNT) {
-            WriteText((char*)&fno.fname);
             strcpy(result[i] + 2, (char*)&fno.fname);
             if (fno.fattrib & AM_DIR) {
                 result[i][0] = 'd';
@@ -88,6 +86,7 @@ uint8_t SDGetFiles(char* path, char** result) {
     }
     sd_deinit();
     return i;
+}
 
 unsigned int SD_READ(FIL* fil,uint32_t* buf,uint32_t bufSize)
 {
@@ -99,6 +98,7 @@ unsigned int SD_READ(FIL* fil,uint32_t* buf,uint32_t bufSize)
   NVIC_EnableIRQ(I2S_IRQn);
   //enable i2s interrupts
   return count;
+}
 
 unsigned int SD_WRITE(FIL* fil,uint32_t* buf,uint32_t bufSize)
 {

@@ -155,7 +155,6 @@ void I2S_PassThroughInterrupt()
   buttonpress = 0;
 }
 
-<<<<<<< HEAD
 void FileSelection() {
   char path[32] = "/", header[16];
   char **filenames = SDMallocFilenames();
@@ -259,6 +258,7 @@ uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount) {
   
 
 }
+
 /*void I2S_DmaPassThrough(){
   Init_I2S(BufferOut,BUFO_LENGTH,BufferOut,BUFO_LENGTH);
   TLV320_Start_I2S_Polling_Passthrough();
@@ -270,8 +270,7 @@ uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount) {
   free(BufferIn);
   buttonpress =0;
 }*/
-=======
->>>>>>> master
+
 void PassThroughLoop()
 {
   LCDClear();

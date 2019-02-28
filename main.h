@@ -39,7 +39,6 @@
 #include "source/Delay.h"
 #include "source/TLV320.h"
 #include "source/i2s.h"
-#include "source/i2s_polling.h"
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
@@ -62,6 +61,8 @@ char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
 FATFS FatFs;
 
+
+
 void Menu();
 void DrawMenu();
 void DrawArrows();
@@ -73,12 +74,25 @@ void RecordLoop();
 void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
 void UART_Mode();
-uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
-void FileSelection();
 void temp();
 void FatRead();
 void PC_Mode();
-void (*menuFuncs[])(void) = {&PassThroughLoop,&PlayLoop,&I2S_PassThroughLoop,&I2S_PassThroughInterrupt,&UART_Mode,&PC_Mode,&FileSelection,&PassThroughLoop,&PassThroughLoop,&temp};
+
+uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
+void FileSelection();
+
+void (*menuFuncs[])(void) = {
+	&PassThroughLoop,
+	&Play_Audio,
+	&I2S_PassThroughLoop,
+	&I2S_PassThroughInterrupt,
+	&UART_Mode,
+	&FileSelection,
+	&FatRead,
+	&PassThroughLoop,
+	&PassThroughLoop,
+	&temp};
+	
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 
 /*
