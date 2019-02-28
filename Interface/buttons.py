@@ -32,6 +32,23 @@ class menuButton(betterButton):
         self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))
         self.frame.switch(self.name)
 
+class hoverButton(betterButton):
+    def __init__(self,parent,root,buttonName,menu,**options):
+        self.frame = parent
+        self.menu = menu
+        betterButton.__init__(self,parent,root,buttonName,**options)
+        self.hoverPath = PhotoImage(file ="resources/"+buttonName+"_hover.gif")
+        self.bind("<Enter>",self.on_enter)
+        self.bind("<Leave>",self.on_leave)
+    def on_enter(self,event):
+        self.config(image = self.hoverPath)
+    def on_leave(self,event):
+        self.config(image = self.imagePath)
+    def _on_Click(self):
+        self.frame.switch(self.menu)
+
+class cancelButton()
+
 class exitButton(menuButton):
     def _on_Click(self):
         self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))

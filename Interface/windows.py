@@ -80,7 +80,6 @@ class PlayScreen(Window):
 class PlaceWindow(Window):
     def hide_All(self):
         for widget in self.widgets:
-            print(widget)
             self.widgets[widget].place_forget()#remove objects without destroying them
 
 class MainMenu(PlaceWindow):
@@ -122,41 +121,19 @@ class MainMenu(PlaceWindow):
         self.animate_duck()
 
 class Settings(PlaceWindow):
-    
-    def animate_duck(self):
-        if self.frame.ser.in_waiting > 0:
-            d = self.frame.ser.read_until(b'|')
-
-            if d.endswith(b"CONNECT|"):
-                self.serConnected = True
-                print("5 was pressed")
-                self.frame.ser.write(b"ACK|")
-        if self.serConnected == False:
-            self.widgets["duck"].inc_image()
-            self.frame.after(40,self.animate_duck)#repeat every 40 ms
             
     def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("plantpot",450,350),("mbed_logo",80,90)])
-        self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
-        self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
-        self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
+        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0)])
+        self.widgets["area"] = betterLabel(self.frame, "settingsbkgd")
         
-        self.widgets["backButton"] = menuButton(self.frame,self,"play")
-        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
-        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
-        self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
+        self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
+        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","play")
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
-        self.widgets["duck"].place(x = 700,y =30)
-        self.widgets["loading"].place(x=700,y = 120)
-        self.widgets["button_Area"].place(x = 80,y =180 )
-        
-        self.widgets["backButton"].place(x=130,y =260)
-        self.widgets["browseButton"].place(x=130,y =330)
-        self.widgets["pauseButton"].place(x=130,y =400)
-        self.widgets["exitButton"].place(x=130,y =470)
-        self.animate_duck()
+        self.widgets["area"].place(x = 200,y =100 )
+        self.widgets["cancelButton"].place(x=439,y=432)
+        self.widgets["okButton"].place(x= 520,y = 432)
 
 class Browse(PlaceWindow):
     
