@@ -13,7 +13,8 @@ class WindowManager(Frame):
         self.ser = ser
         self.width = self.winfo_width()
         self.height = self.winfo_height()
-        self.currentScreen = "play"
+        #Change this to menu or play to switch between the windows
+        self.currentScreen = "menu"
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
