@@ -17,6 +17,13 @@
 #define DEC_BUFFER(bufd) (bufd = ((bufd==0)?UART_BIT_MASK:(bufd-1)))
 #define CHECK_BUFFER(bufd) ((bufd+1)&UART_BIT_MASK)
 #define CHECK_DEC_BUFFER(bufd) ((bufd==0) ? (UART_BIT_MASK):(bufd-1) )
+
+#define SERIAL_BUFFER_MAXSIZE 32
+#define SERIAL_BUFFER_MASK SERIAL_BUFFER_MAXSIZE - 1
+#define READ_SERIAL (serialCommandBuffer[serialCommandIndex])
+#define POP_SERIAL (serialCommandIndex = ((serialCommandIndex==0)?0:serialCommandIndex-1))
+#define PUSH_SERIAL (serialCommandIndex = ((serialCommandIndex==SERIAL_BUFFER_MASK)?SERIAL_BUFFER_MASK:serialCommandIndex+1))
+
 __IO FlagStatus TxIntStat;
 typedef struct
 {
@@ -29,7 +36,9 @@ typedef struct
 }UART_Ring_Buffer;
 
 UART_Ring_Buffer rbuf;
-volatile uint8_t Connected;
+
+volatile char serialCommandBuffer[SERIAL_BUFFER_MAXSIZE][INSTR_MAX_LEN+1];//commands in memory
+volatile uint8_t serialCommandIndex;
 
 void ReceiveText(void);
 void TransmitText(void);

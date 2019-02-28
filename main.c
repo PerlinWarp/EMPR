@@ -283,26 +283,26 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  FIL fil;        /* File object */
-  FRESULT fr;     /* FatFs return code */
   char fpath[100];// = browse_Files();
-  buffer = (uint32_t*)(I2S_SRC);
-  fr = f_mount(&FatFs, "", 0);
-  if(fr)return;
-  WriteText("mounted\r\n");
-  fr = f_open(&fil, "meme.wav", FA_READ);
-  if(fr)return;
-  WriteText("opened\r\n");
-  CS_HIGH();//Disable chip select until next use
-  WAVE_HEADER w = Wav_Init(&fil);
+  Play(fpath);
   int_Handler_Enable =1;
-  WriteText("opened wav\n\r");
-  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
-  CS_LOW();
   f_close(&fil);
+}
+
+void Play(char* directory)
+{
+  FIL fil;        /* File object */
+  FRESULT fr;     /* FatFs return code */
+  buffer = (uint32_t*)(I2S_SRC);
+  fr = f_mount(&FatFs, "", 0);
+  if(fr)return;
+  fr = f_open(&fil, directory, FA_READ);
+  if(fr)return;
+  WAVE_HEADER w = Wav_Init(&fil);
+  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
 }
 
 void UART_Mode()
@@ -383,11 +383,47 @@ void PC_Mode()
   LCDPrint("****PC**MODE****\n****************");
   InitSerInterrupts();
   WriteText("CONNECT|");
-  while(!Connected);//Wait until response from PC is recorded
-  Connected =0;
+  while(!serialCommandIndex)if(!strcmp(READ_SERIAL,"ACK"))break;//Wait until response from PC is recorded
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
-  while(!Connected);//Wait for next input
+  uint8_t finished =0,playing=0;
+  while(!finished)//Wait for next input
+  {
+    if(serialCommandIndex>0){//If there are instructions to process
+      switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
+      {
+        case 'P'://play
+          playing =1;
+          Play(&READ_SERIAL[2]);
+          break;
+        case 'W'://pause
+          playing = 0;
+          NVIC_DisableIRQ(I2S_IRQn);
+        case 'R'://resume
+          playing = 1;
+          NVIC_EnableIRQ(I2S_IRQn);
+        case 'S'://Send back settings data in the form S:settings array index,value| 
+          char delim[2] = ",";
+          settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
+          break;
+        case 'E'://Exit and return to main menu
+          finished = 1;
+          break;
+        case 'B'://send all browsing data back to embed
+          char output[SERIAL_BUFFER_MAXSIZE];
+          char ** fileList;
+          int i,len = listAllSongs(&fileList,"/");
+          for(i=0;i<len;i++)
+          {
+            sprintf(output,"%s|",fileList[i]);
+            WriteText(output);
+          }
+          break;
+      }
+      POP_SERIAL;
+      if(playing)NVIC_EnableIRQ(I2S_IRQn);
+    }
+  }
   /*
   Possible inputs:
   Play - load the song specified, send the song length back to the embed, send a start flag when song starts so embed can keep track of position in song

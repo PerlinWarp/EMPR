@@ -61,7 +61,7 @@ char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
 FATFS FatFs;
 
-
+int settings[20];
 
 void Menu();
 void DrawMenu();
@@ -77,7 +77,7 @@ void UART_Mode();
 void temp();
 void FatRead();
 void PC_Mode();
-
+void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
 
