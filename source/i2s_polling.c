@@ -91,7 +91,10 @@ void I2S_A_Polling_Init(uint32_t freq,int i2smode)
     int i;
     for(i=0;i<I2S_RING_BUFSIZE;i++)
     {
+      char output[10];
       buffer[i] = (i/(I2S_RING_BUFSIZE/2))*5000;
+      sprintf(output,"0x%x",buffer[i]);
+      WriteText(output);
     }
     NVIC_EnableIRQ(I2S_IRQn);
   }
