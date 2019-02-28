@@ -112,7 +112,7 @@ static volatile
 DSTATUS Stat = STA_NOINIT;	/* Physical drive status */
 
 static volatile
-UINT Timer1, Timer2;	/* 1kHz decrement timer stopped at zero (disk_timerproc()) */
+UINT Timer1, f2, Timer2;	/* 1kHz decrement timer stopped at zero (disk_timerproc()) */
 
 static
 BYTE CardType;			/* Card type flags */
@@ -283,7 +283,12 @@ void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 	ATTACH_SSP();			/* Attach SSP module to I/O pads */
 	CS_HIGH();				/* Set CS# high */
 
-	for (Timer1 = 10; Timer1; ) ;	/* 10ms */
+	//For some reason this works
+	int timer;
+	for(timer = 100000; timer; timer--);
+
+
+	//for (Timer1 = 10; Timer1 ) ;	/* 10ms */
 }
 
 

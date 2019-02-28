@@ -848,7 +848,7 @@
 #define	DMACSoftLSReq	(*(volatile uint32_t*)0x5000402C)
 #define	DMACConfig		(*(volatile uint32_t*)0x50004030)
 #define	DMACSync		(*(volatile uint32_t*)0x50004034)
-#define	DMAREQSEL		(*(volatile uint32_t*)0x400FC1C4)
+// #define	DMAREQSEL		(*(volatile uint32_t*)0x400FC1C4)
 #define	DMACC0SrcAddr	(*(volatile uint32_t*)0x50004100)
 #define	DMACC0DestAddr	(*(volatile uint32_t*)0x50004104)
 #define	DMACC0LLI		(*(volatile uint32_t*)0x50004108)

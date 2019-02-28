@@ -3,11 +3,13 @@
 #include <string.h>
 
 #include "LPC17xx.h"
-#include "SerialIO.h"
 
+#include "Libraries/SerialIO.h"
+
+#include "Libraries/FatFS/LPC176x.h"
 #include "Libraries/FatFS/diskio.h"
 #include "Libraries/FatFS/ff.h"
 
-void FatRead();
+FATFS FatFs;
 
-//REPLACE TIMER 0 IN MMC FILE
+int SD_Test();
