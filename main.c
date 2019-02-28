@@ -168,7 +168,6 @@ void PassThroughLoop()
 void Play_Audio()
 {
   FIL fil;        /* File object */
-  char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
   char fpath[100];// = browse_Files();
   buffer = (uint32_t*)(I2S_SRC);
@@ -184,7 +183,7 @@ void Play_Audio()
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
   CS_LOW();
-  f_close(fil);
+  f_close(&fil);
 }
 
 void UART_Mode()
@@ -232,7 +231,7 @@ void FatRead()
     {
       sprintf(line, "Not Mounted WIth Code: %d\n\r",fr);
       WriteText(line);
-      return (int)fr;
+      return;
     }
     /* Open a text file */
     fr = f_open(&fil, "a.wav", FA_READ);
@@ -240,12 +239,11 @@ void FatRead()
     {
       sprintf(line, "Exited with Error Code: %d\n\r",fr);
       WriteText(line);
-      return (int)fr;
+      return;
     }
 
     /* Read every line and display it */
     uint y;
-    int n;
     char buffer [0x2000];
 
     while (!fr){

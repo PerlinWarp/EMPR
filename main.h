@@ -41,7 +41,7 @@
 #include "source/i2s.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
-
+#include "source/SD.h"
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
 //#include "source/FatFS/mmc_176x_ssp.c"
