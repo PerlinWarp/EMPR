@@ -15,7 +15,8 @@ class WindowManager(Frame):
         self.height = self.winfo_height()
         #Change this to menu or play to switch between the windows
         self.currentScreen = "menu"
-        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"load":loadingScreen(self)}#initialize array of window contents
+        #Defining all the windows for the menu buttons
+        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
         self.menus[self.currentScreen].hide_All()
@@ -88,9 +89,84 @@ class MainMenu(PlaceWindow):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until(b'|')
             if d.endswith(b"CONNECT|"):
+                #Getting rid of the duck. 
                 self.serConnected = True
                 self.widgets["loading"].place_forget()
                 self.widgets["duck"].place_forget()
+                self.frame.ser.write(b"ACK|")
+        if self.serConnected == False:
+            self.widgets["duck"].inc_image()
+            self.frame.after(40,self.animate_duck)#repeat every 40 ms
+            
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("plantpot",450,350),("mbed_logo",80,90)])
+        self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
+        self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
+        self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
+        
+        self.widgets["backButton"] = menuButton(self.frame,self,"play")
+        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
+        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
+        self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
+
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
+        self.widgets["duck"].place(x = 700,y =30)
+        self.widgets["loading"].place(x=700,y = 120)
+        self.widgets["button_Area"].place(x = 80,y =180 )
+        
+        self.widgets["backButton"].place(x=130,y =260)
+        self.widgets["browseButton"].place(x=130,y =330)
+        self.widgets["pauseButton"].place(x=130,y =400)
+        self.widgets["exitButton"].place(x=130,y =470)
+        self.animate_duck()
+
+class Settings(PlaceWindow):
+    
+    def animate_duck(self):
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until(b'|')
+
+            if d.endswith(b"CONNECT|"):
+                self.serConnected = True
+                print("5 was pressed")
+                self.frame.ser.write(b"ACK|")
+        if self.serConnected == False:
+            self.widgets["duck"].inc_image()
+            self.frame.after(40,self.animate_duck)#repeat every 40 ms
+            
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("plantpot",450,350),("mbed_logo",80,90)])
+        self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
+        self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
+        self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
+        
+        self.widgets["backButton"] = menuButton(self.frame,self,"play")
+        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
+        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
+        self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
+
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
+        self.widgets["duck"].place(x = 700,y =30)
+        self.widgets["loading"].place(x=700,y = 120)
+        self.widgets["button_Area"].place(x = 80,y =180 )
+        
+        self.widgets["backButton"].place(x=130,y =260)
+        self.widgets["browseButton"].place(x=130,y =330)
+        self.widgets["pauseButton"].place(x=130,y =400)
+        self.widgets["exitButton"].place(x=130,y =470)
+        self.animate_duck()
+
+class Browse(PlaceWindow):
+    
+    def animate_duck(self):
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until(b'|')
+
+            if d.endswith(b"CONNECT|"):
+                self.serConnected = True
+                print("5 was pressed")
                 self.frame.ser.write(b"ACK|")
         if self.serConnected == False:
             self.widgets["duck"].inc_image()
