@@ -33,9 +33,7 @@ class menuButton(betterButton):
     def __init__(self,parent,root,frame,buttonName,**options):
         self.frame = frame
         self.name = buttonName
-        betterButton.__init__(self,parent,root,"menuButton",**options)
-        self.text = Label(self.frame,text = "buttonName")
-        self.config(text = self.name,compound = BOTTOM)
+        betterButton.__init__(self,parent,root,"menu"+buttonName,**options,borderwidth = 0)
     def _on_Click(self):
         self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))
         self.frame.switch(self.name)

@@ -145,17 +145,17 @@ class MainMenu(PlaceWindow):
             self.frame.after(40,self.animate_duck)#repeat every 40 ms
             
     def load_image_set(self):
-        self.imageSet = ["pc98ico","menubkg","plantpot","mbed_logo","duck","menuButton"]
+        self.imageSet = ["pc98ico","menubkg","plantpot","mbed_logo","duck","menuButton","buttonBox","menuplay","menusettings","menubrowse","menuexit"]
     def init_widgets(self):
         self.widgets["background"]  = Label(self.frame, image=self.photos["menubkg.gif"])
         self.widgets["duck"]  = Label(self.frame, image=self.photos["duck.gif"])
         self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
-        self.widgets["button_Area"] = Frame(self.frame,height = 350,width = 250,borderwidth = 5,relief = SUNKEN,highlightbackground="green", background = "#ECF0F1")
+        self.widgets["button_Area"] = Label(self.frame, image=self.photos["buttonBox.gif"],borderwidth = 0)
         
-        self.widgets["backButton"] = menuButton(self.widgets["button_Area"],self,self.frame,"play")
-        self.widgets["browseButton"] = menuButton(self.widgets["button_Area"],self,self.frame,"Browse")
-        self.widgets["pauseButton"] = menuButton(self.widgets["button_Area"],self,self.frame,"Settings") 
-        self.widgets["exitButton"] = exitButton(self.widgets["button_Area"],self,self.frame,"Exit")
+        self.widgets["backButton"] = menuButton(self.frame,self,self.frame,"play")
+        self.widgets["browseButton"] = menuButton(self.frame,self,self.frame,"browse")
+        self.widgets["pauseButton"] = menuButton(self.frame,self,self.frame,"settings") 
+        self.widgets["exitButton"] = exitButton(self.frame,self,self.frame,"exit")
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
@@ -164,10 +164,10 @@ class MainMenu(PlaceWindow):
         self.widgets["loading"].place(x=700,y = 120)
         self.widgets["button_Area"].place(x = 80,y =180 )
         
-        self.widgets["backButton"].place(x=40,y =70)
-        self.widgets["browseButton"].place(x=40,y =140)
-        self.widgets["pauseButton"].place(x=40,y =210)
-        self.widgets["exitButton"].place(x=40,y =280)
+        self.widgets["backButton"].place(x=130,y =260)
+        self.widgets["browseButton"].place(x=130,y =330)
+        self.widgets["pauseButton"].place(x=130,y =400)
+        self.widgets["exitButton"].place(x=130,y =470)
         self.animate_duck()
         
             
