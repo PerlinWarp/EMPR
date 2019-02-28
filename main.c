@@ -173,11 +173,14 @@ void Play_Audio()
   buffer = (uint32_t*)(I2S_SRC);
   fr = f_mount(&FatFs, "", 0);
   if(fr)return;
-  fr = f_open(&fil, fpath, FA_READ);
+  WriteText("mounted\r\n");
+  fr = f_open(&fil, "meme.wav", FA_READ);
   if(fr)return;
+  WriteText("opened\r\n");
   CS_HIGH();//Disable chip select until next use
   WAVE_HEADER w = Wav_Init(&fil);
   int_Handler_Enable =1;
+  WriteText("opened wav\n\r");
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;

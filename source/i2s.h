@@ -32,7 +32,7 @@ void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uin
 void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout);
 
 
-void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample,FIL* fil);
+void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSample,FIL* fil);
 
 
 void i2s_int_Passthrough();
