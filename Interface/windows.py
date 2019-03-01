@@ -137,7 +137,7 @@ class Settings(PlaceWindow):
         self.widgets["testLabel"] = betterLabel(self.frame, "duck")
 
         self.duck = PhotoImage("resources/duck.gif")
-        self.widgets["listBox"] = referenceComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"],((self.widgets["testLabel"],400,400,"Sandwich")))#betterComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"])
+        self.widgets["listBox"] = referenceComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"],[[self.widgets["testLabel"],400,400,"Sandwich"]])#betterComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"])
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )

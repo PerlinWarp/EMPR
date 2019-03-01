@@ -173,7 +173,7 @@ class referenceComboBox(betterComboBox):
         betterComboBox.__init__(self,frame,options,self.current_value)
     def do(self,event):
         for widget in self.thingsToShow:
-            if widget[4] == self.current_value.get():
-                widget[0].place(widget[1],widget[2])
+            if widget[3] == self.current_value.get():
+                widget[0].place(x=widget[1],y=widget[2])
             else:
-                widget.place_forget()    
+                widget[0].place_forget()    
