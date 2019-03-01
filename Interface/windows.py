@@ -1,10 +1,11 @@
 import serial
 from tkinter import *
+from tkinter.ttk import Combobox
 from os import *
 from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
-from random import randint
+
 class WindowManager(Frame):
     def __init__(self,ser,master = None,width=800,height=600):
         self.width = width
@@ -83,11 +84,7 @@ class PlaceWindow(Window):
         for widget in self.widgets:
             self.widgets[widget].place_forget()#remove objects without destroying them
     def show_All(self):
-        if self.frame.many_ducks == True:
-            for i in range(15):
-                self.widgets["many_ducks"+str(i)] = size_rotate_Label(self.frame, "duck",randint(1,200),randint(1,200),randint(0,360))
-                self.widgets["many_ducks"+str(i)].place(x=randint(0,800),y = randint(0,600))
-
+        self.widgets["background"].switch_to_duck()
 class MainMenu(PlaceWindow):
     
     def animate_duck(self):
@@ -113,6 +110,7 @@ class MainMenu(PlaceWindow):
         self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
         self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
         self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
+        
 
     def show_All(self):
         
@@ -131,21 +129,23 @@ class MainMenu(PlaceWindow):
 class Settings(PlaceWindow):
             
     def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0)])
-        self.widgets["area"] = betterLabel(self.frame, "settingsbkgd")
+        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("settingsbkgd",200,100)])
         
         self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
         self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","play")
         self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
+        self.widgets["testLabel"] = betterLabel(self.frame, "duck")
+
+        self.duck = PhotoImage("resources/duck.gif")
+        self.widgets["listBox"] = referenceComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"],((self.widgets["testLabel"],400,400,"Sandwich")))#betterComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"])
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
-        self.widgets["area"].place(x = 200,y =100 )
         self.widgets["okButton"].place(x=439,y=432)
         self.widgets["cancelButton"].place(x= 520,y = 432)
         self.widgets["duckButton"].place(x= 452,y = 186)
+        self.widgets["listBox"].place(x=232,y=258)
         PlaceWindow.show_All(self)
-
 class Browse(PlaceWindow):
     
     def animate_duck(self):

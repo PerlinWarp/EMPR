@@ -1,6 +1,8 @@
 import serial
 from tkinter import *
+from tkinter.ttk import Combobox
 from PIL import Image, ImageTk,GifImagePlugin
+from random import randint
 class betterButton(Button):
     def __init__(self,parent,root,buttonName,**options):
         Button.__init__(self,parent,**options)
@@ -77,7 +79,7 @@ class betterLabel(Label):
         
 class size_rotate_Label(Label):
     def __init__(self,frame,imageLoc,width,height,angle,**options):
-        self.image = Image.open("resources/"+imageLoc+".gif")
+        self.image = Image.open("resources/"+imageLoc+".gif").convert("RGBA")
         self.image = self.image.rotate(angle)
         self.image = self.image.resize((width,height),Image.NEAREST)
         self.image = ImageTk.PhotoImage(self.image)
@@ -128,6 +130,7 @@ class transparencyLabel(animatedLabel):
 
 class layeredLabel(Label):
     def __init__(self,frame,images):
+        self.frame = frame
         self.load_images(images)
         Label.__init__(self,frame,image = self.image,borderwidth =0)
     def load_images(self,images):
@@ -135,5 +138,42 @@ class layeredLabel(Label):
         for i in range(1,len(images)):
             temp = Image.open("resources/"+images[i][0]+".png").convert("RGBA")
             self.image.paste(temp,(images[i][1],images[i][2]),temp)
+        self.duckImage = self.image
         self.image = ImageTk.PhotoImage(self.image)
-        
+        if images[0][0] == "menubkg": 
+            duck = Image.open("resources/duck.gif").convert("RGBA")
+            for i in range(15):
+                temp = duck.rotate(randint(0,360))
+                temp = temp.resize((randint(1,200),randint(1,300)),Image.NEAREST)
+                self.duckImage.paste(temp,(randint(1,800),randint(1,600)),temp)
+            self.duckImage = ImageTk.PhotoImage(self.duckImage)
+    def switch_to_duck(self):
+        if self.frame.many_ducks == True:
+            self.config(image = self.duckImage)
+        else:
+            self.config(image = self.image)
+
+class betterListBox(Listbox):
+    def __init__(self,master,options):
+        self.master = master
+        Listbox.__init__(self,master)
+        for option in options:
+            self.insert(END, option)
+            
+class betterComboBox(Combobox):
+    def __init__(self,frame,options,stringvar = None,width = 22,height = 21):
+        Combobox.__init__(self,frame,values=options,textvariable = stringvar,width = width,height = height,state = "readonly")
+        self.bind("<<ComboboxSelected>>",self.do)
+    def do(self,event):
+        pass
+class referenceComboBox(betterComboBox):
+    def __init__(self,frame,options,thingsToShow):#things to show is formated as so ((),(),())-> (widget,x,y,state)
+        self.thingsToShow = thingsToShow
+        self.current_value = StringVar()
+        betterComboBox.__init__(self,frame,options,self.current_value)
+    def do(self,event):
+        for widget in self.thingsToShow:
+            if widget[4] == self.current_value.get():
+                widget[0].place(widget[1],widget[2])
+            else:
+                widget.place_forget()    
