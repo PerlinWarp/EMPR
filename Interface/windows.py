@@ -80,6 +80,7 @@ class MainMenu(PlaceWindow):
     def animate_duck(self):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until(b'|')
+            print(d)
             if d.endswith(b"CONNECT|"):
                 #Getting rid of the duck. 
                 self.serConnected = True

@@ -90,7 +90,7 @@ void (*menuFuncs[])(void) = {
 	&I2S_PassThroughLoop,
 	&I2S_PassThroughInterrupt,
 	&UART_Mode,
-	&FileSelection,
+	&PC_Mode,
 	&FatRead,
 	&PassThroughLoop,
 	&PassThroughLoop,
