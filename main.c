@@ -64,10 +64,12 @@ void DrawMenu()
       default:
         sprintf(inputBuf,"%s%s\n%s%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1],lfill2);
     }
+    WriteText("before");
     free(lfill1);
     free(lfill2);
     LCDGoHome();
     LCDPrint(inputBuf);
+    WriteText("after");
 }
 void Menu()
 {
