@@ -49,7 +49,13 @@ class Window():
             widget.grid(row = i,column = j)
 
 
-class PlayScreen(Window):
+class PlaceWindow(Window):
+    def hide_All(self):
+        for widget in self.widgets:
+            self.widgets[widget].place_forget()#remove objects without destroying them
+    def show_All(self):
+        self.widgets["background"].switch_to_duck()
+class PlayScreen(PlaceWindow):
         
     def redraw_Canvas(self):
         self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
@@ -58,33 +64,17 @@ class PlayScreen(Window):
         self.serConnected = False
         self.frame.grid(row =0,column =0,sticky = N+S+E+W)
 
-        self.widgets["canvas"] = Canvas(self.frame,width = 396,height = 228+30,highlightthickness=0)
+        self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
+        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
         self.redraw_Canvas()
 
-        self.widgets["buttonFrame"] = Frame(self.frame,borderwidth = 2, relief = 'groove',background = 'white')
         
-        self.widgets["backButton"] = serialButton(self.widgets["buttonFrame"],self,"left")
-        self.widgets["pauseButton"] = pauseButton(self.widgets["buttonFrame"],self,"pause") 
-        self.widgets["fwdButton"] = serialButton(self.widgets["buttonFrame"],self,"right")
    
     def show_All(self):
-        self.widgets["canvas"].grid(row = 0,column = 0, sticky = N+W+E)
-        self.widgets["buttonFrame"].grid(row = 1,column = 0,sticky = S)
-        
-        self.widgets["backButton"].grid(row = 0,column = 0)
-        self.widgets["pauseButton"].grid(row = 0,column = 1)
-        self.widgets["fwdButton"].grid(row = 0,column = 2)
-        
-        self.frame.rowconfigure(0,weight = 1)
-        self.frame.columnconfigure(0,weight =1)
+        self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["canvas"].place(x=274 ,y=140)
 
 
-class PlaceWindow(Window):
-    def hide_All(self):
-        for widget in self.widgets:
-            self.widgets[widget].place_forget()#remove objects without destroying them
-    def show_All(self):
-        self.widgets["background"].switch_to_duck()
 class MainMenu(PlaceWindow):
     
     def animate_duck(self):
@@ -135,16 +125,19 @@ class Settings(PlaceWindow):
         self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","play")
         self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
         self.widgets["testLabel"] = betterLabel(self.frame, "duck")
-
-        self.duck = PhotoImage("resources/duck.gif")
-        self.widgets["listBox"] = referenceComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"],[[self.widgets["testLabel"],400,400,"Sandwich"]])#betterComboBox(self.frame,["Sandwich","Antistropic filtering","filet fish","steak"])
+        comboBox_menus = ["Sandwich","Antistropic filtering","filet fish","steak"]
+        self.widgets["volume"] = Scale(self.frame,orient = HORIZONTAL,length =148)
+        for i in range(4):
+            self.widgets["scale"+str(i)] = betterScale(self.frame,comboBox_menus[i],414,257)
+        self.widgets["listBox"] = referenceComboBox(self.frame,self.widgets,comboBox_menus,[["scale",4]])
 
     def show_All(self):
-        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["okButton"].place(x=439,y=432)
         self.widgets["cancelButton"].place(x= 520,y = 432)
         self.widgets["duckButton"].place(x= 452,y = 186)
         self.widgets["listBox"].place(x=232,y=258)
+        self.widgets["volume"].place(x=232,y=176)
         PlaceWindow.show_All(self)
 class Browse(PlaceWindow):
     

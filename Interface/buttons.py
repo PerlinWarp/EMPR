@@ -167,13 +167,23 @@ class betterComboBox(Combobox):
     def do(self,event):
         pass
 class referenceComboBox(betterComboBox):
-    def __init__(self,frame,options,thingsToShow):#things to show is formated as so ((),(),())-> (widget,x,y,state)
+    def __init__(self,frame,widgets,options,thingsToShow):#things to show is formated as so [[label,number],[]]
         self.thingsToShow = thingsToShow
         self.current_value = StringVar()
+        self.widgets = widgets
         betterComboBox.__init__(self,frame,options,self.current_value)
     def do(self,event):
-        for widget in self.thingsToShow:
-            if widget[3] == self.current_value.get():
-                widget[0].place(x=widget[1],y=widget[2])
-            else:
-                widget[0].place_forget()    
+        for i in range(len(self.thingsToShow)):
+            for j in range(self.thingsToShow[i][1]):
+                widget = self.widgets[self.thingsToShow[i][0]+str(j)]
+                if widget.value == self.current_value.get():
+                    widget.place(x=widget.x,y=widget.y)
+                else:
+                    widget.place_forget()    
+class betterScale(Scale):
+    def __init__(self,frame,value,xVal=400,yVal=400,**options):
+        self.value = value
+        self.x = xVal
+        self.y = yVal
+        Scale.__init__(self,frame,from_=0,to=128,orient = HORIZONTAL,length =148,**options)
+                 
