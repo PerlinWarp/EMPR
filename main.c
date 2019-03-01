@@ -60,7 +60,7 @@ void DrawMenu()
     }
     LCDGoHome();
     LCDPrint(inputBuf);
-}
+  }
 void Menu()
 {
     SelMenuItem =  0;
