@@ -165,7 +165,7 @@ uint8_t NewFileSelection(char* newpath) {
     WriteText("oi\n\r");
 
     if (dir == 100) {
-    	
+      return 0;
     } else {
     	WriteText("Selected Directory: ");
     	WriteText(directoryNames[dir]);
@@ -252,7 +252,7 @@ void Play_Audio()
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
-
+}
 
 void Play(char* directory)
 {
@@ -354,7 +354,7 @@ void PC_Mode()
   {
     if(serialCommandIndex>0){//If there are instructions to process
       switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
-      {/*
+      {
         case 'P'://play
           playing =1;
           Play(&READ_SERIAL[2]);
@@ -365,23 +365,24 @@ void PC_Mode()
         case 'R'://resume
           playing = 1;
           NVIC_EnableIRQ(I2S_IRQn);
-        case 'S'://Send back settings data in the form S:settings array index,value| 
+        case 'S':;//Send back settings data in the form S:settings array index,value|
           char delim[2] = ",";
           settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
           break;
         case 'E'://Exit and return to main menu
           finished = 1;
           break;
-        case 'B'://send all browsing data back to embed
+        case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
-          char ** fileList;
-          int i,len = listAllSongs(&fileList,"/");
+          char ** fileList = SDMallocFilenames();
+          int i,len = SDGetFiles("/",fileList);
           for(i=0;i<len;i++)
           {
             sprintf(output,"%s|",fileList[i]);
             WriteText(output);
           }
-          break;*/
+          SDFreeFilenames(fileList);
+          break;
       }
       POP_SERIAL;
       if(playing)NVIC_EnableIRQ(I2S_IRQn);
@@ -441,7 +442,7 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
       sprintf(line, patline2, items[offset]);
       LCDPrint(line);
     }
-    
+
     while(!buttonpress);
     buttonpress = 0;
 

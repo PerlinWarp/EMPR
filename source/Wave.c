@@ -32,7 +32,7 @@ WAVE_HEADER Wav_Init(FIL* file )
   if(strncmp(w.Subchunk2ID,"data",4))return w;
   w.Subchunk2Size = head_buffer[40];
   char fileInfo[100];
-  sprintf(fileInfo,"Audio Format: %u\n\rNum Channels:%u\n\rSample Rate:0x%08x\n\r",w.AudioFormat,w.NumChannels,w.SampleRate);
+  //sprintf(fileInfo,"Audio Format: %u\n\rNum Channels:%u\n\rSample Rate:0x%08x\n\r",w.AudioFormat,w.NumChannels,w.SampleRate);
   WriteText(fileInfo);
   WriteText("loaded Wave Successfully\n\r");
   return w;
