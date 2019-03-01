@@ -114,7 +114,7 @@ class PlayScreen(PlaceWindow):
         self.serConnected = False
         self.frame.grid(row =0,column =0,sticky = N+S+E+W)
 
-        self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
+        self.widgets["background"] = layeredLabel(self.frame,[("playbackground",0,0)])
         self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
 
         
@@ -132,7 +132,7 @@ class PlayScreen(PlaceWindow):
         
    
     def show_All(self):
-        self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["canvas"].place(x=274 ,y=140)
 
         self.widgets["start"].place(x=0,y =574)
@@ -140,7 +140,7 @@ class PlayScreen(PlaceWindow):
         
         self.widgets["realplay"].place(x=84,y =118)
         self.widgets["realpause"].place(x=116,y =118)
-
+        PlaceWindow.show_All(self)
 
 class Settings(PlaceWindow):
             
