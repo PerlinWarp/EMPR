@@ -1,6 +1,6 @@
 import serial
 from tkinter import *
-from tkinter.ttk import Combobox
+from tkinter.ttk import Combobox,Style
 from PIL import Image, ImageTk,GifImagePlugin
 from random import randint
 class betterButton(Button):
@@ -10,7 +10,7 @@ class betterButton(Button):
         self.imagePath = ImageTk.PhotoImage(file ="resources/"+buttonName+".gif")
         self.imagePathPressed = PhotoImage(file ="resources/"+buttonName+"_pressed.gif")
         self.buttonName = buttonName
-        self.config(relief = SUNKEN,borderwidth = 0,highlightthickness=0,command =self._on_Click,image = self.imagePath)
+        self.config(relief = FLAT,borderwidth = 0,highlightthickness=0,command =self._on_Click,image = self.imagePath)
         self.bind('<ButtonPress-1>',self._on_pressed)
         self.bind('<ButtonRelease-1>',self._on_release)
     def _on_pressed(self,event):
@@ -70,7 +70,7 @@ class startButton(hoverButton):
     def _on_Click(self):
         if(not self.menu_open):
             self.root.widgets["95menu"].place(x=0,y=260)
-            self.root.widgets["shutdown"].place(x=22,y=537)
+            self.root.widgets["shutdown"].place(x=24,y=537)
         else:
             self.root.widgets["95menu"].place_forget()
             self.root.widgets["shutdown"].place_forget()
@@ -188,8 +188,18 @@ class betterListBox(Listbox):
             self.insert(END, option)
             
 class betterComboBox(Combobox):
-    def __init__(self,frame,options,stringvar = None,width = 18,height = 21):
-        Combobox.__init__(self,frame,values=options,textvariable = stringvar,width = width,height = height,state = "readonly")
+    def __init__(self,frame,options,stringvar = None,width = 20,height = 21):
+        self.text_font = ('Microsoft Sans Serif','10')
+        combostyle = Style()
+        combostyle.theme_create('combostyle', parent='alt',
+                         settings = {   "TCombobox":     {"configure": {"selectbackground": "#F7A5D2",
+                                        "fieldbackground" : "#F7A5D2",
+                                        "background"      : "#C0C0C0",
+                                        "selectforeground"      : "black",
+                                        "bordercolor"      : "#C0C0C0"}}})
+        combostyle.theme_use('combostyle')
+        Combobox.__init__(self,frame,values=options,textvariable = stringvar,width = width,height = height,state = "readonly",font = self.text_font)
+        frame.root.option_add('*TCombobox*Listbox.font', self.text_font)
         self.bind("<<ComboboxSelected>>",self.do)
     def do(self,event):
         pass

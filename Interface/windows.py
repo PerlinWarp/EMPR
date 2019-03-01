@@ -135,11 +135,11 @@ class PlayScreen(PlaceWindow):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["canvas"].place(x=274 ,y=140)
 
-        self.widgets["start"].place(x=0,y =574)
-        self.widgets["cross"].place(x=563,y =65)
+        self.widgets["start"].place(x=1,y =576)
+        self.widgets["cross"].place(x=563,y =67)
         
-        self.widgets["realplay"].place(x=84,y =118)
-        self.widgets["realpause"].place(x=116,y =118)
+        self.widgets["realplay"].place(x=84,y =120)
+        self.widgets["realpause"].place(x=116,y =120)
         PlaceWindow.show_All(self)
 
 class Settings(PlaceWindow):
