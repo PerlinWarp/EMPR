@@ -22,6 +22,7 @@ if __name__ == "__main__":
     try:
         ser = serial.Serial('/dev/ttyACM0',timeout = 0.5)
         ser.flushInput()
+        print("serial initialized")
     except:
         ser = dummy_ser()
     app = WindowManager(ser,root)

@@ -19,7 +19,7 @@ class WindowManager(Frame):
         #Change this to menu or play to switch between the windows
         self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
-        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"load":loadingScreen(self)}#initialize array of window contents
+        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
         self.menus[self.currentScreen].hide_All()
@@ -55,31 +55,13 @@ class PlaceWindow(Window):
             self.widgets[widget].place_forget()#remove objects without destroying them
     def show_All(self):
         self.widgets["background"].switch_to_duck()
-class PlayScreen(PlaceWindow):
-        
-    def redraw_Canvas(self):
-        self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
-        
-    def init_widgets(self):
-        self.serConnected = False
-        self.frame.grid(row =0,column =0,sticky = N+S+E+W)
-
-        self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
-        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
-        self.redraw_Canvas()
-
-        
-   
-    def show_All(self):
-        self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
-        self.widgets["canvas"].place(x=274 ,y=140)
-
 
 class MainMenu(PlaceWindow):
     
     def animate_duck(self):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until(b'|')
+            print(d)
             if d.endswith(b"CONNECT|"):
                 #Getting rid of the duck. 
                 self.serConnected = True
@@ -97,7 +79,7 @@ class MainMenu(PlaceWindow):
         self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
         
         self.widgets["backButton"] = menuButton(self.frame,self,"play")
-        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
+        self.widgets["menuRecord"] = menuButton(self.frame,self,"Record")
         self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
         self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
         
@@ -110,11 +92,55 @@ class MainMenu(PlaceWindow):
         self.widgets["button_Area"].place(x = 80,y =180 )
         
         self.widgets["backButton"].place(x=130,y =260)
-        self.widgets["browseButton"].place(x=130,y =330)
+        self.widgets["menuRecord"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
         self.widgets["exitButton"].place(x=130,y =470)
         PlaceWindow.show_All(self)
         self.animate_duck()
+
+class PlayScreen(PlaceWindow):
+    # Non interface functions
+    def pause(self):
+        print("play")
+
+    def play(self):
+        print("pause")
+    
+    # Interface functions
+    def redraw_Canvas(self):
+        self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
+        
+    def init_widgets(self):
+        self.serConnected = False
+        self.frame.grid(row =0,column =0,sticky = N+S+E+W)
+
+        self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
+        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
+
+        
+        self.widgets["start"] = startButton(self.frame,self,"winstart")
+        self.widgets["cross"] = hoverButton(self.frame,self,"cross",menu="BlueScreen")
+        self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
+        self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
+
+        #Parts of other buttons
+        self.widgets["95menu"] = betterLabel(self.frame, "95menu")
+        self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+
+        self.redraw_Canvas()
+
+        
+   
+    def show_All(self):
+        self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["canvas"].place(x=274 ,y=140)
+
+        self.widgets["start"].place(x=0,y =574)
+        self.widgets["cross"].place(x=563,y =65)
+        
+        self.widgets["realplay"].place(x=84,y =118)
+        self.widgets["realpause"].place(x=116,y =118)
+
 
 class Settings(PlaceWindow):
             
@@ -122,7 +148,7 @@ class Settings(PlaceWindow):
         self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("settingsbkgd",200,100)])
         
         self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
-        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","play")
+        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","menu")
         self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
         self.widgets["testLabel"] = betterLabel(self.frame, "duck")
         comboBox_menus = ["Sandwich","Antistropic filtering","filet fish","steak"]
@@ -139,6 +165,16 @@ class Settings(PlaceWindow):
         self.widgets["listBox"].place(x=232,y=258) #232, 258
         self.widgets["volume"].place(x=232,y=176)
         PlaceWindow.show_All(self)
+
+class BlueScreen(PlaceWindow):
+            
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
+    
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        PlaceWindow.show_All(self)
+
 class Browse(PlaceWindow):
     
     def animate_duck(self):
