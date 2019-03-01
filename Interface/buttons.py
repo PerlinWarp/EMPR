@@ -161,7 +161,7 @@ class betterListBox(Listbox):
             self.insert(END, option)
             
 class betterComboBox(Combobox):
-    def __init__(self,frame,options,stringvar = None,width = 22,height = 21):
+    def __init__(self,frame,options,stringvar = None,width = 18,height = 21):
         Combobox.__init__(self,frame,values=options,textvariable = stringvar,width = width,height = height,state = "readonly")
         self.bind("<<ComboboxSelected>>",self.do)
     def do(self,event):

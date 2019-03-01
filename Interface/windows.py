@@ -129,14 +129,14 @@ class Settings(PlaceWindow):
         self.widgets["volume"] = Scale(self.frame,orient = HORIZONTAL,length =148)
         for i in range(4):
             self.widgets["scale"+str(i)] = betterScale(self.frame,comboBox_menus[i],414,257)
-        self.widgets["listBox"] = referenceComboBox(self.frame,self.widgets,comboBox_menus,[["scale",4]])
+        self.widgets["listBox"] = referenceComboBox(self.frame,self.widgets,comboBox_menus,[["scale",4]]) #4
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["okButton"].place(x=439,y=432)
         self.widgets["cancelButton"].place(x= 520,y = 432)
         self.widgets["duckButton"].place(x= 452,y = 186)
-        self.widgets["listBox"].place(x=232,y=258)
+        self.widgets["listBox"].place(x=232,y=258) #232, 258
         self.widgets["volume"].place(x=232,y=176)
         PlaceWindow.show_All(self)
 class Browse(PlaceWindow):
