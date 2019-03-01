@@ -99,7 +99,14 @@ class MainMenu(PlaceWindow):
         self.animate_duck()
 
 class PlayScreen(PlaceWindow):
-        
+    # Non interface functions
+    def pause(self):
+        print("play")
+
+    def play(self):
+        print("pause")
+    
+    # Interface functions
     def redraw_Canvas(self):
         self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
         
@@ -112,8 +119,8 @@ class PlayScreen(PlaceWindow):
 
         
         self.widgets["start"] = startButton(self.frame,self,"winstart")
-        self.widgets["realplay"] = hoverButton(self.frame,self, "realplay")
-        self.widgets["realpause"] = hoverButton(self.frame,self, "realpause")
+        self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
+        self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
 
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")

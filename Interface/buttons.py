@@ -49,6 +49,17 @@ class hoverButton(betterButton):
     def _on_Click(self):
         self.frame.switch(self.menu)
 
+
+
+# Hover buttons that need to run some function when pressed. 
+class functionalButton(hoverButton):
+    def __init__(self,parent,root,buttonName,menu=None,function=None,**options):
+        hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
+        self.function = function
+
+    def _on_Click(self):
+        self.function()
+
 class startButton(hoverButton):
     def __init__(self,parent,root,buttonName,menu=None,**options):
         hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
