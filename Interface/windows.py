@@ -19,7 +19,7 @@ class WindowManager(Frame):
         #Change this to menu or play to switch between the windows
         self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
-        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"load":loadingScreen(self)}#initialize array of window contents
+        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
         self.menus[self.currentScreen].hide_All()
@@ -119,6 +119,7 @@ class PlayScreen(PlaceWindow):
 
         
         self.widgets["start"] = startButton(self.frame,self,"winstart")
+        self.widgets["cross"] = hoverButton(self.frame,self,"cross",menu="BlueScreen")
         self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
 
@@ -135,6 +136,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["canvas"].place(x=274 ,y=140)
 
         self.widgets["start"].place(x=0,y =574)
+        self.widgets["cross"].place(x=563,y =65)
         
         self.widgets["realplay"].place(x=84,y =118)
         self.widgets["realpause"].place(x=116,y =118)
@@ -167,25 +169,10 @@ class Settings(PlaceWindow):
 class BlueScreen(PlaceWindow):
             
     def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0),("bluescreen",200,100)])
-        
-        self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
-        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","menu")
-        self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
-        self.widgets["testLabel"] = betterLabel(self.frame, "duck")
-        comboBox_menus = ["Sandwich","Antistropic filtering","filet fish","steak"]
-        self.widgets["volume"] = Scale(self.frame,orient = HORIZONTAL,length =148)
-        for i in range(4):
-            self.widgets["scale"+str(i)] = betterScale(self.frame,comboBox_menus[i],414,257)
-        self.widgets["listBox"] = referenceComboBox(self.frame,self.widgets,comboBox_menus,[["scale",4]]) #4
-
+        self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
+    
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
-        self.widgets["okButton"].place(x=439,y=432)
-        self.widgets["cancelButton"].place(x= 520,y = 432)
-        self.widgets["duckButton"].place(x= 452,y = 186)
-        self.widgets["listBox"].place(x=232,y=258) #232, 258
-        self.widgets["volume"].place(x=232,y=176)
         PlaceWindow.show_All(self)
 
 class Browse(PlaceWindow):
