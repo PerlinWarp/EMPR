@@ -83,9 +83,12 @@ void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
 
+void A1();
+void A2();
+
 void (*menuFuncs[])(void) = {
-	&PassThroughLoop,
-	&Play_Audio,
+	&A1,
+	&A2,
 	&I2S_PassThroughLoop,
 	&I2S_PassThroughInterrupt,
 	&UART_Mode,
@@ -98,8 +101,6 @@ void (*menuFuncs[])(void) = {
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 
 
-void A1();
-void A2();
 /*
 Menu Organisation:
 

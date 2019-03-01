@@ -500,6 +500,7 @@ void A1()
     sprintf(output,"  Just Read In  \n0x%08X",(unsigned int)BufferOut[0]);
     LCDGoHome();
     LCDPrint(output);
+    buttonpress = 0;
   }
   I2S_DeInit(LPC_I2S);
 }
