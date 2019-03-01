@@ -53,7 +53,7 @@ class hoverButton(betterButton):
 
 # Hover buttons that need to run some function when pressed. 
 class functionalButton(hoverButton):
-    def __init__(self,parent,root,buttonName,menu=None,function=None,**options):
+    def __init__(self,parent,root,buttonName,function,**options):
         hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
         self.function = function
 
@@ -63,9 +63,9 @@ class functionalButton(hoverButton):
 class startButton(hoverButton):
     def __init__(self,parent,root,buttonName,menu=None,**options):
         hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
-        self.menu_open = True
+        self.menu_open = False
     def _on_Click(self):
-        if(self.menu_open):
+        if(not self.menu_open):
             self.root.widgets["95menu"].place(x=0,y=260)
             self.root.widgets["shutdown"].place(x=22,y=537)
         else:
