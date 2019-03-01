@@ -252,8 +252,7 @@ void Play_Audio()
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
-  f_close(&fil);
-}
+
 
 void Play(char* directory)
 {
@@ -266,6 +265,7 @@ void Play(char* directory)
   if(fr)return;
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
+  f_close(&fil);
 }
 
 void UART_Mode()
@@ -354,7 +354,7 @@ void PC_Mode()
   {
     if(serialCommandIndex>0){//If there are instructions to process
       switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
-      {
+      {/*
         case 'P'://play
           playing =1;
           Play(&READ_SERIAL[2]);
@@ -381,7 +381,7 @@ void PC_Mode()
             sprintf(output,"%s|",fileList[i]);
             WriteText(output);
           }
-          break;
+          break;*/
       }
       POP_SERIAL;
       if(playing)NVIC_EnableIRQ(I2S_IRQn);
