@@ -55,31 +55,6 @@ class PlaceWindow(Window):
             self.widgets[widget].place_forget()#remove objects without destroying them
     def show_All(self):
         self.widgets["background"].switch_to_duck()
-class PlayScreen(PlaceWindow):
-        
-    def redraw_Canvas(self):
-        self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
-        
-    def init_widgets(self):
-        self.serConnected = False
-        self.frame.grid(row =0,column =0,sticky = N+S+E+W)
-
-        self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
-        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
-        self.widgets["95menu"] = betterLabel(self.frame, "95menu")
-        self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
-        
-        self.widgets["start"] = startButton(self.frame,self,"winstart")
-        self.redraw_Canvas()
-
-        
-   
-    def show_All(self):
-        self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
-        self.widgets["canvas"].place(x=274 ,y=140)
-
-        self.widgets["start"].place(x=0,y =574)
-
 
 class MainMenu(PlaceWindow):
     
@@ -122,6 +97,41 @@ class MainMenu(PlaceWindow):
         self.widgets["exitButton"].place(x=130,y =470)
         PlaceWindow.show_All(self)
         self.animate_duck()
+
+class PlayScreen(PlaceWindow):
+        
+    def redraw_Canvas(self):
+        self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
+        
+    def init_widgets(self):
+        self.serConnected = False
+        self.frame.grid(row =0,column =0,sticky = N+S+E+W)
+
+        self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
+        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
+
+        
+        self.widgets["start"] = startButton(self.frame,self,"winstart")
+        self.widgets["realplay"] = hoverButton(self.frame,self, "realplay")
+        self.widgets["realpause"] = hoverButton(self.frame,self, "realpause")
+
+        #Parts of other buttons
+        self.widgets["95menu"] = betterLabel(self.frame, "95menu")
+        self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+
+        self.redraw_Canvas()
+
+        
+   
+    def show_All(self):
+        self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["canvas"].place(x=274 ,y=140)
+
+        self.widgets["start"].place(x=0,y =574)
+        
+        self.widgets["realplay"].place(x=84,y =118)
+        self.widgets["realpause"].place(x=116,y =118)
+
 
 class Settings(PlaceWindow):
             
