@@ -79,7 +79,7 @@ class MainMenu(PlaceWindow):
         self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
         
         self.widgets["backButton"] = menuButton(self.frame,self,"play")
-        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
+        self.widgets["menuRecord"] = menuButton(self.frame,self,"Record")
         self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
         self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
         
@@ -92,7 +92,7 @@ class MainMenu(PlaceWindow):
         self.widgets["button_Area"].place(x = 80,y =180 )
         
         self.widgets["backButton"].place(x=130,y =260)
-        self.widgets["browseButton"].place(x=130,y =330)
+        self.widgets["menuRecord"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
         self.widgets["exitButton"].place(x=130,y =470)
         PlaceWindow.show_All(self)
