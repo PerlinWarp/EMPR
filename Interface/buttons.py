@@ -49,7 +49,9 @@ class hoverButton(betterButton):
     def _on_Click(self):
         self.frame.switch(self.menu)
 
-
+class hoverButtoninFrame(hoverButton):
+    def _on_Click(self):
+        self.frame.frame.switch(self.menu)
 
 # Hover buttons that need to run some function when pressed. 
 class functionalButton(hoverButton):
@@ -68,6 +70,7 @@ class startButton(hoverButton):
         self.menu_open = False
         hoverButton.place(self,args)
     def _on_Click(self):
+        self.focus()
         if(not self.menu_open):
             self.root.widgets["95menu"].place(x=0,y=260)
             self.root.widgets["shutdown"].place(x=24,y=537)
@@ -75,6 +78,11 @@ class startButton(hoverButton):
             self.root.widgets["95menu"].place_forget()
             self.root.widgets["shutdown"].place_forget()
         self.menu_open = not self.menu_open
+    def check_focus(self,event):
+        if event.widget != self and event.widget != self.root.widgets["95menu"] and event.widget != self.root.widgets["shutdown"]:
+            self.menu_open = False
+            self.root.widgets["95menu"].place_forget()
+            self.root.widgets["shutdown"].place_forget()
 
 class duckButton(hoverButton):
     def _on_Click(self):
@@ -180,6 +188,45 @@ class layeredLabel(Label):
         else:
             self.config(image = self.image)
 
+class dragDropFrame(Frame):
+    def __init__(self,frame,**options):
+        Frame.__init__(self,frame,**options)
+        self.frame = frame
+        self.counter = 2
+        self.move = False
+        self.bind("<ButtonPress-1>",self.pickup,"+")
+        self.bind("<ButtonRelease-1>",self.putdown,"+")
+        self.bind("<B1-Motion>",self.drag,"+")
+    def pickup(self,event):
+        if event.y < 23:
+            self.x = int(self.place_info()["x"])
+            self.y = int(self.place_info()["y"])
+            self.relx = event.x
+            self.rely = event.y
+            self.actx = self.frame.root.winfo_pointerx() - self.x
+            self.acty = self.frame.root.winfo_pointery() - self.y
+            self.move = True
+    def drag(self,event):
+        if self.move == True and self.counter == 0:
+            self.counter = 4
+            self.x =  self.frame.root.winfo_pointerx() - self.actx
+            self.y =  self.frame.root.winfo_pointery() - self.acty
+            self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
+        else:
+            self.counter -= 1
+    def putdown(self,event):
+        if self.move == True:
+            self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
+            self.move = False
+        
+class callbackLayeredLabel(layeredLabel):
+    def __init__(self,frame,images):
+        layeredLabel.__init__(self,frame,images)
+        self.bind("<ButtonPress-1>",self.frame.pickup,"+")
+        self.bind("<ButtonRelease-1>",self.frame.putdown,"+")
+        self.bind("<B1-Motion>",self.frame.drag,"+")
+        
+        
 class betterListBox(Listbox):
     def __init__(self,master,options):
         self.master = master

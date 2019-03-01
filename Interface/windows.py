@@ -17,7 +17,7 @@ class WindowManager(Frame):
         self.width = self.winfo_width()
         self.height = self.winfo_height()
         #Change this to menu or play to switch between the windows
-        self.currentScreen = "menu"
+        self.currentScreen = "browse"
         #Defining all the windows for the menu buttons
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
@@ -134,13 +134,17 @@ class PlayScreen(PlaceWindow):
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["canvas"].place(x=274 ,y=140)
-
+        
+        self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
         self.widgets["start"].place(x=1,y =576)
         self.widgets["cross"].place(x=563,y =67)
         
         self.widgets["realplay"].place(x=84,y =120)
         self.widgets["realpause"].place(x=116,y =120)
         PlaceWindow.show_All(self)
+    def hide_All(self):
+        PlaceWindow.hide_All(self)
+        self.frame.root.unbind("<Button-1>",self.startBinding)
 
 class Settings(PlaceWindow):
             
@@ -174,52 +178,11 @@ class BlueScreen(PlaceWindow):
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
-
-class Browse(PlaceWindow):
-    
-    def animate_duck(self):
-        if self.frame.ser.in_waiting > 0:
-            d = self.frame.ser.read_until(b'|')
-
-            if d.endswith(b"CONNECT|"):
-                self.serConnected = True
-                print("5 was pressed")
-                self.frame.ser.write(b"ACK|")
-        if self.serConnected == False:
-            self.widgets["duck"].inc_image()
-            self.frame.after(40,self.animate_duck)#repeat every 40 ms
-            
-    def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("plantpot",450,350),("mbed_logo",80,90)])
-        self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
-        self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
-        self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
-        
-        self.widgets["backButton"] = menuButton(self.frame,self,"play")
-        self.widgets["browseButton"] = menuButton(self.frame,self,"browse")
-        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
-        self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
-
-    def show_All(self):
-        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
-        self.widgets["duck"].place(x = 700,y =30)
-        self.widgets["loading"].place(x=700,y = 120)
-        self.widgets["button_Area"].place(x = 80,y =180 )
-        
-        self.widgets["backButton"].place(x=130,y =260)
-        self.widgets["browseButton"].place(x=130,y =330)
-        self.widgets["pauseButton"].place(x=130,y =400)
-        self.widgets["exitButton"].place(x=130,y =470)
-        PlaceWindow.show_All(self)
-        self.animate_duck()
-        
-        
-
         
 
 class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
-        self.frame.switch("menu")
+        self.frame.switch("menu") 
     def init_widgets(self):
         self.frame.bind("<Escape>",self.return_to_menu)
         self.frame.focus_set()
@@ -240,4 +203,30 @@ class loadingScreen(PlaceWindow):
         if self.serConnected == False:
             self.widgets["load_big"].inc_image()
             self.frame.after(70,self.animate)#repeat every 40 ms
+
+class Browse(PlaceWindow):
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("playbackground",0,0)])
         
+        self.widgets["fileWindow"] = dragDropFrame(self.frame,relief = FLAT,width =618,height = 525,borderwidth =0)
+
+        self.widgets["taskbar"] = layeredLabel(self.frame,[("taskbar",0,0)])
+        self.widgets["start"] = startButton(self.frame,self,"winstart")
+        
+        self.widgets["fileWindowbg"] = callbackLayeredLabel(self.widgets["fileWindow"], [("filebrowser",0,0)])
+        self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","menu")   
+        
+        self.widgets["95menu"] = betterLabel(self.frame, "95menu")
+        self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["fileWindow"].place(x=80,y=18)
+        self.widgets["taskbar"].place(x =0,y = 574)
+        self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
+        self.widgets["fileWindowbg"].place(x=0,y=0)
+        self.widgets["nanocross"].place(x=596,y=6)
+
+        self.widgets["start"].place(x=1,y =576)
+    def hide_All(self):
+        PlaceWindow.hide_All(self)
+        self.frame.root.unbind("<Button-1>",self.startBinding)
