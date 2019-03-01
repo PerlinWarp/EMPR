@@ -338,7 +338,7 @@ void PC_Mode()
   LCDPrint("****PC**MODE****\n****************");
   InitSerInterrupts();
   WriteText("CONNECT|");
-  while(!serialCommandIndex)if(!strcmp(READ_SERIAL,"ACK"))break;//Wait until response from PC is recorded
+  while(!strcmp(READ_SERIAL,"ACK"));//Wait until response from PC is recorded
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
   uint8_t finished =0,playing=0;
@@ -396,6 +396,10 @@ void PC_Mode()
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
+    char * asd = (char*)malloc(30);
+    sprintf(asd,"malloc works now\n\r");
+    WriteText("fasd");
+    WriteText(asd);
     SystemInit();
     DelayInit();
     I2CInit();

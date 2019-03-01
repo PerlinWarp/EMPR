@@ -37,7 +37,7 @@ typedef struct
 
 UART_Ring_Buffer rbuf;
 
-char serialCommandBuffer[SERIAL_BUFFER_MAXSIZE][INSTR_MAX_LEN+1];//commands in memory
+char** serialCommandBuffer;//commands in memory
 uint8_t serialCommandIndex;
 
 void ReceiveText(void);

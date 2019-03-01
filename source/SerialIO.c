@@ -80,9 +80,9 @@ void ProcessBuffer()
 		if(rbuf.rx[rbuf.rx_tail]=='|')break;//break if instruction finished
 		tmp[--i] = (char)rbuf.rx[rbuf.rx_tail];
 	}
+	PUSH_SERIAL;
 	serialCommandBuffer[serialCommandIndex][INSTR_MAX_LEN] = '\0';
 	strncpy(serialCommandBuffer[serialCommandIndex],tmp,(INSTR_MAX_LEN-i));
-	serialCommandIndex++;
 	NVIC_DisableIRQ(I2S_IRQn);//disable interrupts to give main program a chance to process instructions
 }
 
@@ -143,7 +143,10 @@ int write_usb_serial_blocking(char *buf,int length)
 }
 void InitSerInterrupts(void)
 {
+	int i;
 	serialCommandIndex =0;
+	serialCommandBuffer = (char**)malloc(sizeof(char*)*SERIAL_BUFFER_MAXSIZE);
+	for(i=0;i<SERIAL_BUFFER_MAXSIZE;i++)serialCommandBuffer[i] = (char*)malloc(sizeof(char)*INSTR_MAX_LEN+1);
 	TxIntStat = RESET;
 	rbuf.rx_head = 0;
 	rbuf.rx_tail = 0;
