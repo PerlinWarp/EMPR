@@ -464,20 +464,51 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 }
 
 
-void A1()
+void A2()
 {
   buffer = (uint32_t*)(I2S_SRC);
-  LCDPrint("playing sine wave");
+  LCDGoHome();
   TLV320_Start_I2S_Polling_Passthrough();
   int_Handler_Enable =1;
   char result[16];
   TextEntry(result, "Pick a Frequency\n");
   uint32_t frequency = atoi(result);
-  I2S_Create_Sine();
+  LCDPrint("**PLAYING SINE**\n******WAVE******");
+  I2S_Create_Sine(frequency);
   while(!buttonpress);
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
 }
+
+void A1()
+{/*Considerations for alaiasing and nyquists theroem should be made in your solution*/
+  buffer = (uint32_t*)(I2S_SRC);
+  uint32_t BufferOut[1];
+  char output[34];
+  LCDGoHome();
+  LCDPrint("**Display**Rec**\n*****BUFFER*****");
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
+  while(key != '#')
+  {
+    while(!buttonpress);
+    I2S_Polling_Read(BufferOut,1);
+    sprintf(output,"  Just Read In  \n0x%08X",(unsigned int)BufferOut[0]);
+    LCDGoHome();
+    LCDPrint(output);
+  }
+  I2S_DeInit(LPC_I2S);
+}
+
+void A3()
+{
+
+}
+void A4()
+{
+
+}
+
 
 // BLOCKING, enter single string from keboard,
 // stores in result, returns length

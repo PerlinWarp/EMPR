@@ -23,7 +23,6 @@
 //Buffer length in bytes
 #define BUFO_LENGTH 150
 #define BUFI_LENGTH 150
-#define PI 3.1415827
 #define I2S_SRC LPC_AHBRAM1_BASE
 #define I2S_DST (I2S_SRC + 0x1000UL)
 
@@ -95,9 +94,12 @@ void (*menuFuncs[])(void) = {
 	&PassThroughLoop,
 	&PassThroughLoop,
 	&temp};
-	
+
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 
+
+void A1();
+void A2();
 /*
 Menu Organisation:
 
