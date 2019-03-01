@@ -238,7 +238,7 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  char fpath[100];// = browse_Files();
+  char fpath[100] = "meme.wav";// = browse_Files();
   Play(fpath);
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
