@@ -41,36 +41,26 @@ void IRQInit()
 
 void DrawMenu()
 {
-    char inputBuf[80];
-    char* lfill1,*lfill2;
-    int i;
-    int s1= max(17-strlen(MenuText[SelMenuItem]),2),s2 = max(17-strlen(MenuText[SelMenuItem+1]),2);
-    lfill1 = (char*)malloc(s1);
-    lfill2 = (char*)malloc(s2);
-    for(i = 0;i<s1;i++)lfill1[i]=' ';
-    lfill1[s1-2] = '\x12';
-    lfill1[s1-1] = '\0';
-    for(i = 0;i<s2;i++)lfill2[i]=' ';
-    lfill2[s2-2] = '\x30';
-    lfill2[s2-1] = '\0';
+    char inputBuf[40];
     switch(SelMenuItem)
     {
       case 0:
-        sprintf(inputBuf,"%s  \n%s%s",MenuText[SelMenuItem],MenuText[SelMenuItem+1],lfill2);
+        sprintf(inputBuf, "%-16s\n%-15s%c",
+          MenuText[SelMenuItem],
+          MenuText[SelMenuItem+1],'\x30');
         break;
       case MENUTEXTNUM-2:
-        sprintf(inputBuf,"%s%s\n                ",MenuText[SelMenuItem],lfill1);
+        sprintf(inputBuf, "%-15s\n%-16s",
+          MenuText[SelMenuItem], "");
         break;
       default:
-        sprintf(inputBuf,"%s%s\n%s%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1],lfill2);
+        sprintf(inputBuf, "%-15s%c\n%-15s%c",
+          MenuText[SelMenuItem], '\x12',
+          MenuText[SelMenuItem+1], '\x30');
     }
-    WriteText("before");
-    free(lfill1);
-    free(lfill2);
     LCDGoHome();
     LCDPrint(inputBuf);
-    WriteText("after");
-}
+  }
 void Menu()
 {
     SelMenuItem =  0;
@@ -413,6 +403,7 @@ int main()
     LCDInit();
     LCDClear();
     Menu();
+
 
 
     return 0;
