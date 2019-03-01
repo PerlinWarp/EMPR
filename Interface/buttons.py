@@ -10,7 +10,7 @@ class betterButton(Button):
         self.imagePath = ImageTk.PhotoImage(file ="resources/"+buttonName+".gif")
         self.imagePathPressed = PhotoImage(file ="resources/"+buttonName+"_pressed.gif")
         self.buttonName = buttonName
-        self.config(relief = SUNKEN,borderwidth = 0,command =self._on_Click,image = self.imagePath)
+        self.config(relief = SUNKEN,borderwidth = 0,highlightthickness=0,command =self._on_Click,image = self.imagePath)
         self.bind('<ButtonPress-1>',self._on_pressed)
         self.bind('<ButtonRelease-1>',self._on_release)
     def _on_pressed(self,event):
@@ -35,7 +35,7 @@ class menuButton(betterButton):
         self.frame.switch(self.name)
 
 class hoverButton(betterButton):
-    def __init__(self,parent,root,buttonName,menu,**options):
+    def __init__(self,parent,root,buttonName,menu=None,**options):
         self.frame = parent
         self.menu = menu
         betterButton.__init__(self,parent,root,buttonName,**options)
@@ -48,6 +48,19 @@ class hoverButton(betterButton):
         self.config(image = self.imagePath)
     def _on_Click(self):
         self.frame.switch(self.menu)
+
+class startButton(hoverButton):
+    def __init__(self,parent,root,buttonName,menu=None,**options):
+        hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
+        self.menu_open = True
+    def _on_Click(self):
+        if(self.menu_open):
+            self.root.widgets["95menu"].place(x=0,y=260)
+            self.root.widgets["shutdown"].place(x=22,y=537)
+        else:
+            self.root.widgets["95menu"].place_forget()
+            self.root.widgets["shutdown"].place_forget()
+        self.menu_open = not self.menu_open
 
 class duckButton(hoverButton):
     def _on_Click(self):
@@ -125,7 +138,7 @@ class transparencyLabel(animatedLabel):
             for j,px in enumerate(temp.getdata()):
                     y = j // width
                     x = j % width
-                    temp.putpixel((x, y), (px[0], px[1], px[2], min(255,765-sum(px[:3]))))
+                    temp.putpixel((x, y), (px[0], px[1], px[2], min(255,765-sum(px[:3]),px[3])))
             self.images.append(ImageTk.PhotoImage(Image.alpha_composite(background,temp)))
 
 class layeredLabel(Label):

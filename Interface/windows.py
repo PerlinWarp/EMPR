@@ -66,6 +66,10 @@ class PlayScreen(PlaceWindow):
 
         self.widgets["bg"] = layeredLabel(self.frame,[("playbackground",0,0)])
         self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
+        self.widgets["95menu"] = betterLabel(self.frame, "95menu")
+        self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+        
+        self.widgets["start"] = startButton(self.frame,self,"winstart")
         self.redraw_Canvas()
 
         
@@ -73,6 +77,8 @@ class PlayScreen(PlaceWindow):
     def show_All(self):
         self.widgets["bg"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["canvas"].place(x=274 ,y=140)
+
+        self.widgets["start"].place(x=0,y =574)
 
 
 class MainMenu(PlaceWindow):
@@ -123,7 +129,7 @@ class Settings(PlaceWindow):
         self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("settingsbkgd",200,100)])
         
         self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
-        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","play")
+        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","menu")
         self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
         self.widgets["testLabel"] = betterLabel(self.frame, "duck")
         comboBox_menus = ["Sandwich","Antistropic filtering","filet fish","steak"]
