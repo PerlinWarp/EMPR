@@ -463,6 +463,22 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
   }
 }
 
+
+void A1()
+{
+  buffer = (uint32_t*)(I2S_SRC);
+  LCDPrint("playing sine wave");
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  char result[16];
+  TextEntry(result, "Pick a Frequency\n");
+  uint32_t frequency = atoi(result);
+  I2S_Create_Sine();
+  while(!buttonpress);
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+}
+
 // BLOCKING, enter single string from keboard,
 // stores in result, returns length
 uint8_t TextEntry(char* result, char* header) {
