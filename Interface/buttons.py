@@ -64,6 +64,9 @@ class startButton(hoverButton):
     def __init__(self,parent,root,buttonName,menu=None,**options):
         hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
         self.menu_open = False
+    def place(self,**args):
+        self.menu_open = False
+        hoverButton.place(self,args)
     def _on_Click(self):
         if(not self.menu_open):
             self.root.widgets["95menu"].place(x=0,y=260)
