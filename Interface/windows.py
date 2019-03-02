@@ -210,7 +210,7 @@ class Browse(PlaceWindow):
         if len(path) == 1:
             if path[0][-1] =='d':#is a directory
                 directoryTree[path[0][:-1]] = {}#empty folder = dictionary
-            else:
+            elif path[0][-1] =='f':
                 directoryTree[path[0][:-1]] = "file"
             return directoryTree
                 
@@ -224,10 +224,18 @@ class Browse(PlaceWindow):
     def init_widgets(self):
         self.frame.ser.write("B|")
         directoryTree = {}
+
+        for p in ["rootd|","root/newd|","hellof|","root/hif|","root/hellof|","root/new/boyd|"]:
+            path = p[:-1].split('/')
+            directoryTree = self.add_directories(directoryTree,path)
+        print(directoryTree)
+
         
-        finished = False
+        finished = True
         while(not finished):
             d = str(self.frame.ser.read_until("|"))
+            if d == "|":
+                break
             path = d[:-1].split('/')
             directoryTree = self.add_directories(directoryTree,path)
             
@@ -239,19 +247,23 @@ class Browse(PlaceWindow):
         self.widgets["start"] = startButton(self.frame,self,"winstart")
         
         self.widgets["fileWindowbg"] = callbackLayeredLabel(self.widgets["fileWindow"], [("filebrowser",0,0)])
-        self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","menu")   
+        self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","menu")
+        self.widgets["test"] = browserButton(self.widgets["fileWindow"],"Sand witches and Ham Croquettes","folder")
         
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+        
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
         self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
+        self.testBinding = self.frame.root.bind("<Button-1>",self.widgets["test"].check_focus,"+")
         self.widgets["fileWindowbg"].place(x=0,y=0)
         self.widgets["nanocross"].place(x=596,y=6)
-
+        self.widgets["test"].place(x = 200,y=200)
         self.widgets["start"].place(x=1,y =576)
     def hide_All(self):
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>",self.startBinding)
+        self.frame.root.unbind("<Button-1>",self.testBinding)

@@ -1,8 +1,9 @@
 import serial
 from tkinter import *
 from tkinter.ttk import Combobox,Style
-from PIL import Image, ImageTk,GifImagePlugin
+from PIL import Image, ImageTk,GifImagePlugin,ImageFont,ImageDraw
 from random import randint
+
 class betterButton(Button):
     def __init__(self,parent,root,buttonName,**options):
         Button.__init__(self,parent,**options)
@@ -267,3 +268,123 @@ class betterScale(Scale):
         self.y = yVal
         Scale.__init__(self,frame,from_=0,to=128,orient = HORIZONTAL,length =148,**options)
                  
+class browserButton():#78 by 75, where 
+    def __init__(self,frame,text,filetype):
+        self.filetype = filetype
+        self.im = PhotoImage(file ="resources/"+filetype+".gif")
+        self.im_pressed = PhotoImage(file ="resources/"+filetype+"_pressed.gif")
+        self.get_text(text)
+        self.image = Label(frame,borderwidth = 0,image = self.im)
+        self.text  = Label(frame,borderwidth = 0,image = self.text_image)
+        
+        self.relx = 0
+        self.rely = 0
+        self.clicked = False
+    def get_text(self,text):
+        line = ["",""]
+        i = j = 0
+        text = text.split()
+        text = [" " + t for t in text]
+        while j < len(text):
+            print(text[j])
+            if len(line[i]) + len(text[j]) < 10:
+                line[i]+=text[j]
+            elif i == 1 or j == len(text)-1:
+                line[i]+= text[j][:10-3-len(line[i])] + "..."
+                break
+            else:
+                i+=1
+                j-=1
+            j+=1
+        maxLine = 4*max(len(line[0]),len(line[1]))   
+        self.text_image           = Image.new("RGB",(maxLine,25),(255,255,255))
+        self.text_image_sel       = Image.new("RGB",(maxLine,25),(0,0,128))
+        self.text_image_unclicked = Image.new("RGB",(maxLine,25),(255,255,255))
+        
+
+        border_colours_sel       = [(0,0,128),(255,255,127)]
+        border_colours_unclicked = [(0,0,0),(255,255,255)]
+        
+        for i in range(self.text_image.width):#draw a border around the image
+            self.text_image_sel.putpixel((i,0),border_colours_sel[i%2])
+            self.text_image_sel.putpixel((i,self.text_image.height-1),border_colours_sel[i%2])
+            
+            self.text_image_unclicked.putpixel((i,0),border_colours_unclicked[i%2])
+            self.text_image_unclicked.putpixel((i,self.text_image.height-1),border_colours_unclicked[i%2])
+            
+        for i in range(self.text_image.height):
+            self.text_image_sel.putpixel((0,i),border_colours_sel[i%2])
+            self.text_image_sel.putpixel((self.text_image.width-1,i),border_colours_sel[i%2])
+            
+            self.text_image_unclicked.putpixel((0,i),border_colours_unclicked[i%2])
+            self.text_image_unclicked.putpixel((self.text_image.width-1,i),border_colours_unclicked[i%2])
+
+        fnt = ImageFont.truetype("resources/micross.ttf",9)
+        print(len(line[1]))
+        loc1 = 2+(2*(10-len(line[0])))
+        loc2 = 2+(2*(10-len(line[1])))
+        
+        draw = ImageDraw.Draw(self.text_image)
+        draw.text((loc1,2),line[0],font = fnt ,fill = (0,0,0))
+        draw.text((loc2,15),line[1],font = fnt,fill = (0,0,0))
+                       
+        draw = ImageDraw.Draw(self.text_image_sel)                       
+        draw.text((loc1,2),line[0],font = fnt,fill = (255,255,255))
+        draw.text((loc2,15),line[1],font = fnt,fill = (255,255,255))
+
+        draw = ImageDraw.Draw(self.text_image_unclicked)                       
+        draw.text((loc1,2),line[0],font = fnt,fill = (0,0,0))
+        draw.text((loc2,15),line[1],font = fnt,fill = (0,0,0))
+
+        self.text_image = ImageTk.PhotoImage(self.text_image)
+        self.text_image_sel = ImageTk.PhotoImage(self.text_image_sel)
+        self.text_image_unclicked = ImageTk.PhotoImage(self.text_image_unclicked)
+                       
+    def place(self,**kwargs):
+        self.relx = kwargs['x']
+        self.rely = kwargs['y']
+
+        self.image_binding  = self.image.bind('<ButtonPress-1>',self._on_pressed,"+")
+        self.text_binding  =  self.text.bind('<ButtonPress-1>',self._on_pressed,"+")
+
+        self.image_binding2  = self.image.bind('<Double-Button-1>',self._open,"+")
+        self.text_binding2  =  self.text.bind('<Double-Button-1>',self._open,"+")
+        
+        self.image.place(x = self.relx+22,y = self.rely+7 )
+        self.text.place(x = self.relx+12,y = self.rely+44 )
+
+        
+    def place_forget(self):
+        self.image.unbind('<ButtonPress-1>',self.image_binding)
+        self.text.unbind('<ButtonPress-1>',self.text_binding)
+
+        self.image.unbind('<Double-Button-1>',self.image_binding2)
+        self.text.unbind('<Double-Button-1>',self.text_binding2)
+        
+        self.image.place_forget()
+
+        
+    def place_info(self,**kwargs):
+        outDict = {'x':self.relx,'y':self.rely,'relx':0,'rely':0,'width':78,'height':75,'in':self.frame}
+        return outDict.fromkeys(set(outDict.keys())&set(kwargs.keys()))
+    
+    def _on_pressed(self,event):
+        if self.clicked:
+            self.image.config(image = self.im)
+            self.text.config(image = self.text_image)
+            self.clicked = False
+        else:
+            self.image.config(image = self.im_pressed)
+            self.text.config(image = self.text_image_sel)
+            
+    def _open(self,event):
+        if(self.filetype == "folder"):
+            pass
+        else:
+            pass
+    def check_focus(self,event):
+        if event.widget != self.image and event.widget != self.text:
+            self.clicked = True
+            self._on_pressed(event)
+        
+        
