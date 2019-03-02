@@ -192,7 +192,6 @@ class dragDropFrame(Frame):
     def __init__(self,frame,**options):
         Frame.__init__(self,frame,**options)
         self.frame = frame
-        self.counter = 2
         self.move = False
         self.bind("<ButtonPress-1>",self.pickup,"+")
         self.bind("<ButtonRelease-1>",self.putdown,"+")
@@ -207,13 +206,10 @@ class dragDropFrame(Frame):
             self.acty = self.frame.root.winfo_pointery() - self.y
             self.move = True
     def drag(self,event):
-        if self.move == True and self.counter == 0:
-            self.counter = 4
+        if self.move == True:
             self.x =  self.frame.root.winfo_pointerx() - self.actx
             self.y =  self.frame.root.winfo_pointery() - self.acty
             self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
-        else:
-            self.counter -= 1
     def putdown(self,event):
         if self.move == True:
             self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))

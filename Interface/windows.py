@@ -205,7 +205,32 @@ class loadingScreen(PlaceWindow):
             self.frame.after(70,self.animate)#repeat every 40 ms
 
 class Browse(PlaceWindow):
+    
+    def add_directories(self,directoryTree,path):
+        if len(path) == 1:
+            if path[0][-1] =='d':#is a directory
+                directoryTree[path[0][:-1]] = {}#empty folder = dictionary
+            else:
+                directoryTree[path[0][:-1]] = "file"
+            return directoryTree
+                
+        p = path.pop(0)  
+        if p in directoryTree:
+            self.add_directories(directoryTree[p],path)
+        else:
+            directoryTree[p] = self.add_directories(directoryTree,path)
+        return directoryTree
+            
     def init_widgets(self):
+        self.frame.ser.write("B|")
+        directoryTree = {}
+        
+        finished = False
+        while(not finished):
+            d = str(self.frame.ser.read_until("|"))
+            path = d[:-1].split('/')
+            directoryTree = self.add_directories(directoryTree,path)
+            
         self.widgets["background"] = layeredLabel(self.frame,[("playbackground",0,0)])
         
         self.widgets["fileWindow"] = dragDropFrame(self.frame,relief = FLAT,width =618,height = 525,borderwidth =0)
