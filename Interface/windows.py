@@ -235,34 +235,56 @@ class Browse(PlaceWindow):
             self.bindings[path+"/"+key] = self.frame.root.bind("<Button-1>",self.widgets[path+"/"+key].check_focus,"+")
             self.widgets[path+"/"+key].place(x = 189+(78*(counter%5)),y=169+ (75*(counter//5)))
             counter+=1
+        self.widgets["objects"].config(text = str(counter) + " Object(s)")
+        self.widgets["dirEntry"].change_dir(self.path)
+        
     def hide_directories(self,directoryTree,path):
         for key in directoryTree.keys():
             self.widgets[path+"/"+key].place_forget()
     def into_dir(self,new_path):
+        self.widgets["folderName"].config(text = new_path.rpartition('/')[2])
         self.hide_directories(self.workingTree,self.path)
         self.path += "/"+new_path
         self.workingTree = self.workingTree[new_path]
         self.place_directories(self.workingTree,self.path)
-        if self.hidden == True:
+        if self.path == "C:":
+            self.widgets["backButton"].place_forget()
+            self.hidden = True           
+        elif self.hidden == True:
             self.widgets["backButton"].place(x = 149,y = 49)
             self.hidden = False
+        
         
     def find_directory(self,directoryTree,path):
         if path in directoryTree.keys():
             return directoryTree[path]
         else:
             new_path = path.partition('/')
-            return self.find_directory(directoryTree[new_path[0]],new_path[2])
+            if new_path[0] in directoryTree.keys():
+                return self.find_directory(directoryTree[new_path[0]],new_path[2])
+            else:
+                return False
         
     def outof_dir(self):
         if self.path != "C:":
             self.hide_directories(self.workingTree,self.path)
             self.path = self.path.rpartition('/')[0]
+            self.widgets["folderName"].config(text = self.path.rpartition('/')[2])
             self.workingTree = self.find_directory(self.directoryTree,self.path)#remove the C: as the base is self.directoryTree itself
             self.place_directories(self.workingTree,self.path)
         else:
             self.widgets["backButton"].place_forget()
             self.hidden = True
+
+
+    def change_dir(self,new_path):
+        self.hide_directories(self.workingTree,self.path)
+        self.path = new_path
+        self.workingTree = self.find_directory(self.directoryTree,new_path)
+        self.place_directories(self.workingTree,self.path)
+        if self.hidden == True:
+            self.widgets["backButton"].place(x = 149,y = 49)
+            self.hidden = False
         
 
     def init_widgets(self):
@@ -294,21 +316,41 @@ class Browse(PlaceWindow):
         self.widgets["fileWindowbg"] = callbackLayeredLabel(self.widgets["fileWindow"], [("filebrowser",0,0)])
         self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","menu")
         self.widgets["backButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserUp",function = self.outof_dir)
+        self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
+        self.widgets["dirEntry"] = directoryEntry(self.widgets["fileWindow"],self,self.path)
+        self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "#C0C0C0",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
+
+        self.widgets["rightclickmenu"] = betterLabel(self.frame,"rightclickmenu")
+        self.widgets["rightclickmenu2"] = betterLabel(self.frame,"rightclickmenu2")
+        self.widgets["rightclickmenu_file"] = betterLabel(self.frame,"rightclickmenu_file")
+        self.widgets["new"] = functionalButton(self.frame,self, "new",self.rc2 )
+        self.widgets["delete"] = functionalButton(self.frame,self, "delete",lambda: None)
+        self.widgets["rename"] = functionalButton(self.frame,self, "rename", lambda: None)
+        self.widgets["newfolder"] = functionalButton(self.frame,self, "newfolder", lambda: None)
+        self.widgets["wavesound"] = functionalButton(self.frame,self, "wavesound", lambda: None)
         
         self.init_directories(self.workingTree,self.path)
         
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+    def rc2(self):
+        self.widgets["rightclickmenu2"].place(x=int(self.widgets["rightclickmenu"].place_info()["x"])+154,y =161+int(self.widgets["rightclickmenu"].place_info()["y"]))
+        self.widgets["newfolder"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =2+int(self.widgets["rightclickmenu2"].place_info()["y"]))
+        self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
         
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
-        self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")      
+        self.bindings["startBinding"] = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
+        self.bindings["rightclickmenuBinding"] = self.frame.root.bind("<Button-1>",self.widgets["fileWindow"].check_focus,"+") 
         self.widgets["fileWindowbg"].place(x=0,y=0)
         self.place_directories(self.workingTree,self.path)
         self.widgets["nanocross"].place(x=596,y=6)
         self.widgets["start"].place(x=1,y =576)
+        self.widgets["folderName"].place(x = 115, y = 133)
+        self.widgets["dirEntry"].place(x = 77,y = 93)
+        self.widgets["objects"].place(x=8,y=504)
     def hide_All(self):
         PlaceWindow.hide_All(self)
         for val in self.bindings.values():

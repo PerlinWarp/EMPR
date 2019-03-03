@@ -197,6 +197,11 @@ class dragDropFrame(Frame):
         self.bind("<ButtonPress-1>",self.pickup,"+")
         self.bind("<ButtonRelease-1>",self.putdown,"+")
         self.bind("<B1-Motion>",self.drag,"+")
+        self.bind("<Button-3>",self._on_Right_Click)
+    def place(self,**kw):
+        Frame.place(self,kw)
+        self.x = int(self.place_info()["x"])
+        self.y = int(self.place_info()["y"])
     def pickup(self,event):
         if event.y < 23:
             self.x = int(self.place_info()["x"])
@@ -215,13 +220,31 @@ class dragDropFrame(Frame):
         if self.move == True:
             self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
             self.move = False
-        
+    def _on_Right_Click(self,event):
+        if event.y > 120:
+            self.window.widgets["rightclickmenu"].place(x=event.x+self.x,y=event.y+self.y)
+            self.window.widgets["new"].place(x=event.x+self.x+3,y=event.y+self.y+163)
+            self.window.widgets["rightclickmenu2"].place_forget()
+            self.window.widgets["newfolder"].place_forget()
+            self.window.widgets["wavesound"].place_forget()
+    def check_focus(self,event):
+        for widget in ["rightclickmenu","new"]:
+            if event.widget == self.window.widgets[widget]:
+                return
+        self.window.widgets["rightclickmenu"].place_forget()
+        self.window.widgets["new"].place_forget()
+        self.window.widgets["rightclickmenu2"].place_forget()
+        self.window.widgets["newfolder"].place_forget()
+        self.window.widgets["wavesound"].place_forget()
+        self.window.rcmenu2 = False
+                    
 class callbackLayeredLabel(layeredLabel):
     def __init__(self,frame,images):
         layeredLabel.__init__(self,frame,images)
         self.bind("<ButtonPress-1>",self.frame.pickup,"+")
         self.bind("<ButtonRelease-1>",self.frame.putdown,"+")
         self.bind("<B1-Motion>",self.frame.drag,"+")
+        self.bind("<Button-3>",self.frame._on_Right_Click,"+")
         
         
 class betterListBox(Listbox):
@@ -392,4 +415,20 @@ class browserButton():#78 by 75, where
             self.clicked = True
             self._on_pressed(event)
         
+class directoryEntry(Entry):
+    def __init__(self,frame,root,directory):
+        Entry.__init__(self,frame,width = 80,borderwidth = 0)
+        self.frame = frame
+        self.root = root
+        self.insert(0,directory)
+        self.bind('<Return>',self._on_Enter)
+    def _on_Enter(self,event):
+        if self.root.find_directory(self.root.directoryTree,self.get()) != False:
+            self.root.change_dir(self.get())
+        else:
+            self.change_dir(self.root.path)
+    def change_dir(self,new_dir):
+        self.delete(0,len(self.get()))
+        self.insert(0,new_dir)
+
         
