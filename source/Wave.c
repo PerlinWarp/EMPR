@@ -40,5 +40,6 @@ WAVE_HEADER Wav_Init(FIL* file )
   sprintf(fileInfo,"Subchunk 1 Size: %u\n\rBlock Align: %u\n\rSubchunk 2 Size: %u\n\r",w.Subchunk1Size,w.BlockAlign,w.Subchunk2Size);
   WriteText(fileInfo);
   WriteText("loaded Wave Successfully\n\r");
+  free(head_buffer);
   return w;
 }
