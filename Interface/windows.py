@@ -17,7 +17,7 @@ class WindowManager(Frame):
         self.width = self.winfo_width()
         self.height = self.winfo_height()
         #Change this to menu or play to switch between the windows
-        self.currentScreen = "browse"
+        self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
@@ -314,7 +314,7 @@ class Browse(PlaceWindow):
         self.widgets["start"] = startButton(self.frame,self,"winstart")
         
         self.widgets["fileWindowbg"] = callbackLayeredLabel(self.widgets["fileWindow"], [("filebrowser",0,0)])
-        self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","menu")
+        self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","play")
         self.widgets["backButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserUp",function = self.outof_dir)
         self.widgets["deleteButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserDelete",function = self.delete)
         self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
@@ -335,7 +335,7 @@ class Browse(PlaceWindow):
         
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
-        self.widgets["documents"] = hoverButton(self.frame,self, "documents", "menu")
+        self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
     def delete(self):#If recursive directory deletion is necessary uncomment lines
         self.hide_directories(self.workingTree,self.path)
         #self.recursiveDelete(self.workingTree[self.selectedFile])
