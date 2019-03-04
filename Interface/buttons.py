@@ -74,7 +74,7 @@ class startButton(hoverButton):
         if(not self.menu_open):
             self.root.widgets["95menu"].place(x=0,y=260)
             self.root.widgets["shutdown"].place(x=24,y=537)
-            self.root.widgets["documents"].place(x=24,y=237)
+            self.root.widgets["documents"].place(x=24,y=337)
         else:
             self.root.widgets["95menu"].place_forget()
             self.root.widgets["shutdown"].place_forget()

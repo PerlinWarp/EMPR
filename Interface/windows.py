@@ -126,7 +126,7 @@ class PlayScreen(PlaceWindow):
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
-        self.widgets["documents"] = hoverButton(self.frame,self, "documents", "menu")
+        self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
 
         
