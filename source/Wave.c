@@ -28,6 +28,7 @@ WAVE_HEADER Wav_Init(FIL* file )
   w.ByteRate      = __ctl(&head_buffer[28]);//little
   w.BlockAlign    = head_buffer[32];//little
   w.BitsPerSample = head_buffer[34];//little
+
   w.Subchunk2ID   = &head_buffer[36];
   if(strncmp(w.Subchunk2ID,"data",4))return w;
   w.Subchunk2Size = __ctl(&head_buffer[40]);
@@ -40,9 +41,4 @@ WAVE_HEADER Wav_Init(FIL* file )
   WriteText(fileInfo);
   WriteText("loaded Wave Successfully\n\r");
   return w;
-}
-
-void Wav_Read_head_buffer(char* head_buffer, uint32_t buf_Size)
-{
-
 }

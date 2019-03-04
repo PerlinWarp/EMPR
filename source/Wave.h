@@ -39,6 +39,7 @@ typedef struct {
 
 WAVE_HEADER Wav_Init(FIL* file );
 void Wav_Read_Buffer(char* buffer, uint32_t buf_Size);
+WAVE_HEADER Wav_Read_Buffered_Header(char* head_buffer);
 
 
 #endif

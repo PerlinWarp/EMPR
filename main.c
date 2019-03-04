@@ -149,6 +149,27 @@ void I2S_PassThroughInterrupt()
   buttonpress = 0;
 }
 
+void FileInfo() {
+  FileSelection();
+
+  FIL fil;        /* File object */
+  FRESULT fr;     /* FatFs return code */
+  buffer = (uint32_t*)(I2S_SRC);
+  sd_init();
+  WriteText(SELECTED_FILE);
+  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_READ));
+  WAVE_HEADER w = Wav_Init(&fil);
+  WriteText("dasds");
+  sd_deinit(fs);
+
+  char buff[32];
+  sprintf(buff, "%i\n\r", w.SampleRate);
+  WriteText(buff);
+
+
+}
+
+// Stores full path to new file in SELECTED_FILE
 uint8_t NewFileSelection(char* newpath) {
 	char** directoryNames = SDMallocFilenames();
     int directoryCount = SDGetDirectories("/", directoryNames);
@@ -164,10 +185,10 @@ uint8_t NewFileSelection(char* newpath) {
     	WriteText("\n\r");
     	char newfilename[16];
     	TextEntry(newfilename, "Name? (# ends)\n");
-    	return sprintf(newpath, "%s/%s", directoryNames[dir], newfilename);
+    	return sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
     }
 }
-
+// Stores full path to selected file in SELECTED_FILE
 void FileSelection() {
   char path[32] = "/", header[16];
   char **filenames = SDMallocFilenames();
@@ -197,18 +218,18 @@ void FileSelection() {
       int curlen = strlen(path);
       sprintf(path + curlen, "/%s", filenames[chosenIndex] + 2);
    } else {
-
-    // DO SOMETHING WITH filenames[chosenIndex] HERE
-
-    WriteText("chosen file: ");
-    WriteText(filenames[chosenIndex]);
-    WriteText("\n\r");
+    SELECTED_FILE[0] = '/';
+    sprintf(SELECTED_FILE, "/%s/%s", path, filenames[chosenIndex] + 2);
+    // WriteText("chosen file: ");
+    // WriteText(filenames[chosenIndex]);
+    // WriteText("\n\r");
     break;
    }
   }
 
   if (chosenIndex == 100) {
-    WriteText("selection cancelled");
+    SELECTED_FILE[0] = '\0';
+    // WriteText("selection cancelled");
   }
 
   SDFreeFilenames(filenames);
@@ -238,7 +259,7 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  char fpath[100] = "meme.wav";// = browse_Files();
+  char fpath[100] = "/FILE1.WAV";// = browse_Files();
   Play(fpath);
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
@@ -257,8 +278,31 @@ void Play(char* directory)
   if(fr)return;
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
+// 
+//   WriteText("disabling i2s\n\r");
+//   WriteText("major OOF\n\r");
+//   FileSelection();
+
+//   FIL fil;        /* File object */
+//   FRESULT fr;     /* FatFs return code */
+//   buffer = (uint32_t*)(I2S_SRC);
+//   fr = f_mount(&FatFs, "", 1);
+//   SDPrintFresult(fr);
+//   fr = f_open(&fil, SELECTED_FILE, FA_READ);
+//   SDPrintFresult(fr);
+//   // FATfs should handle it's own chip selects, I'm commenting these out
+//   // CS_HIGH();//Disable chip select until next use
+//   WAVE_HEADER w = Wav_Init(&fil);
+//   int_Handler_Enable = 1;
+//   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
+//   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
+//   int_Handler_Enable =0;
+//   I2S_DeInit(LPC_I2S);
+//   // CS_LOW();
+// 
   f_close(&fil);
 }
+
 
 void UART_Mode()
 {//Note: pyserial likely sends utf 16, which is being split into h0e0l0l0o0
@@ -393,6 +437,16 @@ void PC_Mode()
   //wait until instruction is recieved
   //do each task
 }
+
+uint32_t bytesToUInt32(char* head) {
+  uint32_t result = 0;
+  // result |= ((uint32_t)head[3]) << 24;
+  // result |= ((uint32_t)head[2]) << 16;
+  // result |= ((uint32_t)head[1]) << 8;
+  result |= ((uint32_t)head[3]);
+  return result;
+}
+
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
@@ -406,8 +460,26 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
-    Menu();
 
+    BYTE readbuff[64];
+    uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
+
+    char charbuff[44];
+    uint8_t i = 0;
+    for (i = 0; i < 43; i++) {
+        charbuff[i] = (char)readbuff[i];
+    }
+    
+    // strncpy(readbuff, charbuff, 43);
+    charbuff[43] = '\0';
+    // WriteText(charbuff);
+
+    // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
+    // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
+    WriteText(charbuff);
+    
+
+    Menu();
 
 
     return 0;

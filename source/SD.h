@@ -9,13 +9,15 @@
 #include "LPC17xx.h"
 #include "lpc17xx_i2s.h"
 
-#define SD_DEBUG 0 // enables status printing, assumes SerialInit() was ran
+#define SD_DEBUG 1 // enables status printing, assumes SerialInit() was ran
 
 FATFS fs;
 void SDPrintFresult(FRESULT fr);
 // void SDInit(void);
 uint8_t SDGetFiles(char* path, char** result);
 uint8_t SDGetDirectories(char *path, char** result);
+
+uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n);
 
 char** SDMallocFilenames();
 void SDFreeFilenames(char** filenames);

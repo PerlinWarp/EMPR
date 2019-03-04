@@ -41,6 +41,7 @@ FATFS sd_init() {
     #endif
     return fs;
 }
+
 void sd_deinit() {
     f_mount(0, "", 0);
 }
@@ -156,14 +157,39 @@ uint8_t SDGetFiles(char* path, char** result) {
     sd_deinit();
     return i;
 }
+// read at most n bytes from path and store them in result, returning how many were actually read
+uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
+    NVIC_DisableIRQ(I2S_IRQn);//Disable i2s interrupts
+  char prefixedPath[32];
+  sprintf(prefixedPath, "/%s", path); // prepend / just in case
+  WriteText(prefixedPath);
+  WriteText("\n\r");
+  sd_init();
+
+  FIL fil;
+
+
+  SDPrintFresult(f_open(&fil, prefixedPath, FA_READ));
+
+  UINT nRead = 0;
+  SDPrintFresult(f_read(&fil, result, n, &nRead));
+
+  char buff[32];
+  sprintf(buff, "%d", nRead);
+  WriteText(buff);
+
+  f_close(&fil);
+  sd_deinit(fs);
+  return nRead;
+}
 
 unsigned int SD_READ(FIL* fil,uint32_t* buf,uint32_t bufSize)
 {
   unsigned int count;
   NVIC_DisableIRQ(I2S_IRQn);//Disable i2s interrupts
-  CS_LOW();//Enable chip select
+  // CS_LOW();//Enable chip select
   f_read(fil,buf,bufSize, &count);
-  CS_HIGH();//Disable chip select
+  // CS_HIGH();//Disable chip select
   NVIC_EnableIRQ(I2S_IRQn);
   //enable i2s interrupts
   return count;
@@ -173,9 +199,9 @@ unsigned int SD_WRITE(FIL* fil,uint32_t* buf,uint32_t bufSize)
 {
   unsigned int count;
   NVIC_DisableIRQ(I2S_IRQn);//Disable i2s interrupts
-  CS_LOW();//Enable chip select
+  // CS_LOW();//Enable chip select
   f_write(fil,buf,bufSize, &count);
-  CS_HIGH();//Disable chip select
+  // CS_HIGH();//Disable chip select
   NVIC_EnableIRQ(I2S_IRQn);
   //enable i2s interrupts
   return count;
