@@ -289,6 +289,7 @@ class Browse(PlaceWindow):
 
     def init_widgets(self):
         self.frame.ser.write("B|")
+        self.selectedFile = None
         directoryTree = {}
         self.hidden = True
         self.bindings = {}
@@ -305,7 +306,6 @@ class Browse(PlaceWindow):
         self.directoryTree = {"C:":directoryTree}
         self.workingTree = directoryTree
         self.path = "C:"
-        print(self.workingTree)
         self.widgets["background"] = layeredLabel(self.frame,[("playbackground",0,0)])
         
         self.widgets["fileWindow"] = dragDropFrame(self.frame,self,relief = FLAT,width =618,height = 525,borderwidth =0)
@@ -316,6 +316,7 @@ class Browse(PlaceWindow):
         self.widgets["fileWindowbg"] = callbackLayeredLabel(self.widgets["fileWindow"], [("filebrowser",0,0)])
         self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","menu")
         self.widgets["backButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserUp",function = self.outof_dir)
+        self.widgets["deleteButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserDelete",function = self.delete)
         self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
         self.widgets["dirEntry"] = directoryEntry(self.widgets["fileWindow"],self,self.path)
         self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "#C0C0C0",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
@@ -324,7 +325,7 @@ class Browse(PlaceWindow):
         self.widgets["rightclickmenu2"] = betterLabel(self.frame,"rightclickmenu2")
         self.widgets["rightclickmenu_file"] = betterLabel(self.frame,"rightclickmenu_file")
         self.widgets["new"] = functionalButton(self.frame,self, "new",self.rc2 )
-        self.widgets["delete"] = functionalButton(self.frame,self, "delete",lambda: None)
+        self.widgets["delete"] = functionalButton(self.frame,self, "delete",self.delete)
         self.widgets["rename"] = functionalButton(self.frame,self, "rename", lambda: None)
         self.widgets["open"] = functionalButton(self.frame,self, "open",lambda: None)
         self.widgets["newfolder"] = functionalButton(self.frame,self, "newfolder", lambda: None)
@@ -334,6 +335,20 @@ class Browse(PlaceWindow):
         
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
+    def delete(self):#If recursive directory deletion is necessary uncomment lines
+        self.hide_directories(self.workingTree,self.path)
+        #self.recursiveDelete(self.workingTree[self.selectedFile])
+        self.workingTree.pop(self.selectedFile,None)
+        self.place_directories(self.workingTree,self.path)
+        for i in ["rightclickmenu_file","delete","rename","open"]:
+            self.widgets[i].place_forget()
+        
+    def recursiveDelete(directoryTree):
+        if type(directoryTree) == type({}):
+            for i in directoryTree.keys():
+                recursiveDelete(directoryTree[i])
+                directoryTree.pop(i,None)
+                #self.ser.write("D,path|")
     def rc2(self):
         self.widgets["rightclickmenu2"].place(x=int(self.widgets["rightclickmenu"].place_info()["x"])+154,y =161+int(self.widgets["rightclickmenu"].place_info()["y"]))
         self.widgets["newfolder"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =2+int(self.widgets["rightclickmenu2"].place_info()["y"]))
@@ -347,6 +362,7 @@ class Browse(PlaceWindow):
         self.bindings["rightclickmenuBinding"] = self.frame.root.bind("<Button-1>",self.widgets["fileWindow"].check_focus,"+") 
         self.widgets["fileWindowbg"].place(x=0,y=0)
         self.place_directories(self.workingTree,self.path)
+        self.widgets["deleteButton"].place(x=443,y=49)
         self.widgets["nanocross"].place(x=596,y=6)
         self.widgets["start"].place(x=1,y =576)
         self.widgets["folderName"].place(x = 115, y = 133)

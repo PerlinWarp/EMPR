@@ -311,9 +311,6 @@ class browserButton():#78 by 75, where
         self.image_binding2  = self.image.bind('<Double-Button-1>',self._open,"+")
         self.text_binding2  =  self.text.bind('<Double-Button-1>',self._open,"+")
 
-        self.image_binding3 = self.image.bind('<Button-3>',self._on_Right_Click,"+")
-        self.text_binding3 = self.text.bind('<Button-3>',self._on_Right_Click,"+")
-        
         self.relx = self.rely =  0
         self.clicked = False
     def get_text(self,text):
@@ -384,10 +381,14 @@ class browserButton():#78 by 75, where
         self.image.bind('<Double-Button-1>',self._open)
         self.text.bind('<Double-Button-1>',self._open)
         
+        self.image.bind('<Button-3>',self._on_Right_Click)
+        self.text.bind('<Button-3>',self._on_Right_Click)
+        
         self.image.place(x = self.relx+22,y = self.rely+7 )
         self.text.place(x = self.relx+12+((50-self.windowSize) /2),y = self.rely+44 )
         
     def _on_Right_Click(self,event):
+        self._on_pressed(event)
         self.window.widgets["rightclickmenu_file"].place(x=event.x+self.relx+103,y=event.y+self.rely+26)
         self.window.widgets["delete"].place(x=event.x+self.relx+105,y=event.y+self.rely+156)
         self.window.widgets["rename"].place(x=event.x+self.relx+105,y=event.y+self.rely+174)
@@ -421,6 +422,7 @@ class browserButton():#78 by 75, where
         else:
             self.image.config(image = self.im_pressed)
             self.text.config(image = self.text_image_sel)
+            self.window.selectedFile = self.path
             
     def _open(self,event):
         if(self.filetype == "folder"):
