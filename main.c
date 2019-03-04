@@ -338,7 +338,7 @@ void PC_Mode()
   LCDPrint("****PC**MODE****\n****************");
   InitSerInterrupts();
   WriteText("CONNECT|");
-  while(!strcmp(READ_SERIAL,"ACK"));//Wait until response from PC is recorded
+  while(READ_SERIAL[0] != 'A');//Wait until response from PC is recorded
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
   uint8_t finished =0,playing=0;
@@ -470,7 +470,7 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 
 void A2()
 {
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = (int16_t*)(I2S_SRC);
   LCDGoHome();
   TLV320_Start_I2S_Polling_Passthrough();
   int_Handler_Enable =1;

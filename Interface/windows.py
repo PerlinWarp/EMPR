@@ -288,7 +288,7 @@ class Browse(PlaceWindow):
         
 
     def init_widgets(self):
-        self.frame.ser.write("B|")
+        self.frame.ser.write(b"B|")
         self.selectedFile = None
         directoryTree = {}
         self.hidden = True

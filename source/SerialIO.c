@@ -20,6 +20,7 @@ void UART0_IRQHandler(void)
 
 void ReceiveText(void)
 {
+
 	uint8_t tmp;
 	uint32_t rLen; // head = front of buffer, where data is read. tail = end, where data is receieved.
 	while(rbuf.rx_head!=CHECK_BUFFER(rbuf.rx_tail))
@@ -73,16 +74,19 @@ call before then
 */
 void ProcessBuffer()
 {
+	char output[50];
 	char tmp[INSTR_MAX_LEN];
-	int i = INSTR_MAX_LEN;
+	tmp[INSTR_MAX_LEN-1] = '\0';
+	int i = INSTR_MAX_LEN-1;
+	DEC_BUFFER(rbuf.rx_tail);//the last character read in was |
 	for(rbuf.rx_tail;CHECK_DEC_BUFFER(rbuf.rx_tail)!=rbuf.rx_head;DEC_BUFFER(rbuf.rx_tail))//go thro
 	{
+
 		if(rbuf.rx[rbuf.rx_tail]=='|')break;//break if instruction finished
 		tmp[--i] = (char)rbuf.rx[rbuf.rx_tail];
 	}
 	PUSH_SERIAL;
-	serialCommandBuffer[serialCommandIndex][INSTR_MAX_LEN] = '\0';
-	strncpy(serialCommandBuffer[serialCommandIndex],tmp,(INSTR_MAX_LEN-i));
+	strncpy(READ_SERIAL,&tmp[i],(INSTR_MAX_LEN-i));
 	NVIC_DisableIRQ(I2S_IRQn);//disable interrupts to give main program a chance to process instructions
 }
 
@@ -152,6 +156,10 @@ void InitSerInterrupts(void)
 	rbuf.rx_tail = 0;
 	rbuf.tx_head = 0;
 	rbuf.tx_tail = 0;
+	rbuf.rx[rbuf.rx_tail] = '|';
+	rbuf.rx_tail++;
+	rbuf.rx[rbuf.rx_tail] = '|';
+	rbuf.rx_tail++;
 
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, ENABLE);
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RLS, ENABLE);
