@@ -41,34 +41,26 @@ void IRQInit()
 
 void DrawMenu()
 {
-    char inputBuf[80];
-    char* lfill1,*lfill2;
-    int i;
-    int s1= max(17-strlen(MenuText[SelMenuItem]),2),s2 = max(17-strlen(MenuText[SelMenuItem+1]),2);
-    lfill1 = (char*)malloc(s1);
-    lfill2 = (char*)malloc(s2);
-    for(i = 0;i<s1;i++)lfill1[i]=' ';
-    lfill1[s1-2] = '\x12';
-    lfill1[s1-1] = '\0';
-    for(i = 0;i<s2;i++)lfill2[i]=' ';
-    lfill2[s2-2] = '\x30';
-    lfill2[s2-1] = '\0';
+    char inputBuf[40];
     switch(SelMenuItem)
     {
       case 0:
-        sprintf(inputBuf,"%s  \n%s%s",MenuText[SelMenuItem],MenuText[SelMenuItem+1],lfill2);
+        sprintf(inputBuf, "%-16s\n%-15s%c",
+          MenuText[SelMenuItem],
+          MenuText[SelMenuItem+1],'\x30');
         break;
       case MENUTEXTNUM-2:
-        sprintf(inputBuf,"%s%s\n                ",MenuText[SelMenuItem],lfill1);
+        sprintf(inputBuf, "%-15s\n%-16s",
+          MenuText[SelMenuItem], "");
         break;
       default:
-        sprintf(inputBuf,"%s%s\n%s%s",MenuText[SelMenuItem],lfill1,MenuText[SelMenuItem+1],lfill2);
+        sprintf(inputBuf, "%-15s%c\n%-15s%c",
+          MenuText[SelMenuItem], '\x12',
+          MenuText[SelMenuItem+1], '\x30');
     }
-    free(lfill1);
-    free(lfill2);
     LCDGoHome();
     LCDPrint(inputBuf);
-}
+  }
 void Menu()
 {
     SelMenuItem =  0;
@@ -165,7 +157,7 @@ uint8_t NewFileSelection(char* newpath) {
     WriteText("oi\n\r");
 
     if (dir == 100) {
-    	
+      return 0;
     } else {
     	WriteText("Selected Directory: ");
     	WriteText(directoryNames[dir]);
@@ -246,22 +238,25 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  FIL fil;        /* File object */
-  FRESULT fr;     /* FatFs return code */
-  char fpath[100];// = browse_Files();
-  buffer = (uint32_t*)(I2S_SRC);
-  fr = f_mount(&FatFs, "", 0);
-  if(fr)return;
-  fr = f_open(&fil, fpath, FA_READ);
-  if(fr)return;
-  CS_HIGH();//Disable chip select until next use
-  WAVE_HEADER w = Wav_Init(&fil);
+  char fpath[100] = "meme.wav";// = browse_Files();
+  Play(fpath);
   int_Handler_Enable =1;
-  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
-  CS_LOW();
+}
+
+void Play(char* directory)
+{
+  FIL fil;        /* File object */
+  FRESULT fr;     /* FatFs return code */
+  buffer = (uint32_t*)(I2S_SRC);
+  fr = f_mount(&FatFs, "", 0);
+  if(fr)return;
+  fr = f_open(&fil, directory, FA_READ);
+  if(fr)return;
+  WAVE_HEADER w = Wav_Init(&fil);
+  Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
   f_close(&fil);
 }
 
@@ -343,11 +338,48 @@ void PC_Mode()
   LCDPrint("****PC**MODE****\n****************");
   InitSerInterrupts();
   WriteText("CONNECT|");
-  while(!Connected);//Wait until response from PC is recorded
-  Connected =0;
+  while(!strcmp(READ_SERIAL,"ACK"));//Wait until response from PC is recorded
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
-  while(!Connected);//Wait for next input
+  uint8_t finished =0,playing=0;
+  while(!finished)//Wait for next input
+  {
+    if(serialCommandIndex>0){//If there are instructions to process
+      switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
+      {
+        case 'P'://play
+          playing =1;
+          Play(&READ_SERIAL[2]);
+          break;
+        case 'W'://pause
+          playing = 0;
+          NVIC_DisableIRQ(I2S_IRQn);
+        case 'R'://resume
+          playing = 1;
+          NVIC_EnableIRQ(I2S_IRQn);
+        case 'S':;//Send back settings data in the form S:settings array index,value|
+          char delim[2] = ",";
+          settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
+          break;
+        case 'E'://Exit and return to main menu
+          finished = 1;
+          break;
+        case 'B':;//send all browsing data back to embed
+          char output[SERIAL_BUFFER_MAXSIZE];
+          char ** fileList = SDMallocFilenames();
+          int i,len = SDGetFiles("/",fileList);
+          for(i=0;i<len;i++)
+          {
+            sprintf(output,"%s|",fileList[i]);
+            WriteText(output);
+          }
+          SDFreeFilenames(fileList);
+          break;
+      }
+      POP_SERIAL;
+      if(playing)NVIC_EnableIRQ(I2S_IRQn);
+    }
+  }
   /*
   Possible inputs:
   Play - load the song specified, send the song length back to the embed, send a start flag when song starts so embed can keep track of position in song
@@ -364,6 +396,10 @@ void PC_Mode()
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
+    char * asd = (char*)malloc(30);
+    sprintf(asd,"malloc works now\n\r");
+    WriteText("fasd");
+    WriteText(asd);
     SystemInit();
     DelayInit();
     I2CInit();
@@ -371,6 +407,7 @@ int main()
     LCDInit();
     LCDClear();
     Menu();
+
 
 
     return 0;
@@ -402,7 +439,7 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
       sprintf(line, patline2, items[offset]);
       LCDPrint(line);
     }
-    
+
     while(!buttonpress);
     buttonpress = 0;
 
@@ -429,6 +466,53 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
     }
   }
 }
+
+
+void A2()
+{
+  buffer = (uint32_t*)(I2S_SRC);
+  LCDGoHome();
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  char result[16];
+  TextEntry(result, "Pick a Frequency\n");
+  uint32_t frequency = atoi(result);
+  LCDPrint("**PLAYING SINE**\n******WAVE******");
+  I2S_Create_Sine(frequency);
+  while(!buttonpress);
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+}
+
+void A1()
+{/*Considerations for alaiasing and nyquists theroem should be made in your solution*/
+  buffer = (uint32_t*)(I2S_SRC);
+  uint32_t BufferOut[1];
+  char output[34];
+  LCDGoHome();
+  LCDPrint("**Display**Rec**\n*****BUFFER*****");
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
+  while(key != '#')
+  {
+    while(!buttonpress);
+    I2S_Polling_Read(BufferOut,1);
+    sprintf(output,"  Just Read In  \n0x%08X",(unsigned int)BufferOut[0]);
+    LCDGoHome();
+    LCDPrint(output);
+  }
+  I2S_DeInit(LPC_I2S);
+}
+
+void A3()
+{
+
+}
+void A4()
+{
+
+}
+
 
 // BLOCKING, enter single string from keboard,
 // stores in result, returns length

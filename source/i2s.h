@@ -12,6 +12,10 @@
 #include "TLV320.h"
 #include "Wave.h"
 #include "SD.h"
+
+#include <math.h>
+#define PI 3.1415926535897932384626433832
+
 #define I2S_MODE_POLLING 0
 #define I2S_MODE_INTERRUPT 1
 #define BUFFER_SIZE 256
@@ -32,12 +36,12 @@ void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uin
 void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout);
 
 
-void Init_I2S_Wav(char* NumChannels,char* SampleRate,char* BitsPerSample,FIL* fil);
-
-
+void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSample,FIL* fil);
+void I2S_BaseInit();
+void I2S_Create_Sine(uint32_t frequency);
 void i2s_int_Passthrough();
 void i2s_wav_play_16_bit();
-
+void i2s_playSound();
 
 
 #endif

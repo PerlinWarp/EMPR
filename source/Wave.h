@@ -6,11 +6,14 @@
 #include "LPC17xx.h"
 #include "FatFS/ff.h"
 #include "FatFS/diskio.h"
-
+#include "SerialIO.h"
 char* head_buffer;
 
+#define __ctl(val) *(uint32_t*)(val)
+#define __cti(val) *(uint16_t*)(val)
+
 #define bswap_16(val) (val>>8)|(val<<8)
-#define bswap_32(val) ((val>>24)&0xff) |((val<<8)&0xff0000) | ((val>>8)&0xff00) |((val<<24)&0xff000000);
+#define bswap_32(val) ((val>>24)&0xff) |((val<<8)&0xff0000) | ((val>>8)&0xff00) |((val<<24)&0xff000000)
 
 #define BIG_ENDIAN 1
 #define LITTLE_ENDIAN -1
@@ -18,19 +21,19 @@ char* head_buffer;
 typedef struct {
   FIL* file;
   char* ChunkID;
-  char* ChunkSize;
+  uint32_t ChunkSize;
   char* Format;
   char* Subchunk1ID;
-  char* Subchunk1Size;
-  char* AudioFormat;
-  char* NumChannels;
-  char* SampleRate;
-  char* ByteRate;
-  char* BlockAlign;
-  char* BitsPerSample;
+  uint32_t Subchunk1Size;
+  uint16_t AudioFormat;
+  uint16_t NumChannels;
+  uint32_t SampleRate;
+  uint32_t ByteRate;
+  uint16_t BlockAlign;
+  uint16_t BitsPerSample;
   char* Subchunk2ID;
-  char* Subchunk2Size;
-  char* DataPtr;
+  uint32_t Subchunk2Size;
+  uint32_t DataPtr;
   char Endian;
 }WAVE_HEADER;
 

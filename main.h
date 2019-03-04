@@ -23,7 +23,6 @@
 //Buffer length in bytes
 #define BUFO_LENGTH 150
 #define BUFI_LENGTH 150
-#define PI 3.1415827
 #define I2S_SRC LPC_AHBRAM1_BASE
 #define I2S_DST (I2S_SRC + 0x1000UL)
 
@@ -64,7 +63,7 @@ char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
                      "U2.IPod Mode   ","N1.PassThrough "," "};
 FATFS FatFs;
 
-
+int settings[20];
 
 void Menu();
 void DrawMenu();
@@ -80,7 +79,7 @@ void UART_Mode();
 void temp();
 void FatRead();
 void PC_Mode();
-
+void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
 
@@ -90,14 +89,17 @@ void (*menuFuncs[])(void) = {
 	&I2S_PassThroughLoop,
 	&I2S_PassThroughInterrupt,
 	&UART_Mode,
-	&FileSelection,
+	&PC_Mode,
 	&FatRead,
 	&PassThroughLoop,
 	&PassThroughLoop,
 	&temp};
-	
+
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 
+
+void A1();
+void A2();
 /*
 Menu Organisation:
 

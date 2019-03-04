@@ -1,9 +1,5 @@
 #include "SerialIO.h"
 
-uint8_t menuIndex;//what instruction to expect
-void connect(char* instruction);
-static void (*processinstruction[])(char*) = {&connect};
-
 void UART0_IRQHandler(void)
 {
 	uint32_t tmp,intsrc =0 ;
@@ -78,35 +74,16 @@ call before then
 void ProcessBuffer()
 {
 	char tmp[INSTR_MAX_LEN];
-	char* instruction;
 	int i = INSTR_MAX_LEN;
 	for(rbuf.rx_tail;CHECK_DEC_BUFFER(rbuf.rx_tail)!=rbuf.rx_head;DEC_BUFFER(rbuf.rx_tail))//go thro
 	{
 		if(rbuf.rx[rbuf.rx_tail]=='|')break;//break if instruction finished
 		tmp[--i] = (char)rbuf.rx[rbuf.rx_tail];
 	}
-	instruction = (char*)malloc(sizeof(char)*(INSTR_MAX_LEN-i+1));//1 added for null character
-	instruction[INSTR_MAX_LEN-i] = '\0';
-	strncpy(instruction,tmp,(INSTR_MAX_LEN-i));//copy over the number of instructions present
-	processinstruction[menuIndex](instruction);
-	free(instruction);
-}
-
-
-void connect(char* instruction)
-{
-	if(!strcmp(instruction,"ACK")){
-		Connected =1;
-		return;
-	}
-	switch(instruction[0])
- 	{
-	 		case 'P':
-			Connected =1;
-			break;
-			default:
-			break;
-	}
+	PUSH_SERIAL;
+	serialCommandBuffer[serialCommandIndex][INSTR_MAX_LEN] = '\0';
+	strncpy(serialCommandBuffer[serialCommandIndex],tmp,(INSTR_MAX_LEN-i));
+	NVIC_DisableIRQ(I2S_IRQn);//disable interrupts to give main program a chance to process instructions
 }
 
 void TransmitText(void)
@@ -166,8 +143,10 @@ int write_usb_serial_blocking(char *buf,int length)
 }
 void InitSerInterrupts(void)
 {
-	menuIndex =0;
-	Connected = 0;
+	int i;
+	serialCommandIndex =0;
+	serialCommandBuffer = (char**)malloc(sizeof(char*)*SERIAL_BUFFER_MAXSIZE);
+	for(i=0;i<SERIAL_BUFFER_MAXSIZE;i++)serialCommandBuffer[i] = (char*)malloc(sizeof(char)*INSTR_MAX_LEN+1);
 	TxIntStat = RESET;
 	rbuf.rx_head = 0;
 	rbuf.rx_tail = 0;
