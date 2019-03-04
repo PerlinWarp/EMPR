@@ -18,6 +18,8 @@ char* head_buffer;
 #define BIG_ENDIAN 1
 #define LITTLE_ENDIAN -1
 
+#define DEBUG 0
+
 typedef struct {
   FIL* file;
   char* ChunkID;
@@ -39,6 +41,7 @@ typedef struct {
 
 WAVE_HEADER Wav_Init(FIL* file );
 void Wav_Read_Buffer(char* buffer, uint32_t buf_Size);
+WAVE_HEADER Wav_Read_Buffered_Header(char* head_buffer);
 
 
 #endif
