@@ -59,7 +59,7 @@ char** SDMallocFilenames() {
 void SDFreeFilenames(char** filenames) {
   int i = 0;
   for (i = 0; i < MAX_FILE_COUNT; i ++ ) {
-    if (filenames[i] == 0x00) break;
+    // if (filenames[i] == 0x00) break;
     free(filenames[i]);
     filenames[i] = 0x00;
   }
@@ -80,7 +80,6 @@ uint8_t SDGetAllFiles(char** result) {
   for (i = 0; i < allDirsCount; i += 1) {
     newFilesCount = SDGetFiles(allDirs[i], thisDir);
     for (j = 0; j < newFilesCount; j += 1) {
-      WriteText(buff);
       if (thisDir[j][0] == '-') {
         indemalloc(result, stack_top, 16);
         sprintf(result[stack_top], "%s/%s", allDirs[i], thisDir[j] + 2);
@@ -160,27 +159,30 @@ uint8_t SDGetFiles(char* path, char** result) {
 // read at most n bytes from path and store them in result, returning how many were actually read
 uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
     NVIC_DisableIRQ(I2S_IRQn);//Disable i2s interrupts
-  char prefixedPath[32];
-  sprintf(prefixedPath, "/%s", path); // prepend / just in case
-  WriteText(prefixedPath);
-  WriteText("\n\r");
   sd_init();
 
   FIL fil;
 
 
-  SDPrintFresult(f_open(&fil, prefixedPath, FA_READ));
+  SDPrintFresult(f_open(&fil, path, FA_READ));
 
   UINT nRead = 0;
   SDPrintFresult(f_read(&fil, result, n, &nRead));
 
-  char buff[32];
-  sprintf(buff, "%d", nRead);
-  WriteText(buff);
-
   f_close(&fil);
   sd_deinit(fs);
   return nRead;
+}
+
+uint32_t SDGetFileSize(char *path) {
+  sd_init();
+  FIL fil;
+  SDPrintFresult(f_open(&fil, path, FA_READ));
+  FSIZE_t fsize = f_size(&fil);
+  f_close(&fil);
+  sd_deinit(fs);
+  return (uint32_t) fsize;
+
 }
 
 unsigned int SD_READ(FIL* fil,uint32_t* buf,uint32_t bufSize)

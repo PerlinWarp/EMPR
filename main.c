@@ -155,18 +155,26 @@ void FileInfo() {
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
   buffer = (uint32_t*)(I2S_SRC);
+  uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
+
   sd_init();
-  WriteText(SELECTED_FILE);
   SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_READ));
   WAVE_HEADER w = Wav_Init(&fil);
-  WriteText("dasds");
   sd_deinit(fs);
 
-  char buff[32];
-  sprintf(buff, "%i\n\r", w.SampleRate);
-  WriteText(buff);
+  char *showItems[4];
+  char fileSizeItem[16], playingTimeItem[16], byteRateItem[16], sampleSizeItem[16];
+  showItems[0] = fileSizeItem;
+  showItems[1] = playingTimeItem;
+  showItems[2] = byteRateItem;
+  showItems[3] = sampleSizeItem;
 
-
+  char header[16] = "File Details:\n";
+  sprintf(fileSizeItem, "size: %db", fileSize);
+  sprintf(playingTimeItem, "time: %.2fs", fileSize / ((float)w.ByteRate));
+  sprintf(byteRateItem, "rate: %dHz", w.ByteRate);
+  sprintf(sampleSizeItem, "ssize: %dbits", w.BitsPerSample);
+  SelectOne(showItems, header, 4);
 }
 
 // Stores full path to new file in SELECTED_FILE
@@ -460,23 +468,22 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
+    // BYTE readbuff[64];
+    // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
 
-    BYTE readbuff[64];
-    uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
-
-    char charbuff[44];
-    uint8_t i = 0;
-    for (i = 0; i < 43; i++) {
-        charbuff[i] = (char)readbuff[i];
-    }
+    // char charbuff[44];
+    // uint8_t i = 0;
+    // for (i = 0; i < 43; i++) {
+    //     charbuff[i] = (char)readbuff[i];
+    // }
     
-    // strncpy(readbuff, charbuff, 43);
-    charbuff[43] = '\0';
-    // WriteText(charbuff);
+    // // strncpy(readbuff, charbuff, 43);
+    // charbuff[43] = '\0';
+    // // WriteText(charbuff);
 
-    // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
-    // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
-    WriteText(charbuff);
+    // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
+    // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
+    // WriteText(charbuff);
     
 
     Menu();
@@ -489,6 +496,17 @@ void temp(){buttonpress = 0;}//Delete at your earliest convienience
 
 // reusable UI functions
 
+// replace all occurances of `f` with `r`
+void strreplace(char* str, char f, char r) {
+  int i = 0;
+  while (str[i] != '\0') {
+    if (str[i] == f) {
+      str[i] = r;
+    }
+    i ++;
+  }
+}
+
 // they are here because they need global `buttonpress`
 // interactive menu to choose one of the `items` displayed on line 2 of LCD
 // line 1 is always `header`, fileCount is len(items)
@@ -500,7 +518,15 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 
   uint8_t offset = 0;
   char line[16];
-  char patline2[7] = "> %13s";
+  char patline2[7] = ">%15s";
+
+  uint8_t i = 0;
+  // zeros display as the downarrow thingies
+  // so we're replacing them with capital Os
+  // don't worry, nobody will ever know
+  for (i = 0; i < fileCount; i ++) {
+    strreplace(items[i], '0', 'O');
+  }
 
   while(1) {
     LCDGoHome();

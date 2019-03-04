@@ -18,6 +18,8 @@ char* head_buffer;
 #define BIG_ENDIAN 1
 #define LITTLE_ENDIAN -1
 
+#define DEBUG 0
+
 typedef struct {
   FIL* file;
   char* ChunkID;
