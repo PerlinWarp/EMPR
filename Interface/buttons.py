@@ -74,9 +74,11 @@ class startButton(hoverButton):
         if(not self.menu_open):
             self.root.widgets["95menu"].place(x=0,y=260)
             self.root.widgets["shutdown"].place(x=24,y=537)
+            self.root.widgets["documents"].place(x=24,y=337)
         else:
             self.root.widgets["95menu"].place_forget()
             self.root.widgets["shutdown"].place_forget()
+            self.root.widgets["documents"].place_forget()
         self.menu_open = not self.menu_open
     def check_focus(self,event):
         if event.widget != self and event.widget != self.root.widgets["95menu"] and event.widget != self.root.widgets["shutdown"]:
