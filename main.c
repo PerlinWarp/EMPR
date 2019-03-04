@@ -497,7 +497,7 @@ void A1()
   {
     while(!buttonpress);
     I2S_Polling_Read(BufferOut,1);
-    sprintf(output,"  Just Read In  \n0x%08X",(unsigned int)BufferOut[0]);
+    sprintf(output,"  Just Read In  \n0x%04X",(signed int)BufferOut[0]);//print the left channel as a signed integer
     LCDGoHome();
     LCDPrint(output);
     buttonpress = 0;

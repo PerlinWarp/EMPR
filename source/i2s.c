@@ -142,13 +142,21 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
 
 void I2S_Create_Sine(uint32_t frequency)
 {
+  int16_t value;
   I2S_BaseInit();
   I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
   I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
   NVIC_SetPriority(I2S_IRQn, 0x03);
   while(CHECK_BUFFER(WriteInd))
   {//Max frequency = 24000, min frequency = 180
-       buffer[WriteInd] = (uint32_t)(sin(2*frequency*WriteInd*PI/48000)* 5000+(5000));
+  /*
+  Note about I2S:
+  Each I2S data chunk is separated into 16 bits left channel and 16 bits right channel signed integers with most significant bit first (big endian)
+  */
+       value = (int16_t)(sin(2*frequency*WriteInd*PI/48000)* 3000);
+       buffer[WriteInd] = (uint32_t)value;
+       buffer[WriteInd+1] = (uint32_t)value;//mono so both channels are set to the same thing 
+       INC_BUFFER(WriteInd);
        INC_BUFFER(WriteInd);
   }
   I2S_ihf_Index =2;
