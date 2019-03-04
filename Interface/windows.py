@@ -391,5 +391,6 @@ class Browse(PlaceWindow):
         self.widgets["dirEntry"].place(x = 77,y = 93)
         self.widgets["objects"].place(x=8,y=504)
     def hide_All(self):
+        self.hidden = True
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>")
