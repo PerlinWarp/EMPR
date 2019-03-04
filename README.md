@@ -1,7 +1,7 @@
 # EMPR - Embedded Systems Project
 
 ***University of York, Computer Science BEng/MEng Stage 2 EMPR (Embedded Systems Project)***
-#### Members are Lackshan Rama, Idris Al-Ghabra,Peter Walkington and Brian Camacho
+#### Members are Idris Al-Ghabra,Peter Walkington and Brian Camacho
 
 ## Useful Docs
 [EMPR Lectures](https://vle.york.ac.uk/webapps/blackboard/content/listContent.jsp?course_id=_88743_1&content_id=_2848340_1&mode=reset)
