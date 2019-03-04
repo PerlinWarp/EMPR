@@ -223,12 +223,12 @@ class Browse(PlaceWindow):
     def init_directories(self,directoryTree,path):
             if type(directoryTree) != type(dict()):
                 item_type = "file"
-                self.widgets[path] = browserButton(self.widgets["fileWindow"],directoryTree,item_type)
+                self.widgets[path] = browserButton(self.widgets["fileWindow"],self,directoryTree,item_type)
             else:
                 item_type = "folder"
                 for key in directoryTree.keys():
                     self.init_directories(directoryTree[key],path+"/"+key)
-                self.widgets[path] = browserButton(self.widgets["fileWindow"],path.split('/')[-1],item_type)
+                self.widgets[path] = browserButton(self.widgets["fileWindow"],self,path.split('/')[-1],item_type)
     def place_directories(self,directoryTree,path):
         counter = 0
         for key in directoryTree.keys():
@@ -326,6 +326,7 @@ class Browse(PlaceWindow):
         self.widgets["new"] = functionalButton(self.frame,self, "new",self.rc2 )
         self.widgets["delete"] = functionalButton(self.frame,self, "delete",lambda: None)
         self.widgets["rename"] = functionalButton(self.frame,self, "rename", lambda: None)
+        self.widgets["open"] = functionalButton(self.frame,self, "open",lambda: None)
         self.widgets["newfolder"] = functionalButton(self.frame,self, "newfolder", lambda: None)
         self.widgets["wavesound"] = functionalButton(self.frame,self, "wavesound", lambda: None)
         

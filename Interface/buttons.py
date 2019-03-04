@@ -222,11 +222,13 @@ class dragDropFrame(Frame):
             self.move = False
     def _on_Right_Click(self,event):
         if event.y > 120:
+            
             self.window.widgets["rightclickmenu"].place(x=event.x+self.x,y=event.y+self.y)
             self.window.widgets["new"].place(x=event.x+self.x+3,y=event.y+self.y+163)
-            self.window.widgets["rightclickmenu2"].place_forget()
-            self.window.widgets["newfolder"].place_forget()
-            self.window.widgets["wavesound"].place_forget()
+            for widget in ["rightclickmenu2","newfolder","wavesound","rightclickmenu_file","delete","rename","open"]:
+                self.window.widgets[widget].place_forget()
+
+                
     def check_focus(self,event):
         for widget in ["rightclickmenu","new"]:
             if event.widget == self.window.widgets[widget]:
@@ -292,8 +294,9 @@ class betterScale(Scale):
         Scale.__init__(self,frame,from_=0,to=128,orient = HORIZONTAL,length =148,**options)
                  
 class browserButton():#78 by 75, where 
-    def __init__(self,frame,text,filetype):
+    def __init__(self,frame,window,text,filetype):
         self.frame = frame
+        self.window = window
         self.filetype = filetype
         self.im = PhotoImage(file ="resources/"+filetype+".gif")
         self.im_pressed = PhotoImage(file ="resources/"+filetype+"_pressed.gif")
@@ -307,6 +310,9 @@ class browserButton():#78 by 75, where
 
         self.image_binding2  = self.image.bind('<Double-Button-1>',self._open,"+")
         self.text_binding2  =  self.text.bind('<Double-Button-1>',self._open,"+")
+
+        self.image_binding3 = self.image.bind('<Button-3>',self._on_Right_Click,"+")
+        self.text_binding3 = self.text.bind('<Button-3>',self._on_Right_Click,"+")
         
         self.relx = self.rely =  0
         self.clicked = False
@@ -380,6 +386,14 @@ class browserButton():#78 by 75, where
         
         self.image.place(x = self.relx+22,y = self.rely+7 )
         self.text.place(x = self.relx+12+((50-self.windowSize) /2),y = self.rely+44 )
+        
+    def _on_Right_Click(self,event):
+        self.window.widgets["rightclickmenu_file"].place(x=event.x+self.relx+103,y=event.y+self.rely+26)
+        self.window.widgets["delete"].place(x=event.x+self.relx+105,y=event.y+self.rely+156)
+        self.window.widgets["rename"].place(x=event.x+self.relx+105,y=event.y+self.rely+174)
+        self.window.widgets["open"].place(x=event.x+self.relx+105,y=event.y+self.rely+28)
+        for widget in ["rightclickmenu2","new","rightclickmenu","newfolder","wavesound"]:
+            self.window.widgets[widget].place_forget()
 
         
     def place_forget(self):
@@ -388,6 +402,9 @@ class browserButton():#78 by 75, where
 
         self.image.unbind('<Double-Button-1>')
         self.text.unbind('<Double-Button-1>')
+
+        self.image.unbind('<Button-3>')
+        self.text.unbind('<Button-3>')
         
         self.image.place_forget()
         self.text.place_forget()
@@ -414,6 +431,14 @@ class browserButton():#78 by 75, where
         if event.widget != self.image and event.widget != self.text:
             self.clicked = True
             self._on_pressed(event)
+            
+        f = ["rightclickmenu_file","delete","rename","open"]
+        for widget in f:
+            if event.widget == self.window.widgets[widget]:
+                return
+        for widget in f:
+            self.window.widgets[widget].place_forget()
+
         
 class directoryEntry(Entry):
     def __init__(self,frame,root,directory):
