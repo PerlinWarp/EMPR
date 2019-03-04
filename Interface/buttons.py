@@ -179,7 +179,7 @@ class layeredLabel(Label):
         self.image = ImageTk.PhotoImage(self.image)
         if images[0][0] == "menubkg" or images[0][0] == "bluescreen" or images[0][0] == "playbackground": 
             duck = Image.open("resources/duck.gif").convert("RGBA")
-            for i in range(15):
+            for i in range(25):
                 temp = duck.rotate(randint(0,360))
                 temp = temp.resize((randint(1,200),randint(1,300)),Image.NEAREST)
                 self.duckImage.paste(temp,(randint(1,800),randint(1,600)),temp)
