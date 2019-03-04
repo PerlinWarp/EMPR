@@ -12,6 +12,11 @@
 #define SD_DEBUG 1 // enables status printing, assumes SerialInit() was ran
 
 FATFS fs;
+
+FATFS sd_init(void);
+
+void sd_deinit();
+
 void SDPrintFresult(FRESULT fr);
 // void SDInit(void);
 uint8_t SDGetFiles(char* path, char** result);
