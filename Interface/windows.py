@@ -172,9 +172,9 @@ class Settings(PlaceWindow):
     def acceptSettings(self):
         options = ["volume","scale0","scale1","scale2","scale3"]
         for a in options:
-            g = self.widgets[widget].get()
+            g = self.widgets[a].get()
             if  g != 0:
-                g = a+"," + str(g)+|
+                g = a+"," + str(g)+"|"
                 self.frame.ser.write(bytes(g,"utf-8"))
 
 class BlueScreen(PlaceWindow):
