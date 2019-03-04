@@ -230,14 +230,12 @@ class dragDropFrame(Frame):
 
                 
     def check_focus(self,event):
-        for widget in ["rightclickmenu","new"]:
+        f = ["rightclickmenu","new","rightclickmenu2","newfolder","wavesound"]
+        for widget in f:
             if event.widget == self.window.widgets[widget]:
                 return
-        self.window.widgets["rightclickmenu"].place_forget()
-        self.window.widgets["new"].place_forget()
-        self.window.widgets["rightclickmenu2"].place_forget()
-        self.window.widgets["newfolder"].place_forget()
-        self.window.widgets["wavesound"].place_forget()
+        for widget in f:
+            self.window.widgets[widget].place_forget()
         self.window.rcmenu2 = False
                     
 class callbackLayeredLabel(layeredLabel):
@@ -440,6 +438,42 @@ class browserButton():#78 by 75, where
                 return
         for widget in f:
             self.window.widgets[widget].place_forget()
+
+class browserButtonNew():
+    def __init__(self,frame,window,filetype):
+        self.frame = frame
+        self.window = window
+        self.filetype = filetype
+        self.im = PhotoImage(file ="resources/"+filetype+".gif")
+        self.image = Label(frame,borderwidth = 0,image = self.im)
+        self.text  = Entry(frame,borderwidth = 1)
+        self.text.insert(0,"New "+filetype)
+        self.text.bind('<Return>',self.on_Enter)
+        self.window.frame.root.bind('<Button-1>',self.check_focus)
+
+        for widget in ["rightclickmenu","new","rightclickmenu2","newfolder","wavesound"]:
+            self.window.widgets[widget].place_forget()
+        self.window.rcmenu2 = False
+    def place(self,**kwargs):
+        self.relx = kwargs['x']
+        self.rely = kwargs['y']
+        
+        self.image.place(x = self.relx+22,y = self.rely+7 )
+        self.text.place(x = self.relx,y = self.rely+44,width = 80)
+        self.text.focus()
+    def place_forget(self):
+        self.image.place_forget()
+        self.text.place_forget()
+    def on_Enter(self,event):
+        self.place_forget()
+        self.text.unbind('<Return>')
+        self.window.frame.root.unbind('<Button-1>')
+        self.window.frame.root.bind("<Button-1>",self.window.widgets["start"].check_focus,"+")
+        self.window.frame.root.bind("<Button-1>",self.window.widgets["fileWindow"].check_focus,"+") 
+        self.window.newDone(self.text.get(),self.filetype)
+    def check_focus(self,event):
+        if event.widget != self.image and event.widget != self.text:
+            self.on_Enter(event)
 
         
 class directoryEntry(Entry):

@@ -25,8 +25,6 @@ class WindowManager(Frame):
         self.menus[self.currentScreen].hide_All()
         self.menus[screen].show_All()
         self.currentScreen = screen
-        
-
 
 class Window():
 #To Inherit, change load_image_set, and init_frames
@@ -49,12 +47,14 @@ class Window():
             widget.grid(row = i,column = j)
 
 
+
 class PlaceWindow(Window):
     def hide_All(self):
         for widget in self.widgets:
             self.widgets[widget].place_forget()#remove objects without destroying them
     def show_All(self):
         self.widgets["background"].switch_to_duck()
+
 
 class MainMenu(PlaceWindow):
     
@@ -230,12 +230,12 @@ class Browse(PlaceWindow):
                     self.init_directories(directoryTree[key],path+"/"+key)
                 self.widgets[path] = browserButton(self.widgets["fileWindow"],self,path.split('/')[-1],item_type)
     def place_directories(self,directoryTree,path):
-        counter = 0
+        self.counter = 0
         for key in directoryTree.keys():
             self.bindings[path+"/"+key] = self.frame.root.bind("<Button-1>",self.widgets[path+"/"+key].check_focus,"+")
-            self.widgets[path+"/"+key].place(x = 189+(78*(counter%5)),y=169+ (75*(counter//5)))
-            counter+=1
-        self.widgets["objects"].config(text = str(counter) + " Object(s)")
+            self.widgets[path+"/"+key].place(x = 189+(78*(self.counter%5)),y=169+ (75*(self.counter//5)))
+            self.counter+=1
+        self.widgets["objects"].config(text = str(self.counter) + " Object(s)")
         self.widgets["dirEntry"].change_dir(self.path)
         
     def hide_directories(self,directoryTree,path):
@@ -328,8 +328,8 @@ class Browse(PlaceWindow):
         self.widgets["delete"] = functionalButton(self.frame,self, "delete",self.delete)
         self.widgets["rename"] = functionalButton(self.frame,self, "rename", lambda: None)
         self.widgets["open"] = functionalButton(self.frame,self, "open",lambda: None)
-        self.widgets["newfolder"] = functionalButton(self.frame,self, "newfolder", lambda: None)
-        self.widgets["wavesound"] = functionalButton(self.frame,self, "wavesound", lambda: None)
+        self.widgets["newfolder"] = functionalButton(self.frame,self, "newfolder", lambda: self.new("folder"))
+        self.widgets["wavesound"] = functionalButton(self.frame,self, "wavesound", lambda: self.new("file"))
         
         self.init_directories(self.workingTree,self.path)
         
@@ -342,7 +342,28 @@ class Browse(PlaceWindow):
         self.place_directories(self.workingTree,self.path)
         for i in ["rightclickmenu_file","delete","rename","open"]:
             self.widgets[i].place_forget()
+    def new(self,filetype):
+        self.widgets["newFile"] = browserButtonNew(self.widgets["fileWindow"],self,filetype)
+        self.widgets["newFile"].place(x = 189+(78*(self.counter%5)),y=169+ (75*(self.counter//5)))
+
+        self.counter +=1
+        self.widgets["objects"].config(text = str(self.counter) + " Object(s)")
+    def newDone(self,text,filetype):
+        print("test")
+        self.widgets["newFile"].place_forget()
+        del self.widgets["newFile"]
+        self.widgets.pop("newFile",None)
         
+        self.hide_directories(self.workingTree,self.path)
+        if text in self.workingTree:
+            text += "(1)"
+        if filetype == "folder":
+            self.workingTree[text] = {}
+        else:
+            self.workingTree[text] = text
+        self.widgets[self.path+"/"+text] = browserButton(self.widgets["fileWindow"],self,text,filetype)
+        self.place_directories(self.workingTree,self.path)
+    
     def recursiveDelete(directoryTree):
         if type(directoryTree) == type({}):
             for i in directoryTree.keys():
@@ -370,5 +391,4 @@ class Browse(PlaceWindow):
         self.widgets["objects"].place(x=8,y=504)
     def hide_All(self):
         PlaceWindow.hide_All(self)
-        for val in self.bindings.values():
-            self.frame.root.unbind("<Button-1>",val)
+        self.frame.root.unbind("<Button-1>")
