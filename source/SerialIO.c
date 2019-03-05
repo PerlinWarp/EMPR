@@ -1,5 +1,9 @@
 #include "SerialIO.h"
 
+uint8_t menuIndex;//what instruction to expect
+void connect(char* instruction);
+static void (*processinstruction[])(char*) = {&connect};
+
 void UART0_IRQHandler(void)
 {
 	uint32_t tmp,intsrc =0 ;
@@ -20,7 +24,6 @@ void UART0_IRQHandler(void)
 
 void ReceiveText(void)
 {
-
 	uint8_t tmp;
 	uint32_t rLen; // head = front of buffer, where data is read. tail = end, where data is receieved.
 	while(rbuf.rx_head!=CHECK_BUFFER(rbuf.rx_tail))
@@ -74,20 +77,24 @@ call before then
 */
 void ProcessBuffer()
 {
-	char output[50];
 	char tmp[INSTR_MAX_LEN];
-	tmp[INSTR_MAX_LEN-1] = '\0';
-	int i = INSTR_MAX_LEN-1;
-	DEC_BUFFER(rbuf.rx_tail);//the last character read in was |
+	char* instruction;
+	int i = INSTR_MAX_LEN;
 	for(rbuf.rx_tail;CHECK_DEC_BUFFER(rbuf.rx_tail)!=rbuf.rx_head;DEC_BUFFER(rbuf.rx_tail))//go thro
 	{
-
 		if(rbuf.rx[rbuf.rx_tail]=='|')break;//break if instruction finished
 		tmp[--i] = (char)rbuf.rx[rbuf.rx_tail];
 	}
-	PUSH_SERIAL;
-	strncpy(READ_SERIAL,&tmp[i],(INSTR_MAX_LEN-i));
-	NVIC_DisableIRQ(I2S_IRQn);//disable interrupts to give main program a chance to process instructions
+	instruction = (char*)malloc(sizeof(char)*(INSTR_MAX_LEN-i+1));//1 added for null character
+	instruction[INSTR_MAX_LEN-i] = '\0';
+	strncpy(instruction,tmp,(INSTR_MAX_LEN-i));//copy over the number of instructions present
+	processinstruction[menuIndex](instruction);
+	free(instruction);
+}
+
+
+void connect(char* instruction)
+{
 }
 
 void TransmitText(void)
@@ -147,19 +154,13 @@ int write_usb_serial_blocking(char *buf,int length)
 }
 void InitSerInterrupts(void)
 {
-	int i;
-	serialCommandIndex =0;
-	serialCommandBuffer = (char**)malloc(sizeof(char*)*SERIAL_BUFFER_MAXSIZE);
-	for(i=0;i<SERIAL_BUFFER_MAXSIZE;i++)serialCommandBuffer[i] = (char*)malloc(sizeof(char)*INSTR_MAX_LEN+1);
+	menuIndex =0;
+	notConnected = 1;
 	TxIntStat = RESET;
 	rbuf.rx_head = 0;
 	rbuf.rx_tail = 0;
 	rbuf.tx_head = 0;
 	rbuf.tx_tail = 0;
-	rbuf.rx[rbuf.rx_tail] = '|';
-	rbuf.rx_tail++;
-	rbuf.rx[rbuf.rx_tail] = '|';
-	rbuf.rx_tail++;
 
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RBR, ENABLE);
 	UART_IntConfig((LPC_UART_TypeDef *)LPC_UART0, UART_INTCFG_RLS, ENABLE);
