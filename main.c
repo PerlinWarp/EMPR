@@ -4,7 +4,7 @@
 
 uint8_t SelectOne(char** items, char* header, uint8_t fileCount);
 uint8_t TextEntry(char* result, char* header);
-
+uint8_t serialInitialized;
 void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
@@ -336,9 +336,15 @@ void PC_Mode()
 {
   LCDGoHome();
   LCDPrint("****PC**MODE****\n****************");
-  InitSerInterrupts();
+  if(serialInitialized == 0)
+  {
+    InitSerInterrupts();
+    serialInitialized = 1;
+  }
+
   WriteText("CONNECT|");
-  while(READ_SERIAL[0] != 'A');//Wait until response from PC is recorded
+  buttonpress = 0;
+  while(READ_SERIAL[0] != 'A')if(buttonpress == 1)return;//Wait until response from PC is recorded
   POP_SERIAL;
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
@@ -363,13 +369,11 @@ void PC_Mode()
           playing = 1;
           NVIC_EnableIRQ(I2S_IRQn);
         case 'S':;//Send back settings data in the form S:settings array index,value|
+          char* b = strchr(READ_SERIAL,'.');
+          b = '\0';
           char* a  = strchr(READ_SERIAL,',');
           a  = '\0';
-          settings[atoi(&READ_SERIAL[2])] = atoi(&a[1]);
-          //settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
-          sprintf(output,".Setting Change.\n%d,%d,%d,%d",settings[0],settings[1],settings[2],settings[3]);
-          LCDGoHome();
-          LCDPrint(output);
+          settings[atoi(&READ_SERIAL[2])] = atoi(&READ_SERIAL[4]);
           break;
         case 'E'://Exit and return to main menu [TICK]
           finished = 1;
@@ -383,6 +387,7 @@ void PC_Mode()
             sprintf(output,"%s|",fileList[i]);
             WriteText(output);
           }
+          WriteText("||");
           SDFreeFilenames(fileList);
           break;
       }
@@ -406,10 +411,7 @@ void PC_Mode()
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
-    char * asd = (char*)malloc(30);
-    sprintf(asd,"malloc works now\n\r");
-    WriteText("fasd");
-    WriteText(asd);
+    serialInitialized = 0;
     SystemInit();
     DelayInit();
     I2CInit();
@@ -480,7 +482,7 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 
 void A2()
 {
-  buffer = (int16_t*)(I2S_SRC);
+  buffer = (uint32_t*)(I2S_SRC);
   LCDGoHome();
   TLV320_Start_I2S_Polling_Passthrough();
   int_Handler_Enable =1;

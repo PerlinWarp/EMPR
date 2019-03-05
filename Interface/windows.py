@@ -201,7 +201,7 @@ class Settings(PlaceWindow):
         for i in range(len(options)):
             g = self.widgets[options[i]].get()
             if  g != 0:
-                g = "S:"+ str(i) +"," + str(g)+"|"
+                g = "S:"+ str(i) +"," + str(g)+".|"
                 self.frame.ser.write(bytes(g,"utf-8"))
         self.frame.switch("menu")
 
@@ -323,21 +323,15 @@ class Browse(PlaceWindow):
 
 
     def init_widgets(self):
-        self.frame.ser.write(b"B|")
         self.selectedFile = None
         directoryTree = {}
         self.hidden = True
         self.bindings = {}
+
         for p in ["rootd|","root/newd|","hellof|","root/hif|","root/hellof|","root/new/boyd|"]:
             path = p[:-1].split('/')
             directoryTree = self.add_directories(directoryTree,path)
-        finished = True
-        while(not finished):
-            d = str(self.frame.ser.read_until("|"))
-            if d == "|":
-                break
-            path = d[:-1].split('/')
-            directoryTree = self.add_directories(directoryTree,path)
+
         self.directoryTree = {"C:":directoryTree}
         self.workingTree = directoryTree
         self.path = "C:"
@@ -426,6 +420,15 @@ class Browse(PlaceWindow):
         self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
 
     def show_All(self):
+        self.frame.ser.write(b"B|")#Make this happen in place.
+
+        while(True):
+            d = str(self.frame.ser.read_until("|"))
+            if d == "|":
+                break
+            path = d[:-1].split('/')
+            self.workingTree = self.add_directories(self.workingTree,path)
+
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
