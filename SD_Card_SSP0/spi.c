@@ -34,7 +34,7 @@
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_gpio.h"
 #include "sys/types.h"
-#include "spi.h"
+
 
 //#include "config.h" //Hopefully this fixes things
 #define CONFIG_SPI_CLOCK 1000000 //From config.h
@@ -45,7 +45,7 @@
 #define MISO_PIN_NUM 		17
 #define SCK_PIN_NUM 		15
 #define LPC_SSP			LPC_SSP0
-
+#include "spi.h"
 
 /****************************************************************/
 /*					  			*/

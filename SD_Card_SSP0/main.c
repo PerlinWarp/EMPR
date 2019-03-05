@@ -1,7 +1,5 @@
 #include "SerialIO.h"
-#include "spi.h"
-#include "mmc.c"
-#include "./FatFS/ff.h"
+#include "ff.h"
 
 DWORD get_fattime (void)
 {

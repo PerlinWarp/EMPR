@@ -4,7 +4,7 @@
 #include "lpc17xx_uart.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_libcfg_default.h"
-//#include "LCD.h"
+#include "LCD.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -17,6 +17,13 @@
 #define DEC_BUFFER(bufd) (bufd = ((bufd==0)?UART_BIT_MASK:(bufd-1)))
 #define CHECK_BUFFER(bufd) ((bufd+1)&UART_BIT_MASK)
 #define CHECK_DEC_BUFFER(bufd) ((bufd==0) ? (UART_BIT_MASK):(bufd-1) )
+
+#define SERIAL_BUFFER_MAXSIZE 32
+#define SERIAL_BUFFER_MASK SERIAL_BUFFER_MAXSIZE - 1
+#define READ_SERIAL (serialCommandBuffer[serialCommandIndex])
+#define POP_SERIAL (serialCommandIndex = ((serialCommandIndex==0)?0:serialCommandIndex-1))
+#define PUSH_SERIAL (serialCommandIndex = ((serialCommandIndex==SERIAL_BUFFER_MASK)?SERIAL_BUFFER_MASK:serialCommandIndex+1))
+
 __IO FlagStatus TxIntStat;
 typedef struct
 {
@@ -29,7 +36,9 @@ typedef struct
 }UART_Ring_Buffer;
 
 UART_Ring_Buffer rbuf;
-volatile uint8_t notConnected;
+
+char** serialCommandBuffer;//commands in memory
+uint8_t serialCommandIndex;
 
 void ReceiveText(void);
 void TransmitText(void);
