@@ -7,7 +7,6 @@
 /*									*/
 /*----------------------------------------------------------------------*/
 
-#include "stdio2.h"
 #include "diskio.h"
 #include "spi.h"
 
@@ -37,8 +36,8 @@
 
 
 /* Control signals (Platform dependent) */
-#define CS_LOW()	spiMMCChipSelect(TRUE)	/* MMC CS = L */
-#define	CS_HIGH()	spiMMCChipSelect(FALSE)	/* MMC CS = H */
+#define CS_LOW()	spiMMCChipSelect(1)	/* MMC CS = L */
+#define	CS_HIGH()	spiMMCChipSelect(0)	/* MMC CS = H */
 
 #define SOCKPORT	0			/* Socket contact port */
 #define SOCKWP		0x04			/* Write protect switch (bit2) */

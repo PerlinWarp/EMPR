@@ -92,7 +92,7 @@
 #include "ff.h"			/* FatFs configurations and declarations */
 #include "diskio.h"		/* Declarations of low level disk I/O functions */
 
-#include "config.h"		/* Local Mbed_OS config data */
+//#include "config.h"		/* Local Mbed_OS config data */
 
 
 /*----------------------------------------------------------------------*/

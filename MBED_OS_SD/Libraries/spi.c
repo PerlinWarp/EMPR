@@ -33,13 +33,11 @@
 #include "lpc17xx_ssp.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_gpio.h"
-#include "stdio2.h"
 #include "sys/types.h"
-#include "stdlib2.h"
-//#include "kernel.h"
-//#include "kernel_events.h"
 
-#include "config.h" //Hopefully this fixes things
+
+//#include "config.h" //Hopefully this fixes things
+#define CONFIG_SPI_CLOCK 1000000 //From config.h
 	
 #define CS_PORT_NUM 		0
 #define CS_PIN_NUM 			16
