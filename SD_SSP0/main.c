@@ -15,7 +15,7 @@ int SD_Test(void) {
   fs = malloc(sizeof(FATFS));
 
   WriteText("Mount Check Start\n");
-  fr = f_mount(0, fs);
+  fr = f_mount(fs, "", 0);
   WriteText("Mount Check Done\n");
 
   if (fr)
@@ -54,7 +54,7 @@ int SD_Test(void) {
   f_close(&fil);
 
   //Unmount the file system
-  f_mount(0, 0);
+  f_mount(0, "", 0);
   free(fs);
 
   return 0;

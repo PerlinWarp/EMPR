@@ -2036,7 +2036,7 @@ static FRESULT validate (FATFS *fs, WORD id)
 /* PCC Sept 2015							*/
 /*									*/
 /*----------------------------------------------------------------------*/
-FRESULT f_mount (BYTE vol, FATFS *fs)
+FRESULT f_mount (FATFS *fs, const TCHAR* path, BYTE vol)
 {
 	FATFS *rfs;
 
