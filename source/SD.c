@@ -21,7 +21,7 @@ void SDPrintFresult(FRESULT fr) {
 
 void indemalloc(char** arr, uint8_t idx, uint8_t len) {
   if (arr[idx] == 0x0) {
-    arr[idx] = (char*)malloc(len * sizeof(char));
+    arr[idx] = (char*)malloc(len* sizeof(char));
     #if SD_DEBUG == 1
       if (arr[idx] == 0x0) {
         WriteText("you ran out of heap my dude\n\r");
@@ -46,14 +46,10 @@ void sd_deinit() {
     f_mount(0, "", 0);
 }
 
-#define MAX_FILE_COUNT 16
+#define MAX_FILE_COUNT 12
 
 char** SDMallocFilenames() {
-    char** filenames = (char**)malloc(MAX_FILE_COUNT*sizeof(char*)); // max 128 filenames for now
-    int i = 0;
-    for (i = 0; i < MAX_FILE_COUNT; i ++ ) {
-        filenames[i] = (char*)0x00;
-    }
+    char** filenames = (char**)calloc(MAX_FILE_COUNT,sizeof(char*)); // max 128 filenames for now
     return filenames;
 }
 void SDFreeFilenames(char** filenames) {
@@ -66,10 +62,9 @@ void SDFreeFilenames(char** filenames) {
   free(filenames);
 }
 
- 
+
 uint8_t SDGetAllFiles(char** result) {
   int stack_top = 0;
-
   char **allDirs = SDMallocFilenames();
   uint8_t allDirsCount = SDGetDirectories("/", allDirs);
 
@@ -142,7 +137,7 @@ uint8_t SDGetFiles(char* path, char** result) {
               result[i][0] = '-';
           }
           result[i][1] = ' ';
-          
+
           f_readdir(&dir, &fno);
           i += 1;
         }

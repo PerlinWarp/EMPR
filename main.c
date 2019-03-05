@@ -24,18 +24,18 @@ void EINT3_IRQHandler(void)
 
 void IRQInit()
 {
-  LPC_PINCON->PINSEL4|=0x4000000;
-  LPC_PINCON->PINSEL0&=~(3<<20);
+  LPC_PINCON->PINSEL4|=0x4000000;//
+  LPC_PINCON->PINSEL0&=~(3<<20);//
   LPC_SC->EXTMODE = 1<<3;
   LPC_SC->EXTPOLAR = 1<<3;
-  LPC_GPIO0->FIODIR &= ~(1<<10);
+  LPC_GPIO0->FIODIR &= ~(1<<10);//
   LPC_GPIOINT->IO0IntClr = (1<<10);
-  LPC_GPIOINT->IO0IntEnF |= (1<<10);
+  LPC_GPIOINT->IO0IntEnF |= (1<<10);//
   LPC_SC->EXTINT = 1<<3; //Clear Pending Interrupts
   key = ' ';
   buttonpress = 0;
   NVIC_SetPriority(EINT3_IRQn, 0x00);
-  NVIC_EnableIRQ(EINT3_IRQn);
+  NVIC_EnableIRQ(EINT3_IRQn);//
   __enable_irq();
 }
 
@@ -286,7 +286,7 @@ void Play(char* directory)
   if(fr)return;
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
-// 
+//
 //   WriteText("disabling i2s\n\r");
 //   WriteText("major OOF\n\r");
 //   FileSelection();
@@ -307,7 +307,7 @@ void Play(char* directory)
 //   int_Handler_Enable =0;
 //   I2S_DeInit(LPC_I2S);
 //   // CS_LOW();
-// 
+//
   f_close(&fil);
 }
 
@@ -403,6 +403,7 @@ void PC_Mode()
   uint8_t finished =0,playing=0;
   while(!finished)//Wait for next input
   {
+
     if(serialCommandIndex>0){//If there are instructions to process
       char output[50];
       sprintf(output,"COMMAND RECEIVED\n%s",READ_SERIAL);
@@ -437,7 +438,10 @@ void PC_Mode()
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
-          int i,len = SDGetFiles("/",fileList);
+          sprintf(output,"ad:%d",fileList[2]);
+          WriteText(output);
+          int i,len = SDGetAllFiles(fileList);
+          WriteText("test");
           for(i=0;i<len;i++)
           {
             sprintf(output,"%s|",fileList[i]);
@@ -492,7 +496,7 @@ int main()
     // for (i = 0; i < 43; i++) {
     //     charbuff[i] = (char)readbuff[i];
     // }
-    
+
     // // strncpy(readbuff, charbuff, 43);
     // charbuff[43] = '\0';
     // // WriteText(charbuff);
@@ -500,7 +504,7 @@ int main()
     // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
     // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
     // WriteText(charbuff);
-    
+
 
     Menu();
 

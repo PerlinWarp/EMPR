@@ -149,8 +149,10 @@ void InitSerInterrupts(void)
 {
 	int i;
 	serialCommandIndex =0;
+
 	serialCommandBuffer = (char**)malloc(sizeof(char*)*SERIAL_BUFFER_MAXSIZE);
 	for(i=0;i<SERIAL_BUFFER_MAXSIZE;i++)serialCommandBuffer[i] = (char*)malloc(sizeof(char)*INSTR_MAX_LEN+1);
+
 	TxIntStat = RESET;
 	rbuf.rx_head = 0;
 	rbuf.rx_tail = 0;
