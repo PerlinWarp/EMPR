@@ -28,9 +28,12 @@ WAVE_HEADER Wav_Init(FIL* file )
   w.ByteRate      = __ctl(&head_buffer[28]);//little
   w.BlockAlign    = head_buffer[32];//little
   w.BitsPerSample = head_buffer[34];//little
+
   w.Subchunk2ID   = &head_buffer[36];
   if(strncmp(w.Subchunk2ID,"data",4))return w;
   w.Subchunk2Size = __ctl(&head_buffer[40]);
+  
+  #if DEBUG==1
   char fileInfo[100];
   sprintf(fileInfo,"Audio Format: %u\n\rNum Channels: %u\n\rSample Rate: %u\n\r",w.AudioFormat,w.NumChannels,w.SampleRate);
   WriteText(fileInfo);
@@ -39,10 +42,8 @@ WAVE_HEADER Wav_Init(FIL* file )
   sprintf(fileInfo,"Subchunk 1 Size: %u\n\rBlock Align: %u\n\rSubchunk 2 Size: %u\n\r",w.Subchunk1Size,w.BlockAlign,w.Subchunk2Size);
   WriteText(fileInfo);
   WriteText("loaded Wave Successfully\n\r");
+  #endif
+
+  free(head_buffer);
   return w;
-}
-
-void Wav_Read_head_buffer(char* head_buffer, uint32_t buf_Size)
-{
-
 }

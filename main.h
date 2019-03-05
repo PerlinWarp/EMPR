@@ -82,6 +82,9 @@ void PC_Mode();
 void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
+void FileInfo();
+char SELECTED_FILE[32];
+
 
 void A1();
 void A2();
@@ -95,7 +98,7 @@ void (*menuFuncs[])(void) = {
 	&PC_Mode,
 	&FatRead,
 	&PassThroughLoop,
-	&PassThroughLoop,
+	&FileInfo,
 	&temp};
 
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
