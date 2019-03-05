@@ -190,6 +190,70 @@ class layeredLabel(Label):
             self.config(image = self.duckImage)
         else:
             self.config(image = self.image)
+class dragDropButton(functionalButton):
+    def __init__(self,parent,root,buttonName,function,**options):
+        functionalButton.__init__(self,parent,root,buttonName,function,**options)
+        self.bind("<ButtonPress-1>",self.pickup,"+")
+        self.bind("<ButtonRelease-1>",self.putdown,"+")
+        self.bind("<B1-Motion>",self.drag,"+")
+    def place(self,**kw):
+        functionalButton.place(self,kw)
+        self.x = int(self.place_info()["x"])
+        self.y = int(self.place_info()["y"])
+    def pickup(self,event):
+            self.x = int(self.place_info()["x"])
+            self.y = int(self.place_info()["y"])
+            #self.framex = int(self.frame.place_info()["x"])#include if used inside a frame
+            #self.framey = int(self.frame.place_info()["y"])
+            self.relx = event.x
+            self.rely = event.y
+            self.actx = self.frame.root.winfo_pointerx() - self.x #- self.framex
+            self.acty = self.frame.root.winfo_pointery() - self.y #- self.framey
+            self.move = True
+    def drag(self,event):
+        if self.move == True:
+            self.x =  self.frame.root.winfo_pointerx() - self.actx
+            self.y =  self.frame.root.winfo_pointery() - self.acty
+            self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
+    def putdown(self,event):
+        if self.move == True:
+            self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
+            self.move = False
+class sliderButton(dragDropButton):
+    def __init__(self,parent,root,buttonName,function,mins,maxs,axis,**options):
+        dragDropButton.__init__(self,parent,root,buttonName,function,**options)
+        self.min  = mins
+        self.maxs = maxs
+        self.axis = axis
+        self.move = False
+    def place(self,**kw):
+        functionalButton.place(self,kw)
+        if self.axis == "x":
+            self.max = self.maxs - self.winfo_width()
+        else:
+            self.max = self.maxs - self.winfo_height()        
+    def pickup(self,event):
+        dragDropButton.pickup(self,event)
+    def drag(self,event):
+        if self.axis == "x" :
+            newx = self.frame.root.winfo_pointerx() - self.actx
+            if newx <= self.max:
+                if newx >= self.min:
+                    self.x =  newx
+                else:
+                    self.x = self.min
+            else:
+                self.x = self.max
+        else: 
+            newy =  self.frame.root.winfo_pointery() - self.acty
+            if newy <= self.max:
+                if newy >= self.min:
+                    self.y =  newy
+                else:
+                    self.y = self.min
+            else:
+                self.y = self.max            
+        self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
 
 class dragDropFrame(Frame):
     def __init__(self,frame,window,**options):

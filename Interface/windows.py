@@ -139,6 +139,9 @@ class PlayScreen(PlaceWindow):
         self.widgets["cross"] = hoverButton(self.frame,self,"cross",menu="BlueScreen")
         self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
+        self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
+        self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", lambda: None,190,498,"x")
+        self.widgets["realvolume"] = sliderButton(self.frame,self, "realvolume", lambda: None,296,352,"y")
 
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
@@ -158,6 +161,10 @@ class PlayScreen(PlaceWindow):
 
         self.widgets["realplay"].place(x=84,y =120)
         self.widgets["realpause"].place(x=116,y =120)
+        self.widgets["realstop"].place(x= 147,y = 120)
+        self.widgets["realtimer"].place(x=190,y =119)
+        self.widgets["realvolume"].place(x=248,y =318)
+
         PlaceWindow.show_All(self)
     def hide_All(self):
         PlaceWindow.hide_All(self)
