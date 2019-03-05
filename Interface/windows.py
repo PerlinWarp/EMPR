@@ -215,6 +215,14 @@ class BlueScreen(PlaceWindow):
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
+        
+        self.frame.ser.write(b"T|")
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until('|')
+            if d == "CONNECT":
+                self.serConnected == True
+                self.frame.switch("play")
+                
 
 
 class loadingScreen(PlaceWindow):

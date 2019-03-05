@@ -430,6 +430,10 @@ void PC_Mode()
         case 'E'://Exit and return to main menu [TICK]
           finished = 1;
           break;
+        case 'T':
+          LCDPrint("Windows 95 has crashed");
+          WriteText("M");
+          break;
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
