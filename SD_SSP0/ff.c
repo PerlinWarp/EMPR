@@ -1,18 +1,20 @@
-/*----------------------------------------------------------------------------/
-/  FatFs - FAT file system module  R0.08a                 (C)ChaN, 2010
-/-----------------------------------------------------------------------------/
-/ FatFs module is a generic FAT file system module for small embedded systems.
-/ This is a free software that opened for education, research and commercial
-/ developments under license policy of following terms.
-/
-/  Copyright (C) 2010, ChaN, all right reserved.
-/
-/ * The FatFs module is a free software and there is NO WARRANTY.
-/ * No restriction on use. You can use, modify and redistribute it for
-/   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
-/ * Redistributions of source code must retain the above copyright notice.
-/
-/-----------------------------------------------------------------------------/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* FatFs - FAT file system module  R0.08a                 (C)ChaN, 2010	*/
+/*									*/
+/*----------------------------------------------------------------------*/
+// FatFs module is a generic FAT file system module for small embedded systems.
+// This is a free software that opened for education, research and commercial
+// developments under license policy of following terms.
+//
+//  Copyright (C) 2010, ChaN, all right reserved.
+//
+// * The FatFs module is a free software and there is NO WARRANTY.
+// * No restriction on use. You can use, modify and redistribute it for
+//   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
+// * Redistributions of source code must retain the above copyright notice.
+//
+/*									
 / Feb 26,'06 R0.00  Prototype.
 /
 / Apr 29,'06 R0.01  First stable version.
@@ -83,17 +85,21 @@
 /                   Moved file lock semaphore table from fs object to the bss.
 /                   Fixed a wrong directory entry is created on non-LFN cfg when the given name contains ';'.
 /                   Fixed f_mkfs() creates wrong FAT32 volume.
+/ Jan 2015, Mixed the functions into my code for the mbed board, here at york
+/ Sept 2015, Cleaned comments and coding style to what I use
 /---------------------------------------------------------------------------*/
 
 #include "ff.h"			/* FatFs configurations and declarations */
 #include "diskio.h"		/* Declarations of low level disk I/O functions */
 
+//#include "config.h"		/* Local Mbed_OS config data */
 
-/*--------------------------------------------------------------------------
 
-   Module Private Definitions
-
----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/*   Module Private Definitions						*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
 #if _FATFS != 8255
 #error Wrong include file (ff.h).
@@ -192,63 +198,66 @@ typedef struct {
 / structure member because there are incompatibility of the packing option
 / between compilers. */
 
-#define BS_jmpBoot			0
-#define BS_OEMName			3
+#define BS_jmpBoot		0
+#define BS_OEMName		3
 #define BPB_BytsPerSec		11
 #define BPB_SecPerClus		13
 #define BPB_RsvdSecCnt		14
-#define BPB_NumFATs			16
+#define BPB_NumFATs		16
 #define BPB_RootEntCnt		17
 #define BPB_TotSec16		19
-#define BPB_Media			21
-#define BPB_FATSz16			22
+#define BPB_Media		21
+#define BPB_FATSz16		22
 #define BPB_SecPerTrk		24
 #define BPB_NumHeads		26
-#define BPB_HiddSec			28
+#define BPB_HiddSec		28
 #define BPB_TotSec32		32
-#define BS_DrvNum			36
-#define BS_BootSig			38
-#define BS_VolID			39
-#define BS_VolLab			43
+#define BS_DrvNum		36
+#define BS_BootSig		38
+#define BS_VolID		39
+#define BS_VolLab		43
 #define BS_FilSysType		54
-#define BPB_FATSz32			36
+#define BPB_FATSz32		36
 #define BPB_ExtFlags		40
-#define BPB_FSVer			42
+#define BPB_FSVer		42
 #define BPB_RootClus		44
-#define BPB_FSInfo			48
+#define BPB_FSInfo		48
 #define BPB_BkBootSec		50
-#define BS_DrvNum32			64
+#define BS_DrvNum32		64
 #define BS_BootSig32		66
-#define BS_VolID32			67
-#define BS_VolLab32			71
+#define BS_VolID32		67
+#define BS_VolLab32		71
 #define BS_FilSysType32		82
-#define	FSI_LeadSig			0
+#define	FSI_LeadSig		0
 #define	FSI_StrucSig		484
 #define	FSI_Free_Count		488
 #define	FSI_Nxt_Free		492
-#define MBR_Table			446
-#define BS_55AA				510
+#define MBR_Table		446
+#define BS_55AA			510
 
-#define	DIR_Name			0
-#define	DIR_Attr			11
-#define	DIR_NTres			12
-#define	DIR_CrtTime			14
-#define	DIR_CrtDate			16
+#define	DIR_Name		0
+#define	DIR_Attr		11
+#define	DIR_NTres		12
+#define	DIR_CrtTime		14
+#define	DIR_CrtDate		16
 #define	DIR_FstClusHI		20
-#define	DIR_WrtTime			22
-#define	DIR_WrtDate			24
+#define	DIR_WrtTime		22
+#define	DIR_WrtDate		24
 #define	DIR_FstClusLO		26
 #define	DIR_FileSize		28
-#define	LDIR_Ord			0
-#define	LDIR_Attr			11
-#define	LDIR_Type			12
-#define	LDIR_Chksum			13
+#define	LDIR_Ord		0
+#define	LDIR_Attr		11
+#define	LDIR_Type		12
+#define	LDIR_Chksum		13
 #define	LDIR_FstClusLO		26
 
 
 
-/*------------------------------------------------------------*/
-/* Work area                                                  */
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Work area                                                  		*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
 #if _VOLUMES
 static
@@ -298,22 +307,31 @@ static WCHAR LfnBuf[_MAX_LFN+1];
 #endif
 
 
+/*----------------------------------------------------------------------*/
+/*									*/
+/*   Module Private Functions						*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
 
-/*--------------------------------------------------------------------------
+/*----------------------------------------------------------------------*/
+/*									*/
+/* String functions                                                     */
+/*									*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
-   Module Private Functions
-
----------------------------------------------------------------------------*/
-
-
-/*-----------------------------------------------------------------------*/
-/* String functions                                                      */
-/*-----------------------------------------------------------------------*/
-
-/* Copy memory to memory */
-static
-void mem_cpy (void* dst, const void* src, UINT cnt) {
+/*----------------------------------------------------------------------*/
+/*									*/
+/* String functions                                                     */
+/*									*/
+/* Copy memory to memory 						*/
+/*									*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static void mem_cpy (void* dst, const void* src, UINT cnt) {
 	BYTE *d = (BYTE*)dst;
 	const BYTE *s = (const BYTE*)src;
 
@@ -327,54 +345,78 @@ void mem_cpy (void* dst, const void* src, UINT cnt) {
 	while (cnt--)
 		*d++ = *s++;
 }
-
-/* Fill memory */
-static
-void mem_set (void* dst, int val, UINT cnt) {
+/*----------------------------------------------------------------------*/
+/*									*/
+/* String functions                                                     */
+/*									*/
+/* Fill memory 								*/
+/*									*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static void mem_set (void* dst, int val, UINT cnt) {
 	BYTE *d = (BYTE*)dst;
 
 	while (cnt--)
 		*d++ = (BYTE)val;
 }
-
-/* Compare memory to memory */
-static
-int mem_cmp (const void* dst, const void* src, UINT cnt) {
+/*----------------------------------------------------------------------*/
+/*									*/
+/* String functions                                                     */
+/*									*/
+/* Compare memory to memory 						*/
+/*									*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static int mem_cmp (const void* dst, const void* src, UINT cnt) {
 	const BYTE *d = (const BYTE *)dst, *s = (const BYTE *)src;
 	int r = 0;
 
 	while (cnt-- && (r = *d++ - *s++) == 0) ;
 	return r;
 }
-
-/* Check if chr is contained in the string */
-static
-int chk_chr (const char* str, int chr) {
+/*----------------------------------------------------------------------*/
+/*									*/
+/* String functions                                                     */
+/*									*/
+/* Check if chr is contained in the string 				*/
+/*									*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static int chk_chr (const char* str, int chr) {
 	while (*str && *str != chr) str++;
 	return *str;
 }
 
 
 
-/*-----------------------------------------------------------------------*/
-/* Request/Release grant to access the volume                            */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Request/Release grant to access the volume                           */
+/*									*/
+/* lock_fs								*/
+/* File system object 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _FS_REENTRANT
-
-static
-int lock_fs (
-	FATFS *fs		/* File system object */
-)
+static int lock_fs (FATFS *fs)
 {
 	return ff_req_grant(fs->sobj);
 }
-
-
-static
-void unlock_fs (
-	FATFS *fs,		/* File system object */
-	FRESULT res		/* Result code to be returned */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Request/Release grant to access the volume                           */
+/*									*/
+/* unlock_fs								*/
+/* File system object 							*/
+/* Result code to be returned 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static void unlock_fs (FATFS *fs, FRESULT res)
 {
 	if (res != FR_NOT_ENABLED &&
 		res != FR_INVALID_DRIVE &&
@@ -387,16 +429,18 @@ void unlock_fs (
 
 
 
-/*-----------------------------------------------------------------------*/
-/* File shareing control functions                                       */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* File shareing control functions                                      */
+/*									*/
+/* Check if the file can be accessed 					*/
+/* Directory object pointing the file to be checked 			*/
+/* Desired access (0:Read, 1:Write, 2:Delete/Rename) 			*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _FS_SHARE
-
-static
-FRESULT chk_lock (	/* Check if the file can be accessed */
-	DIR* dj,		/* Directory object pointing the file to be checked */
-	int acc			/* Desired access (0:Read, 1:Write, 2:Delete/Rename) */
-)
+static FRESULT chk_lock (ff_DIR* dj, int acc)
 {
 	UINT i, be;
 
@@ -416,25 +460,33 @@ FRESULT chk_lock (	/* Check if the file can be accessed */
 	/* The file has been opened. Reject any open against writing file and all write mode open */
 	return (acc || Files[i].ctr == 0x100) ? FR_LOCKED : FR_OK;
 }
-
-
-static
-int enq_lock (	/* Check if an entry is available for a new file */
-	FATFS* fs	/* File system object */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* File shareing control functions                                      */
+/*									*/
+/* Check if an entry is available for a new file 			*/
+/* File system object 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static int enq_lock (FATFS* fs)
 {
 	UINT i;
 
 	for (i = 0; i < _FS_SHARE && Files[i].fs; i++) ;
 	return (i == _FS_SHARE) ? 0 : 1;
 }
-
-
-static
-UINT inc_lock (	/* Increment file open counter and returns its index (0:int error) */
-	DIR* dj,	/* Directory object pointing the file to register or increment */
-	int acc		/* Desired access mode (0:Read, !0:Write) */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* File shareing control functions                                      */
+/*									*/
+/* Increment file open counter and returns its index (0:int error) 	*/
+/* Directory object pointing the file to register or increment 		*/
+/* Desired access mode (0:Read, !0:Write) 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static UINT inc_lock (ff_DIR* dj, int acc)
 {
 	UINT i;
 
@@ -460,12 +512,16 @@ UINT inc_lock (	/* Increment file open counter and returns its index (0:int erro
 
 	return i + 1;
 }
-
-
-static
-FRESULT dec_lock (	/* Decrement file open counter */
-	UINT i			/* Semaphore index */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* File shareing control functions                                      */
+/*									*/
+/* Decrement file open counter 						*/
+/* Semaphore index 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static FRESULT dec_lock (UINT i)
 {
 	WORD n;
 	FRESULT res;
@@ -483,12 +539,16 @@ FRESULT dec_lock (	/* Decrement file open counter */
 	}
 	return res;
 }
-
-
-static
-void clear_lock (	/* Clear lock entries of the volume */
-	FATFS *fs
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* File shareing control functions                                      */
+/*									*/
+/* Clear lock entries of the volume 					*/
+/* File system object 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static void clear_lock (FATFS *fs)
 {
 	UINT i;
 
@@ -497,18 +557,17 @@ void clear_lock (	/* Clear lock entries of the volume */
 	}
 }
 #endif
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Change window offset                                                  */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT move_window (
-	FATFS *fs,		/* File system object */
-	DWORD sector	/* Sector number to make appearance in the fs->win[] */
-)					/* Move to zero only writes back dirty window */
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Change window offset                                                 */
+/*									*/
+/* File system object 							*/
+/* Sector number to make appearance in the fs->win[] 			*/
+/* Move to zero only writes back dirty window 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static FRESULT move_window (FATFS *fs, DWORD sector)					
 {
 	DWORD wsect;
 
@@ -538,18 +597,17 @@ FRESULT move_window (
 
 	return FR_OK;
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Clean-up cached data                                                  */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Clean-up cached data                                                 */
+/*									*/
+/* File system object 							*/
+/* FR_OK: successful, FR_DISK_ERR: failed 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY
-static
-FRESULT sync (	/* FR_OK: successful, FR_DISK_ERR: failed */
-	FATFS *fs	/* File system object */
-)
+static FRESULT sync (FATFS *fs)
 {
 	FRESULT res;
 
@@ -576,19 +634,17 @@ FRESULT sync (	/* FR_OK: successful, FR_DISK_ERR: failed */
 	return res;
 }
 #endif
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Get sector# from cluster#                                             */
-/*-----------------------------------------------------------------------*/
-
-
-DWORD clust2sect (	/* !=0: Sector number, 0: Failed - invalid cluster# */
-	FATFS *fs,		/* File system object */
-	DWORD clst		/* Cluster# to be converted */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Get sector# from cluster#                                            */
+/*									*/
+/* File system object 							*/
+/* Cluster# to be converted 						*/
+/* !=0: Sector number, 0: Failed - invalid cluster# 			*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+DWORD clust2sect (FATFS *fs, DWORD clst)
 {
 	clst -= 2;
 	if (clst >= (fs->n_fatent - 2)) return 0;		/* Invalid cluster# */
@@ -598,19 +654,20 @@ DWORD clust2sect (	/* !=0: Sector number, 0: Failed - invalid cluster# */
 
 
 
-/*-----------------------------------------------------------------------*/
-/* FAT access - Read value of a FAT entry                                */
-/*-----------------------------------------------------------------------*/
-
-
-DWORD get_fat (	/* 0xFFFFFFFF:Disk error, 1:Internal error, Else:Cluster status */
-	FATFS *fs,	/* File system object */
-	DWORD clst	/* Cluster# to get the link information */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* FAT access - Read value of a FAT entry                               */
+/*									*/
+/* File system object 							*/
+/* Cluster# to get the link information 				*/
+/* 0xFFFFFFFF:Disk error, 1:Internal error, Else:Cluster status 	*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+DWORD get_fat (FATFS *fs, DWORD clst)
 {
 	UINT wc, bc;
 	BYTE *p;
-
 
 	if (clst < 2 || clst >= fs->n_fatent)	/* Chack range */
 		return 1;
@@ -641,21 +698,22 @@ DWORD get_fat (	/* 0xFFFFFFFF:Disk error, 1:Internal error, Else:Cluster status 
 
 
 
-/*-----------------------------------------------------------------------*/
-/* FAT access - Change value of a FAT entry                              */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* FAT access - Change value of a FAT entry                             */
+/*									*/
+/* File system object 							*/
+/* Cluster# to be changed in range of 2 to fs->n_fatent - 1 		*/
+/* New value to mark the cluster 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY
-
-FRESULT put_fat (
-	FATFS *fs,	/* File system object */
-	DWORD clst,	/* Cluster# to be changed in range of 2 to fs->n_fatent - 1 */
-	DWORD val	/* New value to mark the cluster */
-)
+FRESULT put_fat (FATFS *fs, DWORD clst, DWORD val)
 {
 	UINT bc;
 	BYTE *p;
 	FRESULT res;
-
 
 	if (clst < 2 || clst >= fs->n_fatent) {	/* Check range */
 		res = FR_INT_ERR;
@@ -700,19 +758,17 @@ FRESULT put_fat (
 	return res;
 }
 #endif /* !_FS_READONLY */
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* FAT handling - Remove a cluster chain                                 */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* FAT handling - Remove a cluster chain                                */
+/*									*/
+/* File system object 							*/
+/* Cluster# to remove a chain from 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY
-static
-FRESULT remove_chain (
-	FATFS *fs,			/* File system object */
-	DWORD clst			/* Cluster# to remove a chain from */
-)
+static FRESULT remove_chain (FATFS *fs, DWORD clst)
 {
 	FRESULT res;
 	DWORD nxt;
@@ -753,23 +809,22 @@ FRESULT remove_chain (
 	return res;
 }
 #endif
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* FAT handling - Stretch or Create a cluster chain                      */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* FAT handling - Stretch or Create a cluster chain                     */
+/*									*/
+/* File system object 							*/
+/* Cluster# to stretch. 0 means create a new chain.			*/
+/* Return: 0:No free cluster, 1:Internal error, 0xFFFFFFFF:Disk error, 	*/
+/* >=2:New cluster# 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY
-static
-DWORD create_chain (	/* 0:No free cluster, 1:Internal error, 0xFFFFFFFF:Disk error, >=2:New cluster# */
-	FATFS *fs,			/* File system object */
-	DWORD clst			/* Cluster# to stretch. 0 means create a new chain. */
-)
+static DWORD create_chain (FATFS *fs, DWORD clst)
 {
 	DWORD cs, ncl, scl;
 	FRESULT res;
-
 
 	if (clst == 0) {		/* Create a new chain */
 		scl = fs->last_clust;			/* Get suggested start point */
@@ -813,23 +868,19 @@ DWORD create_chain (	/* 0:No free cluster, 1:Internal error, 0xFFFFFFFF:Disk err
 	return ncl;		/* Return new cluster number or error code */
 }
 #endif /* !_FS_READONLY */
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Directory handling - Set directory index                              */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT dir_sdi (
-	DIR *dj,		/* Pointer to directory object */
-	WORD idx		/* Directory index number */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Directory handling - Set directory index                             */
+/*									*/
+/* Pointer to directory object 						*/
+/* Directory index number 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static FRESULT dir_sdi (ff_DIR *dj, WORD idx)
 {
 	DWORD clst;
 	WORD ic;
-
 
 	dj->index = idx;
 	clst = dj->sclust;
@@ -865,19 +916,21 @@ FRESULT dir_sdi (
 
 
 
-/*-----------------------------------------------------------------------*/
-/* Directory handling - Move directory index next                        */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT dir_next (	/* FR_OK:Succeeded, FR_NO_FILE:End of table, FR_DENIED:EOT and could not stretch */
-	DIR *dj,		/* Pointer to directory object */
-	int stretch		/* 0: Do not stretch table, 1: Stretch table if needed */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Directory handling - Move directory index next                       */
+/*									*/
+/* Pointer to directory object 						*/
+/* 0: Do not stretch table, 1: Stretch table if needed 			*/
+/* Returning: FR_OK:Succeeded, FR_NO_FILE:End of table, FR_DENIED:EOT 	*/
+/* and could not stretch 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static FRESULT dir_next (ff_DIR *dj, int stretch)
 {
 	DWORD clst;
 	WORD i;
-
 
 	i = dj->index + 1;
 	if (!i || !dj->sect)	/* Report EOT when index has reached 65535 */
@@ -929,26 +982,30 @@ FRESULT dir_next (	/* FR_OK:Succeeded, FR_NO_FILE:End of table, FR_DENIED:EOT an
 	return FR_OK;
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* LFN handling - Test/Pick/Fit an LFN segment from/to directory entry   */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* LFN handling - Test/Pick/Fit an LFN segment from/to directory entry  */
+/*									*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _USE_LFN
-static
-const BYTE LfnOfs[] = {1,3,5,7,9,14,16,18,20,22,24,28,30};	/* Offset of LFN chars in the directory entry */
+static const BYTE LfnOfs[] = {1,3,5,7,9,14,16,18,20,22,24,28,30};	/* Offset of LFN chars in the directory entry */
 
-
-static
-int cmp_lfn (			/* 1:Matched, 0:Not matched */
-	WCHAR *lfnbuf,		/* Pointer to the LFN to be compared */
-	BYTE *dir			/* Pointer to the directory entry containing a part of LFN */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* LFN handling - Test/Pick/Fit an LFN segment from/to directory entry  */
+/*									*/
+/* Pointer to the LFN to be compared 					*/
+/* Pointer to the directory entry containing a part of LFN 		*/
+/* Returning: 1:Matched, 0:Not matched 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static int cmp_lfn (WCHAR *lfnbuf, BYTE *dir)
 {
 	UINT i, s;
 	WCHAR wc, uc;
-
 
 	i = ((dir[LDIR_Ord] & 0xBF) - 1) * 13;	/* Get offset in the LFN buffer */
 	s = 0; wc = 1;
@@ -968,14 +1025,17 @@ int cmp_lfn (			/* 1:Matched, 0:Not matched */
 
 	return 1;						/* The part of LFN matched */
 }
-
-
-
-static
-int pick_lfn (			/* 1:Succeeded, 0:Buffer overflow */
-	WCHAR *lfnbuf,		/* Pointer to the Unicode-LFN buffer */
-	BYTE *dir			/* Pointer to the directory entry */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* LFN handling - Test/Pick/Fit an LFN segment from/to directory entry  */
+/*									*/
+/* Pointer to the Unicode-LFN buffer 					*/
+/* Pointer to the directory entry 					*/
+/* Returning  1:Succeeded, 0:Buffer overflow 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static int pick_lfn (WCHAR *lfnbuf, BYTE *dir)
 {
 	UINT i, s;
 	WCHAR wc, uc;
@@ -1001,20 +1061,22 @@ int pick_lfn (			/* 1:Succeeded, 0:Buffer overflow */
 
 	return 1;
 }
-
-
+/*----------------------------------------------------------------------*/
+/*									*/
+/* LFN handling - Test/Pick/Fit an LFN segment from/to directory entry  */
+/*									*/
+/* Pointer to the LFN buffer 						*/
+/* Pointer to the directory entry 					*/
+/* LFN order (1-20) 							*/
+/* SFN sum 								*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY
-static
-void fit_lfn (
-	const WCHAR *lfnbuf,	/* Pointer to the LFN buffer */
-	BYTE *dir,				/* Pointer to the directory entry */
-	BYTE ord,				/* LFN order (1-20) */
-	BYTE sum				/* SFN sum */
-)
+static void fit_lfn (const WCHAR *lfnbuf, BYTE *dir, BYTE ord, BYTE sum)
 {
 	UINT i, s;
 	WCHAR wc;
-
 
 	dir[LDIR_Chksum] = sum;			/* Set check sum */
 	dir[LDIR_Attr] = AM_LFN;		/* Set attribute. LFN entry */
@@ -1035,22 +1097,22 @@ void fit_lfn (
 #endif
 #endif
 
-
-
-/*-----------------------------------------------------------------------*/
-/* Create numbered name                                                  */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Create numbered name                                                 */
+/*									*/
+/* Pointer to generated SFN 						*/
+/* Pointer to source SFN to be modified 				*/
+/* Pointer to LFN 							*/
+/* Sequence number 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _USE_LFN
-void gen_numname (
-	BYTE *dst,			/* Pointer to generated SFN */
-	const BYTE *src,	/* Pointer to source SFN to be modified */
-	const WCHAR *lfn,	/* Pointer to LFN */
-	WORD seq			/* Sequence number */
-)
+void gen_numname (BYTE *dst, const BYTE *src, const WCHAR *lfn, WORD seq)
 {
 	BYTE ns[8], c;
 	UINT i, j;
-
 
 	mem_cpy(dst, src, 11);
 
@@ -1080,18 +1142,16 @@ void gen_numname (
 	} while (j < 8);
 }
 #endif
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Calculate sum of an SFN                                               */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Calculate sum of an SFN                                              */
+/*									*/
+/* Ptr to directory entry 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _USE_LFN
-static
-BYTE sum_sfn (
-	const BYTE *dir		/* Ptr to directory entry */
-)
+static BYTE sum_sfn (const BYTE *dir)
 {
 	BYTE sum = 0;
 	UINT n = 11;
@@ -1100,18 +1160,16 @@ BYTE sum_sfn (
 	return sum;
 }
 #endif
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Directory handling - Find an object in the directory                 */
+/*									*/
+/* Pointer to the directory object linked to the file name 		*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Directory handling - Find an object in the directory                  */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT dir_find (
-	DIR *dj			/* Pointer to the directory object linked to the file name */
-)
+static FRESULT dir_find (ff_DIR *dj)
 {
 	FRESULT res;
 	BYTE c, *dir;
@@ -1162,17 +1220,16 @@ FRESULT dir_find (
 	return res;
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Read an object from the directory                                     */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Read an object from the directory                                    */
+/*									*/
+/* Pointer to the directory object that pointing the entry to be read 	*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _FS_MINIMIZE <= 1
-static
-FRESULT dir_read (
-	DIR *dj			/* Pointer to the directory object that pointing the entry to be read */
-)
+static FRESULT dir_read (ff_DIR *dj)
 {
 	FRESULT res;
 	BYTE c, *dir;
@@ -1222,14 +1279,18 @@ FRESULT dir_read (
 
 
 
-/*-----------------------------------------------------------------------*/
-/* Register an object to the directory                                   */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Register an object to the directory                                  */
+/*									*/
+/* Target directory with object name to be created 			*/
+/* Returning: FR_OK:Successful, FR_DENIED:No free entry or too many 	*/
+/* SFN collision, FR_DISK_ERR:Disk error 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY
-static
-FRESULT dir_register (	/* FR_OK:Successful, FR_DENIED:No free entry or too many SFN collision, FR_DISK_ERR:Disk error */
-	DIR *dj				/* Target directory with object name to be created */
-)
+static FRESULT dir_register (ff_DIR *dj)
 {
 	FRESULT res;
 	BYTE c, *dir;
@@ -1329,14 +1390,17 @@ FRESULT dir_register (	/* FR_OK:Successful, FR_DENIED:No free entry or too many 
 
 
 
-/*-----------------------------------------------------------------------*/
-/* Remove an object from the directory                                   */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Remove an object from the directory                                  */
+/*									*/
+/* Directory object pointing the entry to be removed 			*/
+/* Returning: FR_OK: Successful, FR_DISK_ERR: A disk error 		*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if !_FS_READONLY && !_FS_MINIMIZE
-static
-FRESULT dir_remove (	/* FR_OK: Successful, FR_DISK_ERR: A disk error */
-	DIR *dj				/* Directory object pointing the entry to be removed */
-)
+static FRESULT dir_remove (ff_DIR *dj)
 {
 	FRESULT res;
 #if _USE_LFN	/* LFN configuration */
@@ -1370,19 +1434,17 @@ FRESULT dir_remove (	/* FR_OK: Successful, FR_DISK_ERR: A disk error */
 	return res;
 }
 #endif /* !_FS_READONLY */
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Pick a segment and create the object name in directory form          */
+/*									*/
+/* Pointer to the directory object 					*/
+/* Pointer to pointer to the segment in the path string 		*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Pick a segment and create the object name in directory form           */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT create_name (
-	DIR *dj,			/* Pointer to the directory object */
-	const TCHAR **path	/* Pointer to pointer to the segment in the path string */
-)
+static FRESULT create_name (ff_DIR *dj, const TCHAR **path)
 {
 #ifdef _EXCVT
 	static const BYTE excvt[] = _EXCVT;	/* Upper conversion table for extended chars */
@@ -1584,24 +1646,24 @@ FRESULT create_name (
 	return FR_OK;
 #endif
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Get file information from directory entry                             */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Get file information from directory entry                            */
+/*									*/
+/* Pointer to the directory object 					*/
+/* Pointer to the file information to be filled 			*/
+/* PCC Sept 2015	Watch the commented out code, at end of func	*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _FS_MINIMIZE <= 1
-static
-void get_fileinfo (		/* No return code */
-	DIR *dj,			/* Pointer to the directory object */
-	FILINFO *fno	 	/* Pointer to the file information to be filled */
-)
+static void get_fileinfo (ff_DIR *dj, FILINFO *fno)
 {
 	UINT i;
 	BYTE nt, *dir;
 	TCHAR *p, c;
+	TCHAR *tp;
 
+	WCHAR w, *lfn;
 
 	p = fno->fname;
 	if (dj->sect) {
@@ -1644,8 +1706,8 @@ void get_fileinfo (		/* No return code */
 
 #if _USE_LFN
 	if (fno->lfname && fno->lfsize) {
-		TCHAR *tp = fno->lfname;
-		WCHAR w, *lfn;
+		tp = fno->lfname;
+		
 
 		i = 0;
 		if (dj->sect && dj->lfn_idx != 0xFFFF) {/* Get LFN if available */
@@ -1656,29 +1718,32 @@ void get_fileinfo (		/* No return code */
 				if (!w) { i = 0; break; }		/* Could not convert, no LFN */
 				if (_DF1S && w >= 0x100)		/* Put 1st byte if it is a DBC (always false on SBCS cfg) */
 					tp[i++] = (TCHAR)(w >> 8);
+					
 #endif
 				if (i >= fno->lfsize - 1) { i = 0; break; }	/* Buffer overflow, no LFN */
-				tp[i++] = (TCHAR)w;
+				
+//				tp[i++] = (TCHAR)w;
 			}
 		}
-		tp[i] = 0;	/* Terminate the LFN str by a \0 */
+			
+//		tp[i] = 0;	/* Terminate the LFN str by a \0 */
 	}
 #endif
 }
 #endif /* _FS_MINIMIZE <= 1 */
 
 
-
-
-/*-----------------------------------------------------------------------*/
-/* Follow a file path                                                    */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT follow_path (	/* FR_OK(0): successful, !=0: error code */
-	DIR *dj,			/* Directory object to return last directory and found object */
-	const TCHAR *path	/* Full-path string to find a file or directory */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Follow a file path                                                   */
+/*									*/
+/* Directory object to return last directory and found object 		*/
+/* Full-path string to find a file or directory 			*/
+/* Returning: FR_OK(0): successful, !=0: error code 			*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static FRESULT follow_path (ff_DIR *dj, const TCHAR *path)
 {
 	FRESULT res;
 	BYTE *dir, ns;
@@ -1733,14 +1798,22 @@ FRESULT follow_path (	/* FR_OK(0): successful, !=0: error code */
 
 
 
-/*-----------------------------------------------------------------------*/
-/* Load boot record and check if it is an FAT boot record                */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Load boot record and check if it is an FAT boot record               */
+/*									*/
+/* File system object 							*/
+/* Sector# (lba) to check if it is an FAT boot record or not 		*/
+/* Returning: 0:The FAT BR, 1:Valid BR but not an FAT, 2:Not a BR, 	*/
+/* 3:Disk error 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
 static
-BYTE check_fs (	/* 0:The FAT BR, 1:Valid BR but not an FAT, 2:Not a BR, 3:Disk error */
-	FATFS *fs,	/* File system object */
-	DWORD sect	/* Sector# (lba) to check if it is an FAT boot record or not */
+BYTE check_fs (	
+	FATFS *fs,	
+	DWORD sect	
 )
 {
 	if (disk_read(fs->drv, fs->win, sect, 1) != RES_OK)	/* Load boot record */
@@ -1759,16 +1832,19 @@ BYTE check_fs (	/* 0:The FAT BR, 1:Valid BR but not an FAT, 2:Not a BR, 3:Disk e
 
 
 
-/*-----------------------------------------------------------------------*/
-/* Check if the file system object is valid or not                       */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Check if the file system object is valid or not                      */
+/*									*/
+/* Pointer to pointer to the path name (drive number) 			*/
+/* Pointer to pointer to the found file system object 			*/
+/* !=0: Check media write protection for write access 			*/
+/* Returning:  FR_OK(0): successful, !=0: any error occurred 		*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
-static
-FRESULT chk_mounted (	/* FR_OK(0): successful, !=0: any error occurred */
-	const TCHAR **path,	/* Pointer to pointer to the path name (drive number) */
-	FATFS **rfs,		/* Pointer to pointer to the found file system object */
-	BYTE chk_wp			/* !=0: Check media write protection for write access */
-)
+static FRESULT chk_mounted (const TCHAR **path, FATFS **rfs, BYTE chk_wp)
 {
 	BYTE fmt, b, *tbl;
 	UINT vol;
@@ -1920,19 +1996,17 @@ FRESULT chk_mounted (	/* FR_OK(0): successful, !=0: any error occurred */
 
 	return FR_OK;
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Check if the file/dir object is valid or not                          */
-/*-----------------------------------------------------------------------*/
-
-static
-FRESULT validate (	/* FR_OK(0): The object is valid, !=0: Invalid */
-	FATFS *fs,		/* Pointer to the file system object */
-	WORD id			/* Member id of the target object to be checked */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Check if the file/dir object is valid or not                         */
+/*									*/
+/* Pointer to the file system object 					*/
+/* Member id of the target object to be checked 			*/
+/* Returning: FR_OK(0): The object is valid, !=0: Invalid 		*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+static FRESULT validate (FATFS *fs, WORD id)
 {
 	if (!fs || !fs->fs_type || fs->id != id)
 		return FR_INVALID_OBJECT;
@@ -1945,28 +2019,26 @@ FRESULT validate (	/* FR_OK(0): The object is valid, !=0: Invalid */
 	return FR_OK;
 }
 
+/*----------------------------------------------------------------------*/
+/*									*/
+/*   Public Functions							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
 
 
-/*--------------------------------------------------------------------------
-
-   Public Functions
-
---------------------------------------------------------------------------*/
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Mount/Unmount a Logical Drive                                         */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_mount (
-	BYTE vol,		/* Logical drive number to be mounted/unmounted */
-	FATFS *fs		/* Pointer to new file system object (NULL for unmount)*/
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Mount/Unmount a Logical Drive                                        */
+/*									*/
+/* Logical drive number to be mounted/unmounted 			*/
+/* Pointer to new file system object (NULL for unmount)			*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_mount (FATFS *fs, const TCHAR* path, BYTE vol)
 {
 	FATFS *rfs;
-
 
 	if (vol >= _VOLUMES)			/* Check if the drive number is valid */
 		return FR_INVALID_DRIVE;
@@ -1992,25 +2064,25 @@ FRESULT f_mount (
 
 	return FR_OK;
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Open or Create a File                                                 */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_open (
-	FIL *fp,			/* Pointer to the blank file object */
-	const TCHAR *path,	/* Pointer to the file name */
-	BYTE mode			/* Access mode and file open mode flags */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Open or Create a File                                                */
+/*									*/
+/* Pointer to the blank file object 					*/
+/* Pointer to the file name 						*/
+/* Access mode and file open mode flags 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_open (FIL *fp, const TCHAR *path, BYTE mode)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	BYTE *dir;
 	DEF_NAMEBUF;
-
+#ifdef CONFIG_FATFS_OPEN_DEBUG
+	printf("In f_open, with %s\n",path);
+#endif
 
 	fp->fs = 0;			/* Clear file object */
 
@@ -2039,6 +2111,8 @@ FRESULT f_open (
 	if (mode & (FA_CREATE_ALWAYS | FA_OPEN_ALWAYS | FA_CREATE_NEW)) {
 		DWORD dw, cl;
 
+		dw = 0;
+		
 		if (res != FR_OK) {					/* No file, create new */
 			if (res == FR_NO_FILE)			/* There is no file to open, create a new entry */
 #if _FS_SHARE
@@ -2058,7 +2132,9 @@ FRESULT f_open (
 			}
 		}
 		if (res == FR_OK && (mode & FA_CREATE_ALWAYS)) {	/* Truncate it if overwrite mode */
-			dw = get_fattime();					/* Created time */
+#ifdef CONFIG_RTC
+			dw = my_get_fattime();					/* Created time */
+#endif
 			ST_DWORD(dir+DIR_CrtTime, dw);
 			dir[DIR_Attr] = 0;					/* Reset attribute */
 			ST_DWORD(dir+DIR_FileSize, 0);		/* size = 0 */
@@ -2123,19 +2199,18 @@ FRESULT f_open (
 	LEAVE_FF(dj.fs, res);
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Read File                                                             */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_read (
-	FIL *fp, 		/* Pointer to the file object */
-	void *buff,		/* Pointer to data buffer */
-	UINT btr,		/* Number of bytes to read */
-	UINT *br		/* Pointer to number of bytes read */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Read File                                                            */
+/*									*/
+/* Pointer to the file object 						*/
+/* Pointer to data buffer 						*/
+/* Number of bytes to read 						*/
+/* Pointer to number of bytes read 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 {
 	FRESULT res;
 	DWORD clst, sect, remain;
@@ -2214,21 +2289,19 @@ FRESULT f_read (
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
-
-
-
-
 #if !_FS_READONLY
-/*-----------------------------------------------------------------------*/
-/* Write File                                                            */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_write (
-	FIL *fp,			/* Pointer to the file object */
-	const void *buff,	/* Pointer to the data to be written */
-	UINT btw,			/* Number of bytes to write */
-	UINT *bw			/* Pointer to number of bytes written */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Write File                                                           */
+/*									*/
+/* Pointer to the file object 						*/
+/* Pointer to the data to be written 					*/
+/* Number of bytes to write 						*/
+/* Pointer to number of bytes written 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_write (FIL *fp, const void *buff, UINT btw, UINT *bw)
 {
 	FRESULT res;
 	DWORD clst, sect;
@@ -2329,23 +2402,21 @@ FRESULT f_write (
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Synchronize the File Object                                           */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_sync (
-	FIL *fp		/* Pointer to the file object */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Synchronize the File Object                                          */
+/*									*/
+/* Pointer to the file object 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_sync (FIL *fp)
 {
 	FRESULT res;
 	DWORD tim;
 	BYTE *dir;
 
-
+	tim = 0;
 	res = validate(fp->fs, fp->id);		/* Check validity of the object */
 	if (res == FR_OK) {
 		if (fp->flag & FA__WRITTEN) {	/* Has the file been written? */
@@ -2363,7 +2434,9 @@ FRESULT f_sync (
 				dir[DIR_Attr] |= AM_ARC;					/* Set archive bit */
 				ST_DWORD(dir+DIR_FileSize, fp->fsize);		/* Update file size */
 				ST_CLUST(dir, fp->org_clust);				/* Update start cluster */
-				tim = get_fattime();						/* Update updated time */
+#ifdef CONFIG_RTC
+				tim = my_get_fattime();						/* Update updated time */
+#endif
 				ST_DWORD(dir+DIR_WrtTime, tim);
 				fp->flag &= ~FA__WRITTEN;
 				fp->fs->wflag = 1;
@@ -2376,17 +2449,15 @@ FRESULT f_sync (
 }
 
 #endif /* !_FS_READONLY */
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Close File                                                            */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_close (
-	FIL *fp		/* Pointer to the file object to be closed */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Close File                                                           */
+/*									*/
+/* Pointer to the file object to be closed 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_close (FIL *fp)
 {
 	FRESULT res;
 
@@ -2415,19 +2486,16 @@ FRESULT f_close (
 	return res;
 #endif
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Current Drive/Directory Handlings                                     */
-/*-----------------------------------------------------------------------*/
-
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Current Drive/Directory Handlings                                    */
+/*									*/
+/* Drive number				 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _FS_RPATH >= 1
-
-FRESULT f_chdrive (
-	BYTE drv		/* Drive number */
-)
+FRESULT f_chdrive (BYTE drv)
 {
 	if (drv >= _VOLUMES) return FR_INVALID_DRIVE;
 
@@ -2435,15 +2503,19 @@ FRESULT f_chdrive (
 
 	return FR_OK;
 }
-
-
-
-FRESULT f_chdir (
-	const TCHAR *path	/* Pointer to the directory path */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Current Drive/Directory Handlings                                    */
+/*									*/
+/* Chdir				 				*/
+/* Pointer to the directory path 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_chdir (const TCHAR *path)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	DEF_NAMEBUF;
 
 
@@ -2467,16 +2539,21 @@ FRESULT f_chdir (
 
 	LEAVE_FF(dj.fs, res);
 }
-
-
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Current Drive/Directory Handlings                                    */
+/*									*/
+/* GetCWD				 				*/
+/* Pointer to the directory path 					*/
+/* Size of path 							*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _FS_RPATH >= 2
-FRESULT f_getcwd (
-	TCHAR *path,	/* Pointer to the directory path */
-	UINT sz_path	/* Size of path */
-)
+FRESULT f_getcwd (TCHAR *path, UINT sz_path)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	UINT i, n;
 	DWORD ccl;
 	TCHAR *tp;
@@ -2541,17 +2618,17 @@ FRESULT f_getcwd (
 #endif /* _FS_RPATH >= 2 */
 #endif /* _FS_RPATH >= 1 */
 
-
-
 #if _FS_MINIMIZE <= 2
-/*-----------------------------------------------------------------------*/
-/* Seek File R/W Pointer                                                 */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_lseek (
-	FIL *fp,		/* Pointer to the file object */
-	DWORD ofs		/* File pointer from top of file */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Seek File R/W Pointer                                                */
+/*									*/
+/* Pointer to the file object 						*/
+/* File pointer from top of file 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_lseek (FIL *fp, DWORD ofs)
 {
 	FRESULT res;
 
@@ -2708,19 +2785,22 @@ FRESULT f_lseek (
 
 
 #if _FS_MINIMIZE <= 1
-/*-----------------------------------------------------------------------*/
-/* Create a Directroy Object                                             */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Create a Directroy Object                                            */
+/*									*/
+/* Pointer to directory object to create 				*/
+/* Pointer to the directory path 					*/
+/*									*/
+/*----------------------------------------------------------------------*/
 
-FRESULT f_opendir (
-	DIR *dj,			/* Pointer to directory object to create */
-	const TCHAR *path	/* Pointer to the directory path */
-)
+FRESULT f_opendir (ff_DIR *dj,const TCHAR *path)
 {
 	FRESULT res;
 	DEF_NAMEBUF;
-
-
+#ifdef CONFIG_FATFS_OPENDIR_DEBUG
+	printf("In f_opendir, Path is %s\n",path);
+#endif
 	res = chk_mounted(&path, &dj->fs, 0);
 	if (res == FR_OK) {
 		INIT_BUF(*dj);
@@ -2741,25 +2821,22 @@ FRESULT f_opendir (
 		}
 		if (res == FR_NO_FILE) res = FR_NO_PATH;
 	}
-
 	LEAVE_FF(dj->fs, res);
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Read Directory Entry in Sequense                                      */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_readdir (
-	DIR *dj,			/* Pointer to the open directory object */
-	FILINFO *fno		/* Pointer to file information to return */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Read Directory Entry in Sequense                                     */
+/*									*/
+/* Pointer to the open directory object 				*/
+/* Pointer to file information to return 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_readdir (ff_DIR *dj, FILINFO *fno)
 {
 	FRESULT res;
 	DEF_NAMEBUF;
-
 
 	res = validate(dj->fs, dj->id);			/* Check validity of the object */
 	if (res == FR_OK) {
@@ -2783,24 +2860,25 @@ FRESULT f_readdir (
 			FREE_BUF();
 		}
 	}
-
 	LEAVE_FF(dj->fs, res);
 }
 
 
 
 #if _FS_MINIMIZE == 0
-/*-----------------------------------------------------------------------*/
-/* Get File Status                                                       */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_stat (
-	const TCHAR *path,	/* Pointer to the file path */
-	FILINFO *fno		/* Pointer to file information to return */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Get File Status                                                      */
+/*									*/
+/* Pointer to the file path 						*/
+/* Pointer to file information to return 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_stat (const TCHAR *path, FILINFO *fno)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	DEF_NAMEBUF;
 
 
@@ -2823,24 +2901,26 @@ FRESULT f_stat (
 
 
 #if !_FS_READONLY
-/*-----------------------------------------------------------------------*/
-/* Get Number of Free Clusters                                           */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_getfree (
-	const TCHAR *path,	/* Pointer to the logical drive number (root dir) */
-	DWORD *nclst,		/* Pointer to the variable to return number of free clusters */
-	FATFS **fatfs		/* Pointer to pointer to corresponding file system object to return */
-)
+/*----------------------------------------------------------------------*/
+/*					  				*/
+/* Get Number of Free Clusters                                  	*/
+/*					  				*/
+/* Pointer to the logical drive number (root dir) 			*/
+/* Pointer to the variable to return number of free clusters 		*/
+/* Pointer to pointer to corresponding file system object to return 	*/
+/* pcc 23/9/2015							*/
+/*					  				*/
+/*----------------------------------------------------------------------*/
+FRESULT f_getfree (const TCHAR *path, DWORD *nclst, FATFS **fatfs)
 {
 	FRESULT res;
 	DWORD n, clst, sect, stat;
 	UINT i;
 	BYTE fat, *p;
 
-
 	/* Get drive number */
 	res = chk_mounted(&path, fatfs, 0);
+	
 	if (res == FR_OK) {
 		/* If free_clust is valid, return it without full cluster scan */
 		if ((*fatfs)->free_clust <= (*fatfs)->n_fatent - 2) {
@@ -2861,6 +2941,8 @@ FRESULT f_getfree (
 				clst = (*fatfs)->n_fatent;
 				sect = (*fatfs)->fatbase;
 				i = 0; p = 0;
+				// Seems to get stuck in this loop for a while....
+				// Looked at by pcc 23/09/2015
 				do {
 					if (!i) {
 						res = move_window(*fatfs, sect++);
@@ -2882,19 +2964,20 @@ FRESULT f_getfree (
 			*nclst = n;
 		}
 	}
+	
 	LEAVE_FF(*fatfs, res);
+	
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Truncate File                                                         */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_truncate (
-	FIL *fp		/* Pointer to the file object */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Truncate File                                                        */
+/*									*/
+/* Pointer to the file object 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_truncate (FIL *fp)
 {
 	FRESULT res;
 	DWORD ncl;
@@ -2933,19 +3016,18 @@ FRESULT f_truncate (
 	LEAVE_FF(fp->fs, res);
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Delete a File or Directory                                            */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_unlink (
-	const TCHAR *path		/* Pointer to the file or directory path */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Delete a File or Directory                                           */
+/*									*/
+/* Pointer to the file or directory path 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_unlink (const TCHAR *path)
 {
 	FRESULT res;
-	DIR dj, sdj;
+	ff_DIR dj, sdj;
 	BYTE *dir;
 	DWORD dclst;
 	DEF_NAMEBUF;
@@ -2973,7 +3055,7 @@ FRESULT f_unlink (
 				if (dclst < 2) {
 					res = FR_INT_ERR;
 				} else {
-					mem_cpy(&sdj, &dj, sizeof(DIR));	/* Check if the sub-dir is empty or not */
+					mem_cpy(&sdj, &dj, sizeof(ff_DIR));	/* Check if the sub-dir is empty or not */
 					sdj.sclust = dclst;
 					res = dir_sdi(&sdj, 2);		/* Exclude dot entries */
 					if (res == FR_OK) {
@@ -3000,22 +3082,25 @@ FRESULT f_unlink (
 	}
 	LEAVE_FF(dj.fs, res);
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Create a Directory                                                    */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_mkdir (
-	const TCHAR *path		/* Pointer to the directory path */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Create a Directory                                                   */
+/*									*/
+/* Pointer to the directory path 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_mkdir (const TCHAR *path)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	BYTE *dir, n;
-	DWORD dsc, dcl, pcl, tim = get_fattime();
+	DWORD dsc, dcl, pcl;
+#ifdef CONFIG_RTC
+	DWORD tim = my_get_fattime();
+#else
+	DWORD tim=0;
+#endif
 	DEF_NAMEBUF;
 
 
@@ -3074,21 +3159,20 @@ FRESULT f_mkdir (
 	LEAVE_FF(dj.fs, res);
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Change Attribute                                                      */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_chmod (
-	const TCHAR *path,	/* Pointer to the file path */
-	BYTE value,			/* Attribute bits */
-	BYTE mask			/* Attribute mask to change */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Change Attribute                                                     */
+/*									*/
+/* Pointer to the file path 						*/
+/* Attribute bits 							*/
+/* Attribute mask to change 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_chmod (const TCHAR *path, BYTE value, BYTE mask)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	BYTE *dir;
 	DEF_NAMEBUF;
 
@@ -3115,21 +3199,19 @@ FRESULT f_chmod (
 
 	LEAVE_FF(dj.fs, res);
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Change Timestamp                                                      */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_utime (
-	const TCHAR *path,	/* Pointer to the file/directory name */
-	const FILINFO *fno	/* Pointer to the time stamp to be set */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Change Timestamp                                                     */
+/*									*/
+/* Pointer to the file/directory name 					*/
+/* Pointer to the time stamp to be set 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_utime (const TCHAR *path, const FILINFO *fno)
 {
 	FRESULT res;
-	DIR dj;
+	ff_DIR dj;
 	BYTE *dir;
 	DEF_NAMEBUF;
 
@@ -3156,21 +3238,19 @@ FRESULT f_utime (
 
 	LEAVE_FF(dj.fs, res);
 }
-
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Rename File/Directory                                                 */
-/*-----------------------------------------------------------------------*/
-
-FRESULT f_rename (
-	const TCHAR *path_old,	/* Pointer to the old name */
-	const TCHAR *path_new	/* Pointer to the new name */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Rename File/Directory                                                */
+/*									*/
+/* Pointer to the old name 						*/
+/* Pointer to the new name 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_rename (const TCHAR *path_old, const TCHAR *path_new)
 {
 	FRESULT res;
-	DIR djo, djn;
+	ff_DIR djo, djn;
 	BYTE buf[21], *dir;
 	DWORD dw;
 	DEF_NAMEBUF;
@@ -3191,7 +3271,7 @@ FRESULT f_rename (
 				res = FR_NO_FILE;
 			} else {
 				mem_cpy(buf, djo.dir+DIR_Attr, 21);		/* Save the object information except for name */
-				mem_cpy(&djn, &djo, sizeof(DIR));		/* Check new object */
+				mem_cpy(&djn, &djo, sizeof(ff_DIR));		/* Check new object */
 				res = follow_path(&djn, path_new);
 				if (res == FR_OK) res = FR_EXIST;		/* The new object name is already existing */
 				if (res == FR_NO_FILE) { 				/* Is it a valid path and no name collision? */
@@ -3236,19 +3316,19 @@ FRESULT f_rename (
 #endif /* _FS_MINIMIZE <= 1 */
 #endif /* _FS_MINIMIZE <= 2 */
 
-
-
-/*-----------------------------------------------------------------------*/
-/* Forward data to the stream directly (available on only tiny cfg)      */
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Forward data to the stream directly (available on only tiny cfg)     */
+/*									*/
+/* Pointer to the file object 						*/
+/* Pointer to the streaming function 					*/
+/* Number of bytes to forward 						*/
+/* Pointer to number of bytes forwarded 				*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
 #if _USE_FORWARD && _FS_TINY
-
-FRESULT f_forward (
-	FIL *fp, 						/* Pointer to the file object */
-	UINT (*func)(const BYTE*,UINT),	/* Pointer to the streaming function */
-	UINT btr,						/* Number of bytes to forward */
-	UINT *bf						/* Pointer to number of bytes forwarded */
-)
+FRESULT f_forward (FIL *fp, UINT (*func)(const BYTE*,UINT), UINT btr,UINT *bf)
 {
 	FRESULT res;
 	DWORD remain, clst, sect;
@@ -3296,21 +3376,20 @@ FRESULT f_forward (
 }
 #endif /* _USE_FORWARD */
 
-
-
 #if _USE_MKFS && !_FS_READONLY
-/*-----------------------------------------------------------------------*/
-/* Create File System on the Drive                                       */
-/*-----------------------------------------------------------------------*/
 #define N_ROOTDIR	512		/* Multiple of 32 */
 #define N_FATS		1		/* 1 or 2 */
-
-
-FRESULT f_mkfs (
-	BYTE drv,		/* Logical drive number */
-	BYTE sfd,		/* Partitioning rule 0:FDISK, 1:SFD */
-	UINT au			/* Allocation unit size [bytes] */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Create File System on the Drive                                      */
+/*									*/
+/* Logical drive number 						*/
+/* Partitioning rule 0:FDISK, 1:SFD 					*/
+/* Allocation unit size [bytes] 					*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+FRESULT f_mkfs (BYTE drv, BYTE sfd, UINT au)
 {
 	static const WORD vst[] = { 1024,   512,  256,  128,   64,    32,   16,    8,    4,    2,   0};
 	static const WORD cst[] = {32768, 16384, 8192, 4096, 2048, 16384, 8192, 4096, 2048, 1024, 512};
@@ -3324,9 +3403,11 @@ FRESULT f_mkfs (
 
 
 	/* Check mounted drive and clear work area */
-	if (drv >= _VOLUMES) return FR_INVALID_DRIVE;
+	if (drv >= _VOLUMES) 
+		return FR_INVALID_DRIVE;
 	fs = FatFs[drv];
-	if (!fs) return FR_NOT_ENABLED;
+	if (!fs) 
+		return FR_NOT_ENABLED;
 	fs->fs_type = 0;
 	drv = LD2PD(drv);
 
@@ -3518,24 +3599,23 @@ FRESULT f_mkfs (
 
 #endif /* _USE_MKFS && !_FS_READONLY */
 
-
-
-
 #if _USE_STRFUNC
-/*-----------------------------------------------------------------------*/
-/* Get a string from the file                                            */
-/*-----------------------------------------------------------------------*/
-TCHAR* f_gets (
-	TCHAR* buff,	/* Pointer to the string buffer to read */
-	int len,		/* Size of string buffer (characters) */
-	FIL* fil		/* Pointer to the file object */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Get a string from the file                                           */
+/*									*/
+/* Pointer to the string buffer to read 				*/
+/* Size of string buffer (characters) 					*/
+/* Pointer to the file object 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+TCHAR* f_gets (TCHAR* buff, int len, FIL* fil)
 {
 	int n = 0;
 	TCHAR c, *p = buff;
 	BYTE s[2];
 	UINT rc;
-
 
 	while (n < len - 1) {			/* Read bytes until buffer gets filled */
 		f_read(fil, s, 1, &rc);
@@ -3576,13 +3656,16 @@ TCHAR* f_gets (
 
 #if !_FS_READONLY
 #include <stdarg.h>
-/*-----------------------------------------------------------------------*/
-/* Put a character to the file                                           */
-/*-----------------------------------------------------------------------*/
-int f_putc (
-	TCHAR c,	/* A character to be output */
-	FIL* fil	/* Pointer to the file object */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Put a character to the file                                          */
+/*									*/
+/* A character to be output 						*/
+/* Pointer to the file object 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+int f_putc (TCHAR c, FIL* fil)
 {
 	UINT bw, btw;
 	BYTE s[3];
@@ -3616,16 +3699,16 @@ int f_putc (
 	return (bw == btw) ? 1 : EOF;	/* Return the result */
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Put a string to the file                                              */
-/*-----------------------------------------------------------------------*/
-int f_puts (
-	const TCHAR* str,	/* Pointer to the string to be output */
-	FIL* fil			/* Pointer to the file object */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Put a string to the file                                             */
+/*									*/
+/* Pointer to the string to be output 					*/
+/* Pointer to the file object 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+int f_puts (const TCHAR* str, FIL* fil)
 {
 	int n;
 
@@ -3636,17 +3719,17 @@ int f_puts (
 	return n;
 }
 
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Put a formatted string to the file                                    */
-/*-----------------------------------------------------------------------*/
-int f_printf (
-	FIL* fil,			/* Pointer to the file object */
-	const TCHAR* str,	/* Pointer to the format string */
-	...					/* Optional arguments... */
-)
+/*----------------------------------------------------------------------*/
+/*									*/
+/* Put a formatted string to the file                                   */
+/*									*/
+/* Pointer to the file object 						*/
+/* Pointer to the format string 					*/
+/* Optional arguments... 						*/
+/* PCC Sept 2015							*/
+/*									*/
+/*----------------------------------------------------------------------*/
+int f_printf (FIL* fil, const TCHAR* str, ...)
 {
 	va_list arp;
 	BYTE f, r;
