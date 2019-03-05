@@ -81,10 +81,11 @@ class startButton(hoverButton):
             self.root.widgets["documents"].place_forget()
         self.menu_open = not self.menu_open
     def check_focus(self,event):
-        if event.widget != self and event.widget != self.root.widgets["95menu"] and event.widget != self.root.widgets["shutdown"]:
+        if not (event.widget in [self.root.widgets[w] for w in ["95menu","shutdown","documents"]] or event.widget == self):
             self.menu_open = False
             self.root.widgets["95menu"].place_forget()
             self.root.widgets["shutdown"].place_forget()
+            self.root.widgets["documents"].place_forget()
 
 class duckButton(hoverButton):
     def _on_Click(self):
@@ -428,7 +429,7 @@ class browserButton():#78 by 75, where
         if(self.filetype == "folder"):
             self.frame.window.into_dir(self.path)
         else:
-            pass
+            self.frame.window.opens()
     def check_focus(self,event):
         if event.widget != self.image and event.widget != self.text:
             self.clicked = True
