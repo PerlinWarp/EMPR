@@ -29,15 +29,17 @@
    their interface yet, and I would have to write my own driver to interface
    to ELM FAT FS */
 
-#include "lpc17xx.h"
+#include "LPC17xx.h"
 #include "lpc17xx_ssp.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_gpio.h"
-#include "stdio.h"
-#include "types.h"
-#include "stdlib.h"
+#include "stdio2.h"
+#include "sys/types.h"
+#include "stdlib2.h"
 //#include "kernel.h"
 //#include "kernel_events.h"
+
+#include "config.h" //Hopefully this fixes things
 	
 #define CS_PORT_NUM 		0
 #define CS_PIN_NUM 			16
@@ -77,17 +79,19 @@ void spiInit(void)
 	
 	// Have we got the SDCARD CS code setup??, slit out so we can
 	// use the SPI bus for other things
-	if(!kernel_event(KERNEL_SYS_STATE_BIT,SYSTEM_STATE_SDSPI_UP,NULL)){
+	// if(!kernel_event(KERNEL_SYS_STATE_BIT,SYSTEM_STATE_SDSPI_UP,NULL)){
+	if(1){
 		PinCfg.Pinnum = CS_PIN_NUM;		// SSEL
 		PinCfg.Funcnum = 0;
 		PINSEL_ConfigPin(&PinCfg);
 
 		GPIO_SetDir(CS_PORT_NUM, (1<<CS_PIN_NUM), 1);
 		GPIO_SetValue(CS_PORT_NUM, (1<<CS_PIN_NUM));
-		kernel_event(KERNEL_SET_SYS_STATE,SYSTEM_STATE_SDSPI_UP,NULL);
+		//kernel_event(KERNEL_SET_SYS_STATE,SYSTEM_STATE_SDSPI_UP,NULL);
 	}
 	// Is the SPI bus setup??
-	if(!kernel_event(KERNEL_SYS_STATE_BIT,SYSTEM_STATE_SPI_UP,NULL)){
+	// if(!kernel_event(KERNEL_SYS_STATE_BIT,SYSTEM_STATE_SPI_UP,NULL)){
+	if(1){
 		/*
 		 * Initialize SPI pin connect
 		 * P0.7  - SCK
@@ -116,7 +120,7 @@ void spiInit(void)
 		SSP_Init(LPC_SSP, &SSP_ConfigStruct);		// Initialize SSP peripheral with parameter given in structure above
 	
 		SSP_Cmd(LPC_SSP, ENABLE);			// Enable SSP peripheral
-		kernel_event(KERNEL_SET_SYS_STATE,SYSTEM_STATE_SPI_UP,NULL);
+		//kernel_event(KERNEL_SET_SYS_STATE,SYSTEM_STATE_SPI_UP,NULL);
 	}
 }
 /****************************************************************/

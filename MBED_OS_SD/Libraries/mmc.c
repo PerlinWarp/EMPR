@@ -7,7 +7,7 @@
 /*									*/
 /*----------------------------------------------------------------------*/
 
-#include "stdio.h"
+#include "stdio2.h"
 #include "diskio.h"
 #include "spi.h"
 

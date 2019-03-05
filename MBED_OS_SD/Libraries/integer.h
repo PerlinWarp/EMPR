@@ -7,8 +7,8 @@
 
 #ifdef _WIN32	/* FatFs development platform */
 
-#include <windows.h>
-#include <tchar.h>
+//#include "windows.h"
+//#include "tchar.h"
 
 #else			/* Embedded platform */
 
@@ -17,7 +17,7 @@ typedef int				INT;
 typedef unsigned int	UINT;
 
 /* These types must be 8-bit integer */
-typedef char			CHAR;
+//typedef char			CHAR;
 typedef unsigned char	UCHAR;
 typedef unsigned char	BYTE;
 

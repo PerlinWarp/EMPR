@@ -49,8 +49,8 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 EXECNAME	= bin/main
 
 # Source files provided by the user to build the project
-ffcFiles = $(patsubst %.c,%.o,$(wildcard Libraries/*.c))
-sourceFiles := $(patsubst %.c,%.o,$(wildcard Libraries/*.c))
+ffcFiles = $(patsubst %.c,%.o,$(wildcard *.c))
+sourceFiles := $(patsubst %.c,%.o,$(wildcard *.c))
 
 OBJ = main.o $(sourceFiles) $(ffcFiles)
 # Commands handled by this makefile
