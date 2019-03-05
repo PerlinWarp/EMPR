@@ -77,6 +77,7 @@ class MainMenu(PlaceWindow):
         self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
         self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
         self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
+        self.widgets["nanocross"] = hoverButton(self.frame,self,"nanoCross",menu="BlueScreen")
 
         self.widgets["backButton"] = functionalButton(self.frame,self,"menuplay",lambda: self.frame.switch("browse"))
         self.widgets["menuRecord"] = functionalButton(self.frame,self,"menuRecord",lambda: self.frame.switch("browse"))
@@ -91,6 +92,7 @@ class MainMenu(PlaceWindow):
         self.widgets["loading"].place(x=700,y = 120)
         self.widgets["button_Area"].place(x = 80,y =180 )
 
+        self.widgets["nanocross"].place(x=309,y=183)
         self.widgets["backButton"].place(x=130,y =260)
         self.widgets["menuRecord"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
