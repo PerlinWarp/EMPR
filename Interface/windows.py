@@ -198,10 +198,10 @@ class Settings(PlaceWindow):
         PlaceWindow.show_All(self)
     def acceptSettings(self):
         options = ["volume","scale0","scale1","scale2","scale3"]
-        for a in options:
-            g = self.widgets[a].get()
+        for i in range(len(options)):
+            g = self.widgets[options[i]].get()
             if  g != 0:
-                g = a+"," + str(g)+"|"
+                g = "S:"+ str(i) +"," + str(g)+"|"
                 self.frame.ser.write(bytes(g,"utf-8"))
         self.frame.switch("menu")
 
@@ -389,7 +389,7 @@ class Browse(PlaceWindow):
         else:
             self.delete()
             self.new("file")
-        
+
     def new(self,filetype):
         self.widgets["newFile"] = browserButtonNew(self.widgets["fileWindow"],self,filetype)
         self.widgets["newFile"].place(x = 189+(78*(self.counter%5)),y=169+ (75*(self.counter//5)))

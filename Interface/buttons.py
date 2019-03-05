@@ -32,7 +32,7 @@ class menuButton(betterButton):
         self.name = buttonName
         betterButton.__init__(self,parent,root,"menu"+buttonName,**options,borderwidth = 0)
     def _on_Click(self):
-        self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))
+        #self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))#not needed for now
         self.frame.switch(self.name)
 
 class hoverButton(betterButton):
@@ -54,7 +54,7 @@ class hoverButtoninFrame(hoverButton):
     def _on_Click(self):
         self.frame.frame.switch(self.menu)
 
-# Hover buttons that need to run some function when pressed. 
+# Hover buttons that need to run some function when pressed.
 class functionalButton(hoverButton):
     def __init__(self,parent,root,buttonName,function,**options):
         hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)
@@ -93,10 +93,10 @@ class duckButton(hoverButton):
 
 class exitButton(menuButton):
     def _on_Click(self):
-        self.frame.ser.write(bytes(self.buttonName+'|','utf-8'))
+        self.frame.ser.write(b"E:|")
         self.frame.root.destroy()
-        
-        
+
+
 class pauseButton(serialButton):
     def __init__(self,parent,root,buttonName,**options):
         serialButton.__init__(self,parent,root,buttonName,**options)
@@ -114,7 +114,7 @@ class betterLabel(Label):
     def __init__(self,frame,imageLoc,**options):
         self.image = PhotoImage(file = "resources/"+imageLoc+".gif")
         Label.__init__(self,frame,image =self.image,borderwidth = 0,**options)
-        
+
 class size_rotate_Label(Label):
     def __init__(self,frame,imageLoc,width,height,angle,**options):
         self.image = Image.open("resources/"+imageLoc+".gif").convert("RGBA")
@@ -122,25 +122,25 @@ class size_rotate_Label(Label):
         self.image = self.image.resize((width,height),Image.NEAREST)
         self.image = ImageTk.PhotoImage(self.image)
         Label.__init__(self,frame,image =self.image,borderwidth = 0,**options)
-        
+
 class animatedLabel(Label):
     def __init__(self,frame,imageLoc,**options):
         self.images = []
         self.load_images(imageLoc)
         self.imageCount = 0
         Label.__init__(self,frame,image = self.images[self.imageCount],borderwidth =0,**options)
-        
+
     def load_images(self,imageLoc):
         animation = Image.open("resources/"+imageLoc+".gif")
         for i in range(animation.n_frames):
             animation.seek(i)
             self.images.append(ImageTk.PhotoImage(animation))
         self.image_number = animation.n_frames
-        
+
     def switch_image(self,index):
         self.imageCount = index
         self.config(image = self.images[self.imageCount])
-        
+
     def inc_image(self):
         self.imageCount = (self.imageCount +1) % self.image_number
         self.config(image = self.images[self.imageCount])
@@ -178,7 +178,7 @@ class layeredLabel(Label):
             self.image.paste(temp,(images[i][1],images[i][2]),temp)
         self.duckImage = self.image
         self.image = ImageTk.PhotoImage(self.image)
-        if images[0][0] == "menubkg" or images[0][0] == "bluescreen" or images[0][0] == "playbackground": 
+        if images[0][0] == "menubkg" or images[0][0] == "bluescreen" or images[0][0] == "playbackground":
             duck = Image.open("resources/duck.gif").convert("RGBA")
             for i in range(25):
                 temp = duck.rotate(randint(0,360))
@@ -231,7 +231,7 @@ class sliderButton(dragDropButton):
         if self.axis == "x":
             self.max = self.maxs - self.winfo_width()
         else:
-            self.max = self.maxs - self.winfo_height()        
+            self.max = self.maxs - self.winfo_height()
     def pickup(self,event):
         dragDropButton.pickup(self,event)
     def drag(self,event):
@@ -244,7 +244,7 @@ class sliderButton(dragDropButton):
                     self.x = self.min
             else:
                 self.x = self.max
-        else: 
+        else:
             newy =  self.frame.root.winfo_pointery() - self.acty
             if newy <= self.max:
                 if newy >= self.min:
@@ -252,7 +252,7 @@ class sliderButton(dragDropButton):
                 else:
                     self.y = self.min
             else:
-                self.y = self.max            
+                self.y = self.max
         self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
 
 class dragDropFrame(Frame):
@@ -289,13 +289,13 @@ class dragDropFrame(Frame):
             self.move = False
     def _on_Right_Click(self,event):
         if event.y > 120:
-            
+
             self.window.widgets["rightclickmenu"].place(x=event.x+self.x,y=event.y+self.y)
             self.window.widgets["new"].place(x=event.x+self.x+3,y=event.y+self.y+163)
             for widget in ["rightclickmenu2","newfolder","wavesound","rightclickmenu_file","delete","rename","open"]:
                 self.window.widgets[widget].place_forget()
 
-                
+
     def check_focus(self,event):
         f = ["rightclickmenu","new","rightclickmenu2","newfolder","wavesound"]
         for widget in f:
@@ -304,7 +304,7 @@ class dragDropFrame(Frame):
         for widget in f:
             self.window.widgets[widget].place_forget()
         self.window.rcmenu2 = False
-                    
+
 class callbackLayeredLabel(layeredLabel):
     def __init__(self,frame,images):
         layeredLabel.__init__(self,frame,images)
@@ -312,15 +312,15 @@ class callbackLayeredLabel(layeredLabel):
         self.bind("<ButtonRelease-1>",self.frame.putdown,"+")
         self.bind("<B1-Motion>",self.frame.drag,"+")
         self.bind("<Button-3>",self.frame._on_Right_Click,"+")
-        
-        
+
+
 class betterListBox(Listbox):
     def __init__(self,master,options):
         self.master = master
         Listbox.__init__(self,master)
         for option in options:
             self.insert(END, option)
-            
+
 class betterComboBox(Combobox):
     def __init__(self,frame,options,stringvar = None,width = 20,height = 21):
         self.text_font = ('Microsoft Sans Serif','10')
@@ -350,15 +350,15 @@ class referenceComboBox(betterComboBox):
                 if widget.value == self.current_value.get():
                     widget.place(x=widget.x,y=widget.y)
                 else:
-                    widget.place_forget()    
+                    widget.place_forget()
 class betterScale(Scale):
     def __init__(self,frame,value,xVal=400,yVal=400,**options):
         self.value = value
         self.x = xVal
         self.y = yVal
         Scale.__init__(self,frame,from_=0,to=128,orient = HORIZONTAL,length =148,**options)
-                 
-class browserButton():#78 by 75, where 
+
+class browserButton():#78 by 75, where
     def __init__(self,frame,window,text,filetype):
         self.frame = frame
         self.window = window
@@ -397,22 +397,22 @@ class browserButton():#78 by 75, where
         self.text_image           = Image.new("RGB",(self.windowSize,25),(255,255,255))
         self.text_image_sel       = Image.new("RGB",(self.windowSize,25),(0,0,128))
         self.text_image_unclicked = Image.new("RGB",(self.windowSize,25),(255,255,255))
-        
+
 
         border_colours_sel       = [(0,0,128),(255,255,127)]
         border_colours_unclicked = [(0,0,0),(255,255,255)]
-        
+
         for i in range(self.text_image.width):#draw a border around the image
             self.text_image_sel.putpixel((i,0),border_colours_sel[i%2])
             self.text_image_sel.putpixel((i,self.text_image.height-1),border_colours_sel[i%2])
-            
+
             self.text_image_unclicked.putpixel((i,0),border_colours_unclicked[i%2])
             self.text_image_unclicked.putpixel((i,self.text_image.height-1),border_colours_unclicked[i%2])
-            
+
         for i in range(self.text_image.height):
             self.text_image_sel.putpixel((0,i),border_colours_sel[i%2])
             self.text_image_sel.putpixel((self.text_image.width-1,i),border_colours_sel[i%2])
-            
+
             self.text_image_unclicked.putpixel((0,i),border_colours_unclicked[i%2])
             self.text_image_unclicked.putpixel((self.text_image.width-1,i),border_colours_unclicked[i%2])
         fnt = ImageFont.truetype("resources/micross.ttf",9)
@@ -423,19 +423,19 @@ class browserButton():#78 by 75, where
         draw = ImageDraw.Draw(self.text_image)
         draw.text((textAdjust,2),line[0],font = fnt ,fill = (0,0,0))
         draw.text((textAdjust2,15),line[1],font = fnt,fill = (0,0,0))
-                       
-        draw = ImageDraw.Draw(self.text_image_sel)                       
+
+        draw = ImageDraw.Draw(self.text_image_sel)
         draw.text((textAdjust,2),line[0],font = fnt,fill = (255,255,255))
         draw.text((textAdjust2,15),line[1],font = fnt,fill = (255,255,255))
 
-        draw = ImageDraw.Draw(self.text_image_unclicked)                       
+        draw = ImageDraw.Draw(self.text_image_unclicked)
         draw.text((textAdjust,2),line[0],font = fnt,fill = (0,0,0))
         draw.text((textAdjust2,15),line[1],font = fnt,fill = (0,0,0))
 
         self.text_image = ImageTk.PhotoImage(self.text_image)
         self.text_image_sel = ImageTk.PhotoImage(self.text_image_sel)
         self.text_image_unclicked = ImageTk.PhotoImage(self.text_image_unclicked)
-                       
+
     def place(self,**kwargs):
         self.relx = kwargs['x']
         self.rely = kwargs['y']
@@ -445,13 +445,13 @@ class browserButton():#78 by 75, where
 
         self.image.bind('<Double-Button-1>',self._open)
         self.text.bind('<Double-Button-1>',self._open)
-        
+
         self.image.bind('<Button-3>',self._on_Right_Click)
         self.text.bind('<Button-3>',self._on_Right_Click)
-        
+
         self.image.place(x = self.relx+22,y = self.rely+7 )
         self.text.place(x = self.relx+12+((50-self.windowSize) /2),y = self.rely+44 )
-        
+
     def _on_Right_Click(self,event):
         self._on_pressed(event)
         self.window.widgets["rightclickmenu_file"].place(x=event.x+self.relx+103,y=event.y+self.rely+26)
@@ -461,7 +461,7 @@ class browserButton():#78 by 75, where
         for widget in ["rightclickmenu2","new","rightclickmenu","newfolder","wavesound"]:
             self.window.widgets[widget].place_forget()
 
-        
+
     def place_forget(self):
         self.image.unbind('<ButtonPress-1>')
         self.text.unbind('<ButtonPress-1>')
@@ -471,14 +471,14 @@ class browserButton():#78 by 75, where
 
         self.image.unbind('<Button-3>')
         self.text.unbind('<Button-3>')
-        
+
         self.image.place_forget()
         self.text.place_forget()
-        
+
     def place_info(self,**kwargs):
         outDict = {'x':self.relx,'y':self.rely,'relx':0,'rely':0,'width':78,'height':75,'in':self.frame}
         return outDict.fromkeys(set(outDict.keys())&set(kwargs.keys()))
-    
+
     def _on_pressed(self,event):
         if self.clicked:
             self.image.config(image = self.im)
@@ -488,7 +488,7 @@ class browserButton():#78 by 75, where
             self.image.config(image = self.im_pressed)
             self.text.config(image = self.text_image_sel)
             self.window.selectedFile = self.path
-            
+
     def _open(self,event):
         if(self.filetype == "folder"):
             self.frame.window.into_dir(self.path)
@@ -498,7 +498,7 @@ class browserButton():#78 by 75, where
         if event.widget != self.image and event.widget != self.text:
             self.clicked = True
             self._on_pressed(event)
-            
+
         f = ["rightclickmenu_file","delete","rename","open"]
         for widget in f:
             if event.widget == self.window.widgets[widget]:
@@ -524,7 +524,7 @@ class browserButtonNew():
     def place(self,**kwargs):
         self.relx = kwargs['x']
         self.rely = kwargs['y']
-        
+
         self.image.place(x = self.relx+22,y = self.rely+7 )
         self.text.place(x = self.relx,y = self.rely+44,width = 80)
         self.text.focus()
@@ -536,13 +536,13 @@ class browserButtonNew():
         self.text.unbind('<Return>')
         self.window.frame.root.unbind('<Button-1>')
         self.window.frame.root.bind("<Button-1>",self.window.widgets["start"].check_focus,"+")
-        self.window.frame.root.bind("<Button-1>",self.window.widgets["fileWindow"].check_focus,"+") 
+        self.window.frame.root.bind("<Button-1>",self.window.widgets["fileWindow"].check_focus,"+")
         self.window.newDone(self.text.get(),self.filetype)
     def check_focus(self,event):
         if event.widget != self.image and event.widget != self.text:
             self.on_Enter(event)
 
-        
+
 class directoryEntry(Entry):
     def __init__(self,frame,root,directory):
         Entry.__init__(self,frame,width = 80,borderwidth = 0)
@@ -558,5 +558,3 @@ class directoryEntry(Entry):
     def change_dir(self,new_dir):
         self.delete(0,len(self.get()))
         self.insert(0,new_dir)
-
-        

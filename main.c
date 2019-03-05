@@ -47,7 +47,7 @@ void DrawMenu()
       case 0:
         sprintf(inputBuf, "%-16s\n%-15s%c",
           MenuText[SelMenuItem],
-          MenuText[SelMenuItem+1],'\x30');
+          MenuText[SelMenuItem+1],'\xFF');
         break;
       case MENUTEXTNUM-2:
         sprintf(inputBuf, "%-15s\n%-16s",
@@ -56,7 +56,7 @@ void DrawMenu()
       default:
         sprintf(inputBuf, "%-15s%c\n%-15s%c",
           MenuText[SelMenuItem], '\x12',
-          MenuText[SelMenuItem+1], '\x30');
+          MenuText[SelMenuItem+1], '\xFF');
     }
     LCDGoHome();
     LCDPrint(inputBuf);
@@ -339,12 +339,17 @@ void PC_Mode()
   InitSerInterrupts();
   WriteText("CONNECT|");
   while(READ_SERIAL[0] != 'A');//Wait until response from PC is recorded
+  POP_SERIAL;
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
   uint8_t finished =0,playing=0;
   while(!finished)//Wait for next input
   {
     if(serialCommandIndex>0){//If there are instructions to process
+      char output[50];
+      sprintf(output,"COMMAND RECEIVED\n%s",READ_SERIAL);
+      LCDGoHome();
+      LCDPrint(output);
       switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
       {
         case 'P'://play
@@ -358,10 +363,15 @@ void PC_Mode()
           playing = 1;
           NVIC_EnableIRQ(I2S_IRQn);
         case 'S':;//Send back settings data in the form S:settings array index,value|
-          char delim[2] = ",";
-          settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
+          char* a  = strchr(READ_SERIAL,',');
+          a  = '\0';
+          settings[atoi(&READ_SERIAL[2])] = atoi(&a[1]);
+          //settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
+          sprintf(output,".Setting Change.\n%d,%d,%d,%d",settings[0],settings[1],settings[2],settings[3]);
+          LCDGoHome();
+          LCDPrint(output);
           break;
-        case 'E'://Exit and return to main menu
+        case 'E'://Exit and return to main menu [TICK]
           finished = 1;
           break;
         case 'B':;//send all browsing data back to embed
