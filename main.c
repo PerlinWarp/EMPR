@@ -155,7 +155,7 @@ void FileInfo() {
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
   buffer = (uint32_t*)(I2S_SRC);
-  uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
+  //uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
   sd_init();
   SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_READ));
@@ -430,17 +430,10 @@ void PC_Mode()
         case 'E'://Exit and return to main menu [TICK]
           finished = 1;
           break;
+        case 'T':
+          WriteText("Meme");
         case 'B':;//send all browsing data back to embed
-          char output[SERIAL_BUFFER_MAXSIZE];
-          char ** fileList = SDMallocFilenames();
-          int i,len = SDGetFiles("/",fileList);
-          for(i=0;i<len;i++)
-          {
-            sprintf(output,"%s|",fileList[i]);
-            WriteText(output);
-          }
-          WriteText("||");
-          SDFreeFilenames(fileList);
+          WriteText("EKEK");
           break;
       }
       POP_SERIAL;
