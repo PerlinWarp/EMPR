@@ -422,7 +422,7 @@ class Browse(PlaceWindow):
     def show_All(self):
         self.frame.ser.write(b"B|")#Make this happen in place.
 
-        while(True):
+        while(False):
             d = str(self.frame.ser.read_until("|"))
             if d == "|":
                 break
