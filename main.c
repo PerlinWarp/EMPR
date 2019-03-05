@@ -431,7 +431,11 @@ void PC_Mode()
         case 'E'://Exit and return to main menu [TICK]
           finished = 1;
           break;
-        case 'T':
+        case 'M':// Recording - The M is for Microphone 
+          A1();
+          break;
+
+        case 'T': // Blue Screening
           LCDPrint("Windows 95 has crashed");
           WriteText("M");
           break;
