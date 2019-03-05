@@ -424,6 +424,7 @@ class Browse(PlaceWindow):
 
         while(False):
             d = str(self.frame.ser.read_until("|"))
+            print(d)
             if d == "|":
                 break
             path = d[:-1].split('/')
