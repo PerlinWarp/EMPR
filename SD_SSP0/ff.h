@@ -482,7 +482,7 @@ typedef enum {
 /*--------------------------------------------------------------*/
 /* FatFs module application interface                           */
 
-FRESULT f_mount (BYTE, FATFS*);					/* Mount/Unmount a logical drive */
+FRESULT f_mount (FATFS*, const TCHAR*, BYTE);					/* Mount/Unmount a logical drive */
 FRESULT f_open (FIL*, const TCHAR*, BYTE);			/* Open or create a file */
 FRESULT f_read (FIL*, void*, UINT, UINT*);			/* Read data from a file */
 FRESULT f_lseek (FIL*, DWORD);					/* Move file pointer of a file object */
