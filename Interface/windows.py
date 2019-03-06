@@ -239,7 +239,7 @@ class BlueScreen(PlaceWindow):
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
-        
+
         self.frame.ser.write(b"T|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
@@ -253,7 +253,7 @@ class TestingScreen(PlaceWindow):
     On the string sent from the PC:
     first byte = F for files
     Second byte is one of: P(lay),C(opy),D(elete),A(djust Volume),R(everse)
-    From the second 2 bytes to the null is the file directory. 
+    From the second 2 bytes to the null is the file directory.
     '''
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
@@ -261,7 +261,7 @@ class TestingScreen(PlaceWindow):
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
-        
+
         self.frame.ser.write(b"FPa.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
@@ -477,7 +477,7 @@ class Browse(PlaceWindow):
     def show_All(self):
         self.frame.ser.write(b"B|")#Make this happen in place.
 
-        while(False):
+        while(True):
             d = str(self.frame.ser.read_until("|"))
             print(d)
             if d == "|":

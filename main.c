@@ -434,12 +434,12 @@ void PC_Mode()
           A1();
           break;
 
-        case 'F': //Files - D3 for copying and deleting files. 
+        case 'F':; //Files - D3 for copying and deleting files.
           char fileName[100];
           strcpy(fileName,&READ_SERIAL[2]);
           char func = READ_SERIAL[1];
           WriteText(func);
-          
+
           switch (func)
           {
             case 'P':
@@ -457,7 +457,7 @@ void PC_Mode()
             break;
 
             case 'A':
-            //Adjust the volumem 
+            //Adjust the volumem
 
             break;
           }
@@ -469,8 +469,6 @@ void PC_Mode()
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
-          sprintf(output,"ad:%d",fileList[2]);
-          WriteText(output);
           int i,len = SDGetAllFiles(fileList);
           WriteText("test");
           for(i=0;i<len;i++)
@@ -479,6 +477,7 @@ void PC_Mode()
             WriteText(output);
           }
           WriteText("||");
+          WriteText("done");
           SDFreeFilenames(fileList);
           break;
       }
