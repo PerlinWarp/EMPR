@@ -128,6 +128,27 @@ class PlayScreen(PlaceWindow):
                 format(int(start[1]+((end[1]-start[1])*index)),'x'),
                 format(int(start[2]+((end[2]-start[2])*index)),'x'))
         return "#" + str((2-len(v[0]))*'0')+v[0] +str((2-len(v[1]))*'0')+ v[1] +str((2-len(v[2]))*'0')+ v[2]
+    def playScreenSerInit(self,path):
+        self.frame.ser.write(bytes("P:"+path +"|","utf-8"))
+        self.song_data = []
+        while(True):
+            d = self.frame.ser.read_until("|")
+            if d == "|":
+                break
+            self.song_data.append(d[:-1])
+        self.redraw_canvas()
+        self.songLength = int(self.frame.ser.read_until("|")[:-1])#in seconds
+        while(self.frame.ser.read_until("|") != "Play|"):
+            pass
+        self.timerScale = 295/self.songLength
+        self.songCounter = 0
+        self.play = True
+        self.frame.after(1000,self.inc_timer)
+    def inc_timer(self):
+        self.songCounter += 1
+        self.widgets["realtimer"].place(x = 190 +int(self.songCounter/self.timerScale),y = 119)
+        if self.songLength != self.songCounter and self.play == True:
+             self.frame.after(1000,self.inc_timer)
     def init_widgets(self):
         self.song_data = [234,5000,123,1341,452,425,245,2,625,3567,356,2456,425,4,45,56,3356,453,45,4545,245,356,56,7,56,56,4,45,34,34,3]
         self.serConnected = False
@@ -144,7 +165,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
-        self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", lambda: None,190,498,"x")
+        self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
         self.widgets["realvolume"] = sliderButton(self.frame,self, "realvolume", lambda: None,296,352,"y")
 
         #Parts of other buttons
@@ -153,7 +174,8 @@ class PlayScreen(PlaceWindow):
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
 
-
+    def adjust_counter(self):
+        self.songCounter = self.frame.root.winfo_pointerx() - 190
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
