@@ -13,7 +13,7 @@
 
 FATFS fs;
 
-FATFS sd_init(void);
+void sd_init(void);
 
 void sd_deinit();
 
