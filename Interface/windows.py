@@ -19,7 +19,7 @@ class WindowManager(Frame):
         #Change this to menu or play to switch between the windows
         self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
-        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
+        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browsePlay":Browse_For_Play(self),"browseRecord":Browse_For_Record(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
         self.menus[self.currentScreen].hide_All()
@@ -80,8 +80,8 @@ class MainMenu(PlaceWindow):
         self.widgets["nanocross"] = hoverButton(self.frame,self,"nanoCross",menu="BlueScreen")
         self.widgets["testing_Cross"] = hoverButton(self.frame,self,"nanoCross",menu="TestingScreen")
 
-        self.widgets["backButton"] = functionalButton(self.frame,self,"menuplay",lambda: self.frame.switch("browse"))
-        self.widgets["menuRecord"] = functionalButton(self.frame,self,"menuRecord",lambda: self.frame.switch("browse"))
+        self.widgets["menuPlay"] = functionalButton(self.frame,self,"menuplay",lambda: self.frame.switch("browsePlay"))
+        self.widgets["menuRecord"] = functionalButton(self.frame,self,"menuRecord",lambda: self.frame.switch("browseRecord"))
         self.widgets["pauseButton"] = menuButton(self.frame,self,"settings")
         self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
 
@@ -95,7 +95,7 @@ class MainMenu(PlaceWindow):
 
         self.widgets["testing_Cross"].place(x=780,y=0) #800x600
         self.widgets["nanocross"].place(x=309,y=183)
-        self.widgets["backButton"].place(x=130,y =260)
+        self.widgets["menuPlay"].place(x=130,y =260)
         self.widgets["menuRecord"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
         self.widgets["exitButton"].place(x=130,y =470)
@@ -294,7 +294,57 @@ class loadingScreen(PlaceWindow):
             self.widgets["load_big"].inc_image()
             self.frame.after(70,self.animate)#repeat every 40 ms
 
-class Browse(PlaceWindow):
+class Browse_For_Record(PlaceWindow):
+
+    def add_directories(self,directoryTree,path):
+        if len(path) == 1:
+            if path[0][-1] =='d':#is a directory
+                directoryTree[path[0][:-1]] = {}#empty folder = dictionary
+            elif path[0][-1] =='f':
+                directoryTree[path[0][:-1]] = path[0][:-1]
+            return directoryTree
+
+        p = path.pop(0)
+        if p in directoryTree:
+            self.add_directories(directoryTree[p],path)
+        else:
+            directoryTree[p] = self.add_directories(directoryTree,path)
+        return directoryTree
+    def init_directories(self,directoryTree,path):
+            if type(directoryTree) != type(dict()):
+                item_type = "file"
+                self.widgets[path] = browserButton(self.widgets["fileWindow"],self,directoryTree,item_type)
+            else:
+                item_type = "folder"
+                for key in directoryTree.keys():
+                    self.init_directories(directoryTree[key],path+"/"+key)
+                self.widgets[path] = browserButton(self.widgets["fileWindow"],self,path.split('/')[-1],item_type)
+    def place_directories(self,directoryTree,path):
+        self.counter = 0
+        for key in directoryTree.keys():
+            self.bindings[path+"/"+key] = self.frame.root.bind("<Button-1>",self.widgets[path+"/"+key].check_focus,"+")
+            self.widgets[path+"/"+key].place(x = 189+(78*(self.counter%5)),y=169+ (75*(self.counter//5)))
+            self.counter+=1
+        self.widgets["objects"].config(text = str(self.counter) + " Object(s)")
+        self.widgets["dirEntry"].change_dir(self.path)
+
+    def hide_directories(self,directoryTree,path):
+        for key in directoryTree.keys():
+            self.widgets[path+"/"+key].place_forget()
+    def into_dir(self,new_path):
+        self.widgets["folderName"].config(text = new_path.rpartition('/')[2])
+        self.hide_directories(self.workingTree,self.path)
+        self.path += "/"+new_path
+        self.workingTree = self.workingTree[new_path]
+        self.place_directories(self.workingTree,self.path)
+        if self.path == "C:":
+            self.widgets["backButton"].place_forget()
+            self.hidden = True
+        elif self.hidden == True:
+            self.widgets["backButton"].place(x = 149,y = 49)
+            self.hidden = False
+
+class Browse_For_Play(PlaceWindow):
 
     def add_directories(self,directoryTree,path):
         if len(path) == 1:
@@ -477,7 +527,7 @@ class Browse(PlaceWindow):
     def show_All(self):
         self.frame.ser.write(b"B|")#Make this happen in place.
 
-        while(True):
+        while(False):
             d = str(self.frame.ser.read_until("|"))
             print(d)
             if d == "|":
