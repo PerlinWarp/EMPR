@@ -436,13 +436,15 @@ void PC_Mode()
 
         case 'F': //Files - D3 for copying and deleting files. 
           char fileName[100];
-          strcpy(fileName,READ_SERIAL+1);
+          strcpy(fileName,&READ_SERIAL[2]);
           char func = READ_SERIAL[1];
           WriteText(func);
           
           switch (func)
           {
             case 'P':
+            LCDClear();
+            LCDPrint(fileName);
             //Play the file in fileName.
             break;
 
