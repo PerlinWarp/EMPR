@@ -2,7 +2,7 @@
 
 uint8_t Data[50];
 
-// DO NOT CHANGE THESE 
+// DO NOT CHANGE THESE
 uint8_t clrLine[17] = {0x40,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0,0xA0};
 uint8_t Init[11] = {0x00,0x34,0x0c,0x06,0x35,0x04,0x10,0x42,0x9f,0x34,0x02};
 
@@ -24,7 +24,7 @@ void LCDEnable() {
 void LCDDisable() {
 	Data[0] = 0x00;
 	Data[1] = 0x08;
-	
+
 	SendData(Data, 2);
 }
 void LCDGoHome() {
@@ -54,7 +54,7 @@ void LCDClear()//NOTE: With character set R, clear command doesn't work. Instead
 	Data[2] = 0x0E;
 	Data[3] = 0x06;
 	// uint8_t Data[4] = {0x00,0x34,0x0E,0x06};
-	
+
 	// LCDDisable();
 	LCDGoHome();
 	SendData(Data, 4);
@@ -70,7 +70,7 @@ void LCDClear()//NOTE: With character set R, clear command doesn't work. Instead
 void LCDPrint(char* input)
 {
 	int i,datacount=1,inputlen = strlen(input);
-
+	//0 = 0xB0
 	// uint8_t* Data = (uint8_t*)malloc(sizeof(uint8_t)*(inputlen+1));
 	Data[0] = 0x40;
 	for(i = 0; i<inputlen;i++)
@@ -81,8 +81,9 @@ void LCDPrint(char* input)
 			Data[0] = 0x40;
 			datacount = 0;
 		}
+		else if (input[i] == 0xFF)Data[datacount]= 0x30;
 		else if	(input[i]<0x60){
-			if (input[i]==0x30||input[i]==0x12) {
+			if (input[i]==0x12) {
 				Data[datacount]=input[i];
 			}
 			else {

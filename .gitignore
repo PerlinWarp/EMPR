@@ -4,8 +4,9 @@
 # Object files
 *.o
 *.pyc
+*.DS_Store
 source/*.o
 main.o
 
-# Genarated binaries 
+# Genarated binaries
 bin/*
