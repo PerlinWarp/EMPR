@@ -13,18 +13,15 @@ void init_onboard_audio()
 
   GPDMA_LLI_Type LLI_Struct;
   GPDMA_Channel_CFG_Type CCFG_Struct;
-  for(i = 0;i<PRECISION;i++)
-  {
-    SineWaveTable[i] = (uint32_t)(sin(2*i*PI/PRECISION)* MaxAmplitude * 9680+(9680*MaxAmplitude));
-    //Calculate Sine and multiply Each Wavetable entry by Amplitude and convert to UINT32
-  }
   InitializeDAC();
-  InitializeGPDMA(SineWaveTable,&LLI_Struct,&CCFG_Struct,PRECISION);
+  InitializeGPDMA(buf1,&LLI_Struct,&CCFG_Struct,PRECISION);
+  GPDMA_Setup(CCFG_Struct[0]);
+  InitializeGPDMA(buf2,&LLI_Struct,&CCFG_Struct,PRECISION);
   DAC_StartSend(Frequency,PRECISION);
   while(1)
   {//Every Ten Seconds, Change the Frequency and Amplitude
     count = SD_READ(fileptr,buffer,PRECISION);
-
+    GPDMA_Setup(GPDMA_Cfg);
     DAC_StartSend(rand()%100,PRECISION);
 
   }//Loop forever or do what you want
