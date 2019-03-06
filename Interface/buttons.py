@@ -219,6 +219,7 @@ class dragDropButton(functionalButton):
         if self.move == True:
             self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
             self.move = False
+
 class sliderButton(dragDropButton):
     def __init__(self,parent,root,buttonName,function,mins,maxs,axis,**options):
         dragDropButton.__init__(self,parent,root,buttonName,function,**options)
@@ -260,14 +261,22 @@ class volumeSlider(sliderButton):
     When volume is at max, y = 296
     When volume is at min, y = 337
     '''
+    def __init__(self,parent,root,buttonName,function,mins,maxs,axis,**options):
+        sliderButton.__init__(self,parent,root,buttonName,function,mins,maxs,axis,**options)
+        self.volume = 0
+
     def drag(self,event):
         sliderButton.drag(self,event)
         #Scaling between 0 and 100. 
-        volume = round(100 - (self.y - 296)*(100.0/41.0))
-        command = "FA"+str(volume)+"|"
-        print(command)
+        self.volume = round(100 - (self.y - 296)*(100.0/41.0))
+        
         ##self.root.frame.ser.write(bytes("FP100|","utf-8"))
+    def putdown(self,event):
+        sliderButton.putdown(self, event)
+        command = "FA"+str(self.volume)+"|"
+        print(command)
         self.root.frame.ser.write(bytes(command,'utf-8'))
+        
 
 class dragDropFrame(Frame):
     def __init__(self,frame,window,**options):

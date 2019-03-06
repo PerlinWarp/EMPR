@@ -166,13 +166,14 @@ class PlayScreen(PlaceWindow):
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
-        self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda: None,296,352,"y")
+        self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda:None,296,352,"y")
 
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
+          
 
     def adjust_counter(self):
         self.songCounter = self.frame.root.winfo_pointerx() - 190
@@ -240,8 +241,8 @@ class BlueScreen(PlaceWindow):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
 
-        print(b"X|")
-        self.frame.ser.write(b"X|")
+        print(b"T|")
+        self.frame.ser.write(b"T|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             if d == "CONNECT":
