@@ -7,6 +7,7 @@
 #include "FatFS/ff.h"
 #include "FatFS/diskio.h"
 #include "SerialIO.h"
+#include "NewMalloc.h"
 char* head_buffer;
 
 #define __ctl(val) *(uint32_t*)(val)
@@ -18,7 +19,7 @@ char* head_buffer;
 #define BIG_ENDIAN 1
 #define LITTLE_ENDIAN -1
 
-#define DEBUG 0
+#define WAVE_DEBUG 0
 
 typedef struct {
   FIL* file;

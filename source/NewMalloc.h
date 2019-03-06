@@ -19,5 +19,6 @@ void NewFree(void* toRemove);
 void initMalloc();
 void insertionSort();
 void* assignAddress(void* address,unsigned long size);
+void* NewCalloc(unsigned long Count,unsigned long size);
 
 #endif

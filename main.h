@@ -20,11 +20,6 @@
 #define BUTTON_CONFIRM '0'
 #define BUTTON_CANCEL '8'
 
-//Buffer length in bytes
-#define BUFO_LENGTH 150
-#define BUFI_LENGTH 150
-#define I2S_SRC LPC_AHBRAM1_BASE
-#define I2S_DST (I2S_SRC + 0x1000UL)
 
 #define EGG_ON_TOAST(bufd) (bufd+10)
 
