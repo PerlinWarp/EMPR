@@ -1,6 +1,10 @@
 #include "main.h"
 
 
+DWORD get_fattime (void)
+{
+  return(0);
+}
 
 uint8_t SelectOne(char** items, char* header, uint8_t fileCount);
 uint8_t TextEntry(char* result, char* header);
@@ -267,7 +271,7 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  char fpath[100] = "/FILE1.WAV";// = browse_Files();
+  char fpath[100] = "/MEME2.WAV";// = browse_Files();
   Play(fpath);
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
@@ -277,13 +281,14 @@ void Play_Audio()
 
 void Play(char* directory)
 {
+  uint32_t MEME[BUFFER_SIZE];
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = MEME;
   fr = f_mount(&FatFs, "", 0);
-  if(fr)return;
+  SDPrintFresult(fr);
   fr = f_open(&fil, directory, FA_READ);
-  if(fr)return;
+  SDPrintFresult(fr);
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
 //
@@ -431,7 +436,7 @@ void PC_Mode()
         case 'E'://Exit and return to main menu [TICK]
           finished = 1;
           break;
-        case 'M':// Recording - The M is for Microphone 
+        case 'M':// Recording - The M is for Microphone
           A1();
           break;
 
@@ -473,47 +478,22 @@ void PC_Mode()
   //do each task
 }
 
-uint32_t bytesToUInt32(char* head) {
-  uint32_t result = 0;
-  // result |= ((uint32_t)head[3]) << 24;
-  // result |= ((uint32_t)head[2]) << 16;
-  // result |= ((uint32_t)head[1]) << 8;
-  result |= ((uint32_t)head[3]);
-  return result;
-}
-
-int main()
-{//CURRENTLY PIN 28 IS BEING USED FOR EINT3
-    InitSerial();
-    serialInitialized = 0;
-    SystemInit();
-    DelayInit();
-    I2CInit();
-    IRQInit();
-    LCDInit();
-    LCDClear();
-    // BYTE readbuff[64];
-    // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
-
-    // char charbuff[44];
-    // uint8_t i = 0;
-    // for (i = 0; i < 43; i++) {
-    //     charbuff[i] = (char)readbuff[i];
-    // }
-
-    // // strncpy(readbuff, charbuff, 43);
-    // charbuff[43] = '\0';
-    // // WriteText(charbuff);
-
-    // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
-    // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
-    // WriteText(charbuff);
 
 
-    Menu();
+int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
+
+  InitSerial();
+  // serialInitialized = 0;
+  SystemInit();
+  DelayInit();
+  I2CInit();
+  IRQInit();
+  LCDInit();
+  LCDClear();
+  Menu();
 
 
-    return 0;
+  return 0;
 }
 void temp(){buttonpress = 0;}//Delete at your earliest convienience
 
