@@ -410,12 +410,6 @@ void PC_Mode()
       LCDPrint(output);
       switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
       {
-        case 'X': // Blue Screening
-          LCDClear();
-          LCDPrint("Windows 95 \nhas crashed");
-          //WriteText("M");
-          break;
-
         case 'P'://play
           playing =1;
           Play(&READ_SERIAL[2]);
@@ -458,8 +452,8 @@ void PC_Mode()
           
           */
 
-          char fileName[100];
-          strcpy(fileName,&READ_SERIAL[2]);
+          char argument[100]; // File name or volume
+          strcpy(argument,&READ_SERIAL[2]);
           char func = READ_SERIAL[1];
           WriteText(func);
 
@@ -467,26 +461,41 @@ void PC_Mode()
           {
             case 'P':
             LCDClear();
-            LCDPrint(fileName);
+            LCDPrint(argument);
             //Play the file in fileName.
             break;
 
             case 'C':
             //Copy the file in fileName.
+            LCDClear();
+            LCDPrint(argument);
             break;
 
             case 'D':
             //Delete the file in fileName.
+            LCDClear();
+            LCDPrint(argument);
             break;
 
             case 'A':
             //Adjust the volume
             // Uses a different format than the others
             LCDClear();
-            LCDPrint(fileName);
+            LCDPrint(argument);
+            break;
+
+            case 'R':
+            // Reversing playback of the audio
+            LCDClear();
+            LCDPrint(argument);
             break;
           }
 
+        case 'T': // Blue Screening
+          //LCDClear();
+          //LCDPrint("Windows 95 \nhas crashed");
+          //WriteText("M");
+          break;
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
