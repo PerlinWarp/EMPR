@@ -240,7 +240,8 @@ class BlueScreen(PlaceWindow):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
 
-        self.frame.ser.write(b"T|")
+        print(b"X|")
+        self.frame.ser.write(b"X|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             if d == "CONNECT":
@@ -529,7 +530,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
 
     def show_All(self):
-        self.frame.ser.write(b"B|")#Make this happen in place.
+        #self.frame.ser.write(b"B|")#Make this happen in place.
 
         while(False):
             d = str(self.frame.ser.read_until("|"))

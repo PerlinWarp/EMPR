@@ -264,7 +264,10 @@ class volumeSlider(sliderButton):
         sliderButton.drag(self,event)
         #Scaling between 0 and 100. 
         volume = round(100 - (self.y - 296)*(100.0/41.0))
-        self.root.frame.ser.write(bytes("FA"+str(volume)+'|','utf-8'))
+        command = "FA"+str(volume)+"|"
+        print(command)
+        ##self.root.frame.ser.write(bytes("FP100|","utf-8"))
+        self.root.frame.ser.write(bytes(command,'utf-8'))
 
 class dragDropFrame(Frame):
     def __init__(self,frame,window,**options):
