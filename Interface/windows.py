@@ -19,7 +19,7 @@ class WindowManager(Frame):
         #Change this to menu or play to switch between the windows
         self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
-        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self)}#initialize array of window contents
+        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
         self.menus[self.currentScreen].hide_All()
@@ -34,17 +34,17 @@ class Window():
         self.height = height
         self.serConnected = False
         self.widgets = {}
-        self.init_widgets()      
+        self.init_widgets()
     def init_widgets(self):
-        pass     
-              
+        pass
+
     def hide_All(self):#hide all widgets on grid
         for widget in self.widgets:
             widget.grid_remove()#remove objects without destroying them
-            
+
     def show_All(self):#map all widgets to grid
         for widget in self.widgets:
-            widget.grid(row = i,column = j)
+            widget.grid(row = 0,column = 0)
 
 
 
@@ -57,13 +57,13 @@ class PlaceWindow(Window):
 
 
 class MainMenu(PlaceWindow):
-    
+
     def animate_duck(self):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until(b'|')
             print(d)
             if d.endswith(b"CONNECT|"):
-                #Getting rid of the duck. 
+                #Getting rid of the duck.
                 self.serConnected = True
                 self.widgets["loading"].place_forget()
                 self.widgets["duck"].place_forget()
@@ -71,26 +71,28 @@ class MainMenu(PlaceWindow):
         if self.serConnected == False:
             self.widgets["duck"].inc_image()
             self.frame.after(40,self.animate_duck)#repeat every 40 ms
-            
+
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("plantpot",450,350),("mbed_logo",80,90)])
         self.widgets["duck"]  = transparencyLabel(self.frame, "duck","menubkg",700,30)
         self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
         self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
-        
-        self.widgets["backButton"] = menuButton(self.frame,self,"play")
-        self.widgets["menuRecord"] = menuButton(self.frame,self,"browse")
-        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings") 
+        self.widgets["nanocross"] = hoverButton(self.frame,self,"nanoCross",menu="BlueScreen")
+
+        self.widgets["backButton"] = functionalButton(self.frame,self,"menuplay",lambda: self.frame.switch("browse"))
+        self.widgets["menuRecord"] = functionalButton(self.frame,self,"menuRecord",lambda: self.frame.switch("browse"))
+        self.widgets["pauseButton"] = menuButton(self.frame,self,"settings")
         self.widgets["exitButton"] = exitButton(self.frame,self,"exit")
-        
+
 
     def show_All(self):
-        
+
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1 )
         self.widgets["duck"].place(x = 700,y =30)
         self.widgets["loading"].place(x=700,y = 120)
         self.widgets["button_Area"].place(x = 80,y =180 )
-        
+
+        self.widgets["nanocross"].place(x=309,y=183)
         self.widgets["backButton"].place(x=130,y =260)
         self.widgets["menuRecord"].place(x=130,y =330)
         self.widgets["pauseButton"].place(x=130,y =400)
@@ -105,23 +107,64 @@ class PlayScreen(PlaceWindow):
 
     def play(self):
         print("pause")
-    
+
     # Interface functions
     def redraw_Canvas(self):
-        self.widgets["canvas"].create_rectangle(50,80,23,30,fill = "blue")
-        
+        self.widgets["canvas"].delete("all")
+        yscale = self.canvas_height/max(self.song_data)
+        xscale = self.canvas_width/len(self.song_data)
+        startColor = (248,41,137)
+        endColor = (23,11,81)
+        c = 0
+        for i in range(self.canvas_height//2,self.canvas_height):
+            self.widgets["canvas"].create_line(0,i,self.canvas_width,i,fill = self.getGradient((0,0,0),(55,24,24),((c*2)/self.canvas_height)))
+            c+= 1
+        for i in range(len(self.song_data)):
+            self.widgets["canvas"].create_rectangle(int(i*xscale),int((self.canvas_height-(yscale*self.song_data[i]))/2),int(((i+1)*xscale)-1),int((self.canvas_height+(yscale*self.song_data[i]))/2),fill = self.getGradient(startColor,endColor,i/len(self.song_data)))
+    def getGradient(self,start,end,index):
+        v = (   format(int(start[0]+((end[0]-start[0])*index)),'x'),
+                format(int(start[1]+((end[1]-start[1])*index)),'x'),
+                format(int(start[2]+((end[2]-start[2])*index)),'x'))
+        return "#" + str((2-len(v[0]))*'0')+v[0] +str((2-len(v[1]))*'0')+ v[1] +str((2-len(v[2]))*'0')+ v[2]
+    def playScreenSerInit(self,path):
+        self.frame.ser.write(bytes("P:"+path +"|","utf-8"))
+        self.song_data = []
+        while(True):
+            d = self.frame.ser.read_until("|")
+            if d == "|":
+                break
+            self.song_data.append(d[:-1])
+        self.redraw_canvas()
+        self.songLength = int(self.frame.ser.read_until("|")[:-1])#in seconds
+        while(self.frame.ser.read_until("|") != "Play|"):
+            pass
+        self.timerScale = 295/self.songLength
+        self.songCounter = 0
+        self.play = True
+        self.frame.after(1000,self.inc_timer)
+    def inc_timer(self):
+        self.songCounter += 1
+        self.widgets["realtimer"].place(x = 190 +int(self.songCounter/self.timerScale),y = 119)
+        if self.songLength != self.songCounter and self.play == True:
+             self.frame.after(1000,self.inc_timer)
     def init_widgets(self):
+        self.song_data = [234,5000,123,1341,452,425,245,2,625,3567,356,2456,425,4,45,56,3356,453,45,4545,245,356,56,7,56,56,4,45,34,34,3]
         self.serConnected = False
         self.frame.grid(row =0,column =0,sticky = N+S+E+W)
 
         self.widgets["background"] = layeredLabel(self.frame,[("playbackground",0,0)])
-        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = 300,height = 243,highlightthickness=0)
+        self.canvas_height = 243
+        self.canvas_width = 300
+        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = self.canvas_width,height = self.canvas_height,highlightthickness=0)
 
-        
+
         self.widgets["start"] = startButton(self.frame,self,"winstart")
         self.widgets["cross"] = hoverButton(self.frame,self,"cross",menu="BlueScreen")
         self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
+        self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
+        self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
+        self.widgets["realvolume"] = sliderButton(self.frame,self, "realvolume", lambda: None,296,352,"y")
 
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
@@ -129,30 +172,38 @@ class PlayScreen(PlaceWindow):
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
 
-        
-   
+    def adjust_counter(self):
+        self.songCounter = self.frame.root.winfo_pointerx() - 190
+
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["canvas"].place(x=274 ,y=140)
-        
+
         self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
         self.widgets["start"].place(x=1,y =576)
         self.widgets["cross"].place(x=563,y =67)
-        
+
         self.widgets["realplay"].place(x=84,y =120)
         self.widgets["realpause"].place(x=116,y =120)
+        self.widgets["realstop"].place(x= 147,y = 120)
+        self.widgets["realtimer"].place(x=190,y =119)
+        self.widgets["realvolume"].place(x=248,y =318)
+
         PlaceWindow.show_All(self)
     def hide_All(self):
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>",self.startBinding)
 
+class RecordScreen(PlayScreen):
+    pass
+
 class Settings(PlaceWindow):
-            
+
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("settingsbkgd",200,100)])
-        
+
         self.widgets["cancelButton"] = hoverButton(self.frame,self,"cancelbutton","menu")
-        self.widgets["okButton"] = hoverButton(self.frame,self,"okbutton","menu")
+        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.acceptSettings)
         self.widgets["duckButton"] = duckButton(self.frame,self,"neverbutton","settings")
         self.widgets["testLabel"] = betterLabel(self.frame, "duck")
         comboBox_menus = ["Sandwich","Antistropic filtering","filet fish","steak"]
@@ -169,20 +220,36 @@ class Settings(PlaceWindow):
         self.widgets["listBox"].place(x=232,y=258) #232, 258
         self.widgets["volume"].place(x=232,y=176)
         PlaceWindow.show_All(self)
+    def acceptSettings(self):
+        options = ["volume","scale0","scale1","scale2","scale3"]
+        for i in range(len(options)):
+            g = self.widgets[options[i]].get()
+            if  g != 0:
+                g = "S:"+ str(i) +"," + str(g)+".|"
+                self.frame.ser.write(bytes(g,"utf-8"))
+        self.frame.switch("menu")
 
 class BlueScreen(PlaceWindow):
-            
+
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
-    
+
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
         
+        self.frame.ser.write(b"T|")
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until('|')
+            if d == "CONNECT":
+                self.serConnected == True
+                self.frame.switch("play")
+                
+
 
 class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
-        self.frame.switch("menu") 
+        self.frame.switch("menu")
     def init_widgets(self):
         self.frame.bind("<Escape>",self.return_to_menu)
         self.frame.focus_set()
@@ -205,7 +272,7 @@ class loadingScreen(PlaceWindow):
             self.frame.after(70,self.animate)#repeat every 40 ms
 
 class Browse(PlaceWindow):
-    
+
     def add_directories(self,directoryTree,path):
         if len(path) == 1:
             if path[0][-1] =='d':#is a directory
@@ -213,8 +280,8 @@ class Browse(PlaceWindow):
             elif path[0][-1] =='f':
                 directoryTree[path[0][:-1]] = path[0][:-1]
             return directoryTree
-                
-        p = path.pop(0) 
+
+        p = path.pop(0)
         if p in directoryTree:
             self.add_directories(directoryTree[p],path)
         else:
@@ -237,7 +304,7 @@ class Browse(PlaceWindow):
             self.counter+=1
         self.widgets["objects"].config(text = str(self.counter) + " Object(s)")
         self.widgets["dirEntry"].change_dir(self.path)
-        
+
     def hide_directories(self,directoryTree,path):
         for key in directoryTree.keys():
             self.widgets[path+"/"+key].place_forget()
@@ -249,12 +316,12 @@ class Browse(PlaceWindow):
         self.place_directories(self.workingTree,self.path)
         if self.path == "C:":
             self.widgets["backButton"].place_forget()
-            self.hidden = True           
+            self.hidden = True
         elif self.hidden == True:
             self.widgets["backButton"].place(x = 149,y = 49)
             self.hidden = False
-        
-        
+
+
     def find_directory(self,directoryTree,path):
         if path in directoryTree.keys():
             return directoryTree[path]
@@ -264,7 +331,7 @@ class Browse(PlaceWindow):
                 return self.find_directory(directoryTree[new_path[0]],new_path[2])
             else:
                 return False
-        
+
     def outof_dir(self):
         if self.path != "C:":
             self.hide_directories(self.workingTree,self.path)
@@ -285,34 +352,28 @@ class Browse(PlaceWindow):
         if self.hidden == True:
             self.widgets["backButton"].place(x = 149,y = 49)
             self.hidden = False
-        
+
 
     def init_widgets(self):
-        self.frame.ser.write("B|")
         self.selectedFile = None
         directoryTree = {}
         self.hidden = True
         self.bindings = {}
+
         for p in ["rootd|","root/newd|","hellof|","root/hif|","root/hellof|","root/new/boyd|"]:
             path = p[:-1].split('/')
             directoryTree = self.add_directories(directoryTree,path)
-        finished = True
-        while(not finished):
-            d = str(self.frame.ser.read_until("|"))
-            if d == "|":
-                break
-            path = d[:-1].split('/')
-            directoryTree = self.add_directories(directoryTree,path)
+
         self.directoryTree = {"C:":directoryTree}
         self.workingTree = directoryTree
         self.path = "C:"
         self.widgets["background"] = layeredLabel(self.frame,[("playbackground",0,0)])
-        
+
         self.widgets["fileWindow"] = dragDropFrame(self.frame,self,relief = FLAT,width =618,height = 525,borderwidth =0)
 
         self.widgets["taskbar"] = layeredLabel(self.frame,[("taskbar",0,0)])
         self.widgets["start"] = startButton(self.frame,self,"winstart")
-        
+
         self.widgets["fileWindowbg"] = callbackLayeredLabel(self.widgets["fileWindow"], [("filebrowser",0,0)])
         self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","play")
         self.widgets["backButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserUp",function = self.outof_dir)
@@ -326,23 +387,35 @@ class Browse(PlaceWindow):
         self.widgets["rightclickmenu_file"] = betterLabel(self.frame,"rightclickmenu_file")
         self.widgets["new"] = functionalButton(self.frame,self, "new",self.rc2 )
         self.widgets["delete"] = functionalButton(self.frame,self, "delete",self.delete)
-        self.widgets["rename"] = functionalButton(self.frame,self, "rename", lambda: None)
-        self.widgets["open"] = functionalButton(self.frame,self, "open",lambda: None)
+        self.widgets["rename"] = functionalButton(self.frame,self, "rename", self.rename)
+        self.widgets["open"] = functionalButton(self.frame,self, "open",self.opens)
         self.widgets["newfolder"] = functionalButton(self.frame,self, "newfolder", lambda: self.new("folder"))
         self.widgets["wavesound"] = functionalButton(self.frame,self, "wavesound", lambda: self.new("file"))
-        
+
         self.init_directories(self.workingTree,self.path)
-        
+
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
+    def opens(self):
+        self.frame.ser.write(bytes("P:"+self.path +"/" +self.selectedFile+"/"+'|',"utf-8"))
+        self.frame.switch("play")
     def delete(self):#If recursive directory deletion is necessary uncomment lines
         self.hide_directories(self.workingTree,self.path)
         #self.recursiveDelete(self.workingTree[self.selectedFile])
         self.workingTree.pop(self.selectedFile,None)
+        self.frame.ser.write(bytes("D:"+self.path +"/" +self.selectedFile+"/"+'|',"utf-8"))
         self.place_directories(self.workingTree,self.path)
         for i in ["rightclickmenu_file","delete","rename","open"]:
             self.widgets[i].place_forget()
+    def rename(self):#TODO
+        if type(self.workingTree[self.selectedFile]) == type({}):
+            self.delete()
+            self.new("folder")
+        else:
+            self.delete()
+            self.new("file")
+
     def new(self,filetype):
         self.widgets["newFile"] = browserButtonNew(self.widgets["fileWindow"],self,filetype)
         self.widgets["newFile"].place(x = 189+(78*(self.counter%5)),y=169+ (75*(self.counter//5)))
@@ -354,34 +427,46 @@ class Browse(PlaceWindow):
         self.widgets["newFile"].place_forget()
         del self.widgets["newFile"]
         self.widgets.pop("newFile",None)
-        
+
         self.hide_directories(self.workingTree,self.path)
         if text in self.workingTree:
             text += "(1)"
         if filetype == "folder":
+            self.frame.ser.write(bytes("Fd:"+self.path +"/" +text+"/"+'|',"utf-8"))
             self.workingTree[text] = {}
         else:
+            self.frame.ser.write(bytes("Ff:"+self.path +"/" +text+"/"+'|',"utf-8"))
             self.workingTree[text] = text
         self.widgets[self.path+"/"+text] = browserButton(self.widgets["fileWindow"],self,text,filetype)
         self.place_directories(self.workingTree,self.path)
-    
-    def recursiveDelete(directoryTree):
+
+    def recursiveDelete(self,directoryTree):
         if type(directoryTree) == type({}):
             for i in directoryTree.keys():
-                recursiveDelete(directoryTree[i])
+                self.recursiveDelete(directoryTree[i])
                 directoryTree.pop(i,None)
                 #self.ser.write("D,path|")
     def rc2(self):
         self.widgets["rightclickmenu2"].place(x=int(self.widgets["rightclickmenu"].place_info()["x"])+154,y =161+int(self.widgets["rightclickmenu"].place_info()["y"]))
         self.widgets["newfolder"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =2+int(self.widgets["rightclickmenu2"].place_info()["y"]))
         self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
-        
+
     def show_All(self):
+        self.frame.ser.write(b"B|")#Make this happen in place.
+
+        while(False):
+            d = str(self.frame.ser.read_until("|"))
+            print(d)
+            if d == "|":
+                break
+            path = d[:-1].split('/')
+            self.workingTree = self.add_directories(self.workingTree,path)
+
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
         self.bindings["startBinding"] = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
-        self.bindings["rightclickmenuBinding"] = self.frame.root.bind("<Button-1>",self.widgets["fileWindow"].check_focus,"+") 
+        self.bindings["rightclickmenuBinding"] = self.frame.root.bind("<Button-1>",self.widgets["fileWindow"].check_focus,"+")
         self.widgets["fileWindowbg"].place(x=0,y=0)
         self.place_directories(self.workingTree,self.path)
         self.widgets["deleteButton"].place(x=443,y=49)

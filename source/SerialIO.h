@@ -18,7 +18,7 @@
 #define CHECK_BUFFER(bufd) ((bufd+1)&UART_BIT_MASK)
 #define CHECK_DEC_BUFFER(bufd) ((bufd==0) ? (UART_BIT_MASK):(bufd-1) )
 
-#define SERIAL_BUFFER_MAXSIZE 32
+#define SERIAL_BUFFER_MAXSIZE 4
 #define SERIAL_BUFFER_MASK SERIAL_BUFFER_MAXSIZE - 1
 #define READ_SERIAL (serialCommandBuffer[serialCommandIndex])
 #define POP_SERIAL (serialCommandIndex = ((serialCommandIndex==0)?0:serialCommandIndex-1))

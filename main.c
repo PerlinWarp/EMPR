@@ -4,7 +4,7 @@
 
 uint8_t SelectOne(char** items, char* header, uint8_t fileCount);
 uint8_t TextEntry(char* result, char* header);
-
+uint8_t serialInitialized;
 void EINT3_IRQHandler(void)
 {
   LPC_SC->EXTINT = 1<<3;
@@ -24,18 +24,18 @@ void EINT3_IRQHandler(void)
 
 void IRQInit()
 {
-  LPC_PINCON->PINSEL4|=0x4000000;
-  LPC_PINCON->PINSEL0&=~(3<<20);
+  LPC_PINCON->PINSEL4|=0x4000000;//
+  LPC_PINCON->PINSEL0&=~(3<<20);//
   LPC_SC->EXTMODE = 1<<3;
   LPC_SC->EXTPOLAR = 1<<3;
-  LPC_GPIO0->FIODIR &= ~(1<<10);
+  LPC_GPIO0->FIODIR &= ~(1<<10);//
   LPC_GPIOINT->IO0IntClr = (1<<10);
-  LPC_GPIOINT->IO0IntEnF |= (1<<10);
+  LPC_GPIOINT->IO0IntEnF |= (1<<10);//
   LPC_SC->EXTINT = 1<<3; //Clear Pending Interrupts
   key = ' ';
   buttonpress = 0;
   NVIC_SetPriority(EINT3_IRQn, 0x00);
-  NVIC_EnableIRQ(EINT3_IRQn);
+  NVIC_EnableIRQ(EINT3_IRQn);//
   __enable_irq();
 }
 
@@ -47,7 +47,7 @@ void DrawMenu()
       case 0:
         sprintf(inputBuf, "%-16s\n%-15s%c",
           MenuText[SelMenuItem],
-          MenuText[SelMenuItem+1],'\x30');
+          MenuText[SelMenuItem+1],'\xFF');
         break;
       case MENUTEXTNUM-2:
         sprintf(inputBuf, "%-15s\n%-16s",
@@ -56,7 +56,7 @@ void DrawMenu()
       default:
         sprintf(inputBuf, "%-15s%c\n%-15s%c",
           MenuText[SelMenuItem], '\x12',
-          MenuText[SelMenuItem+1], '\x30');
+          MenuText[SelMenuItem+1], '\xFF');
     }
     LCDGoHome();
     LCDPrint(inputBuf);
@@ -286,7 +286,7 @@ void Play(char* directory)
   if(fr)return;
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
-// 
+//
 //   WriteText("disabling i2s\n\r");
 //   WriteText("major OOF\n\r");
 //   FileSelection();
@@ -307,7 +307,7 @@ void Play(char* directory)
 //   int_Handler_Enable =0;
 //   I2S_DeInit(LPC_I2S);
 //   // CS_LOW();
-// 
+//
   f_close(&fil);
 }
 
@@ -388,15 +388,27 @@ void PC_Mode()
 {
   LCDGoHome();
   LCDPrint("****PC**MODE****\n****************");
-  InitSerInterrupts();
+  if(serialInitialized == 0)
+  {
+    InitSerInterrupts();
+    serialInitialized = 1;
+  }
+
   WriteText("CONNECT|");
-  while(!strcmp(READ_SERIAL,"ACK"));//Wait until response from PC is recorded
+  buttonpress = 0;
+  while(READ_SERIAL[0] != 'A')if(buttonpress == 1)return;//Wait until response from PC is recorded
+  POP_SERIAL;
   LCDGoHome();
   LCDPrint("****PC**MODE****\n***CONNECTED.***");
   uint8_t finished =0,playing=0;
   while(!finished)//Wait for next input
   {
+
     if(serialCommandIndex>0){//If there are instructions to process
+      char output[50];
+      sprintf(output,"COMMAND RECEIVED\n%s",READ_SERIAL);
+      LCDGoHome();
+      LCDPrint(output);
       switch (READ_SERIAL[0])//Note: I2S Interrupts are disabled here so this can process, and so must be restarted beforehand
       {
         case 'P'://play
@@ -410,21 +422,36 @@ void PC_Mode()
           playing = 1;
           NVIC_EnableIRQ(I2S_IRQn);
         case 'S':;//Send back settings data in the form S:settings array index,value|
-          char delim[2] = ",";
-          settings[atoi(strtok(&READ_SERIAL[2],delim))] = atoi(strtok(NULL,delim));//read the character after the comma and convert to int
+          char* b = strchr(READ_SERIAL,'.');
+          b = '\0';
+          char* a  = strchr(READ_SERIAL,',');
+          a  = '\0';
+          settings[atoi(&READ_SERIAL[2])] = atoi(&READ_SERIAL[4]);
           break;
-        case 'E'://Exit and return to main menu
+        case 'E'://Exit and return to main menu [TICK]
           finished = 1;
+          break;
+        case 'M':// Recording - The M is for Microphone 
+          A1();
+          break;
+
+        case 'T': // Blue Screening
+          LCDPrint("Windows 95 has crashed");
+          WriteText("M");
           break;
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
-          int i,len = SDGetFiles("/",fileList);
+          sprintf(output,"ad:%d",fileList[2]);
+          WriteText(output);
+          int i,len = SDGetAllFiles(fileList);
+          WriteText("test");
           for(i=0;i<len;i++)
           {
             sprintf(output,"%s|",fileList[i]);
             WriteText(output);
           }
+          WriteText("||");
           SDFreeFilenames(fileList);
           break;
       }
@@ -458,10 +485,7 @@ uint32_t bytesToUInt32(char* head) {
 int main()
 {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
     InitSerial();
-    char * asd = (char*)malloc(30);
-    sprintf(asd,"malloc works now\n\r");
-    WriteText("fasd");
-    WriteText(asd);
+    serialInitialized = 0;
     SystemInit();
     DelayInit();
     I2CInit();
@@ -476,7 +500,7 @@ int main()
     // for (i = 0; i < 43; i++) {
     //     charbuff[i] = (char)readbuff[i];
     // }
-    
+
     // // strncpy(readbuff, charbuff, 43);
     // charbuff[43] = '\0';
     // // WriteText(charbuff);
@@ -484,7 +508,7 @@ int main()
     // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
     // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
     // WriteText(charbuff);
-    
+
 
     Menu();
 
