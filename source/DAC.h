@@ -8,7 +8,7 @@
 
 void InitializeDAC();
 
-void DAC_StartSend(int Frequency,int NumSamples);
+void DAC_StartSend(uint32_t Frequency,uint32_t NumSamples);
 
 void InitializeGPDMA(uint32_t* Source,GPDMA_LLI_Type* DMA_Struct,GPDMA_Channel_CFG_Type* GPDMA_Cfg, int NumSamples);
 

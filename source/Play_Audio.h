@@ -9,9 +9,9 @@
 #include <stdlib.h>
 
 #include "DAC.h"
-#include "Delay.h"
 #include "NewMalloc.h"
 #include "SD.h"
+#include "Wave.h"
 
-void init_onboard_audio();
+void init_onboard_audio(FIL* fil,uint32_t Frequency)
 #endif
