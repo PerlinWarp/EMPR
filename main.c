@@ -435,6 +435,32 @@ void PC_Mode()
           A1();
           break;
 
+        case 'F': //Files - D3 for copying and deleting files. 
+          char fileName[100];
+          strcpy(fileName,READ_SERIAL+1);
+          char func = READ_SERIAL[1];
+          WriteText(func);
+          
+          switch (func)
+          {
+            case 'P':
+            //Play the file in fileName.
+            break;
+
+            case 'C':
+            //Copy the file in fileName.
+            break;
+
+            case 'D':
+            //Delete the file in fileName.
+            break;
+
+            case 'A':
+            //Adjust the volumem 
+
+            break;
+          }
+
         case 'T': // Blue Screening
           LCDPrint("Windows 95 has crashed");
           WriteText("M");

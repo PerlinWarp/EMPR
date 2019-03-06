@@ -252,7 +252,7 @@ class TestingScreen(PlaceWindow):
     For testing the differerent serial functions before we get file management to work
     On the string sent from the PC:
     first byte = F for files
-    Second byte is one of: P,C,D,A,R
+    Second byte is one of: P(lay),C(opy),D(elete),A(djust Volume),R(everse)
     From the second 2 bytes to the null is the file directory. 
     '''
     def init_widgets(self):
@@ -262,9 +262,10 @@ class TestingScreen(PlaceWindow):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         PlaceWindow.show_All(self)
         
-        self.frame.ser.write(b"T|")
+        self.frame.ser.write(b"FPa.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
+            print(d)
             if d == "CONNECT":
                 self.serConnected == True
                 self.frame.switch("play")
