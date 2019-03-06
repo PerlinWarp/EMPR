@@ -441,8 +441,6 @@ void PC_Mode()
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
-          sprintf(output,"ad:%d",fileList[2]);
-          WriteText(output);
           int i,len = SDGetAllFiles(fileList);
           WriteText("test");
           for(i=0;i<len;i++)
