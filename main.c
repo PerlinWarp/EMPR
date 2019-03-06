@@ -431,7 +431,7 @@ void PC_Mode()
         case 'E'://Exit and return to main menu [TICK]
           finished = 1;
           break;
-        case 'M':// Recording - The M is for Microphone 
+        case 'M':// Recording - The M is for Microphone
           A1();
           break;
 
@@ -518,6 +518,7 @@ int main()
     IRQInit();
     LCDInit();
     LCDClear();
+    initMalloc();
     // BYTE readbuff[64];
     // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
 
@@ -535,9 +536,7 @@ int main()
     // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
     // WriteText(charbuff);
 
-
     Menu();
-
 
     return 0;
 }
