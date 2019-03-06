@@ -166,7 +166,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
-        self.widgets["realvolume"] = sliderButton(self.frame,self, "realvolume", lambda: None,296,352,"y")
+        self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda: None,296,352,"y")
 
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
@@ -254,6 +254,7 @@ class TestingScreen(PlaceWindow):
     first byte = F for files
     Second byte is one of: P(lay),C(opy),D(elete),A(djust Volume),R(everse)
     From the second 2 bytes to the null is the file directory.
+    See main.c switchstatement for more details
     '''
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
@@ -345,7 +346,10 @@ class Browse_For_Record(PlaceWindow):
             self.hidden = False
 
 class Browse_For_Play(PlaceWindow):
-
+    '''
+    While Idris works on the MBED file reading code
+    I will impliment communication in changes in volume 
+    '''
     def add_directories(self,directoryTree,path):
         if len(path) == 1:
             if path[0][-1] =='d':#is a directory

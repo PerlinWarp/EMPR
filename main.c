@@ -435,6 +435,23 @@ void PC_Mode()
           break;
 
         case 'F':; //Files - D3 for copying and deleting files.
+          /*
+          
+          For testing the differerent serial functions before we get file management to work
+          On the string sent from the PC:
+          first byte = F for files
+          Second byte is one of: P(lay),C(opy),D(elete),A(djust Volume),R(everse)
+          From the second 2 bytes to the null is the file directory.
+
+          E.g. FPa.wav|
+          Byte one means File, P means play, then the last of the string is the path to the file. 
+
+          The only difference from this is change volume. 
+          Where I send:
+          FA100 For max volume and FA0 for min.  
+          
+          */
+
           char fileName[100];
           strcpy(fileName,&READ_SERIAL[2]);
           char func = READ_SERIAL[1];
@@ -457,8 +474,9 @@ void PC_Mode()
             break;
 
             case 'A':
-            //Adjust the volumem
-
+            //Adjust the volume
+            // Uses a different format than the others
+            LCDPrint(fileName);
             break;
           }
 

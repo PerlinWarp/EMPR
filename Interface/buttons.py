@@ -255,6 +255,17 @@ class sliderButton(dragDropButton):
                 self.y = self.max
         self.place(x= min(max(5-self.relx,self.x),795-self.relx),y= min(max(5-self.rely,self.y),574-self.rely))
 
+class volumeSlider(sliderButton):
+    '''
+    When volume is at max, y = 296
+    When volume is at min, y = 337
+    '''
+    def drag(self,event):
+        sliderButton.drag(self,event)
+        #Scaling between 0 and 100. 
+        volume = round(100 - (self.y - 296)*(100.0/41.0))
+        self.root.frame.ser.write(bytes("FA"+str(volume)+'|','utf-8'))
+
 class dragDropFrame(Frame):
     def __init__(self,frame,window,**options):
         Frame.__init__(self,frame,**options)
