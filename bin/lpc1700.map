@@ -121,7 +121,7 @@ Archive member included because of file (symbol)
 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_libcfg_default.o)
                               /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_i2c.o) (check_failed)
 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_pinsel.o)
-                              source/SerialIO.o (PINSEL_ConfigPin)
+                              source/I2C.o (PINSEL_ConfigPin)
 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_ssp.o)
                               main.o (SSP_Cmd)
 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_uart.o)
@@ -177,14 +177,14 @@ LOAD /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/bin/../lib/gc
 LOAD main.o
 LOAD source/KeyAccess.o
 LOAD source/LCD.o
-LOAD source/i2s.o
+LOAD source/I2C.o
 LOAD source/Wave.o
+LOAD source/TLV320.o
 LOAD source/Delay.o
 LOAD source/SerialIO.o
 LOAD source/interrupt_handlers.o
-LOAD source/I2C.o
+LOAD source/i2s.o
 LOAD source/SD.o
-LOAD source/TLV320.o
 LOAD source/FatFS/ff.o
 LOAD source/FatFS/mmc_176x_ssp.o
 LOAD source/FatFS/diskio.o
@@ -346,468 +346,468 @@ END GROUP
  .text.main_LDCPrintHelloWorld
                 0x00001d40       0x68 source/LCD.o
                 0x00001d40                main_LDCPrintHelloWorld
- .text          0x00001da8        0x0 source/i2s.o
- .text.NVIC_EnableIRQ
-                0x00001da8       0x38 source/i2s.o
- .text.NVIC_DisableIRQ
-                0x00001de0       0x3c source/i2s.o
- .text.NVIC_SetPriority
-                0x00001e1c       0x5c source/i2s.o
- .text.I2S_IRQHandler
-                0x00001e78       0x20 source/i2s.o
-                0x00001e78                I2S_IRQHandler
- .text.i2s_int_Passthrough
-                0x00001e98      0x154 source/i2s.o
-                0x00001e98                i2s_int_Passthrough
- .text.i2s_playSound
-                0x00001fec       0x8c source/i2s.o
-                0x00001fec                i2s_playSound
- .text.i2s_wav_play_16_bit
-                0x00002078      0x160 source/i2s.o
-                0x00002078                i2s_wav_play_16_bit
- .text.Init_I2S_Wav
-                0x000021d8      0x1a8 source/i2s.o
-                0x000021d8                Init_I2S_Wav
- .text.I2S_Polling_Init
-                0x00002380      0x1f8 source/i2s.o
-                0x00002380                I2S_Polling_Init
- .text.I2S_Create_Sine
-                0x00002578      0x160 source/i2s.o
-                0x00002578                I2S_Create_Sine
- .text.I2S_BaseInit
-                0x000026d8      0x108 source/i2s.o
-                0x000026d8                I2S_BaseInit
- .text.I2S_Polling_Read
-                0x000027e0       0x84 source/i2s.o
-                0x000027e0                I2S_Polling_Read
- .text.I2S_Polling_Write
-                0x00002864       0x5c source/i2s.o
-                0x00002864                I2S_Polling_Write
- .text.ConfInit
-                0x000028c0       0x68 source/i2s.o
-                0x000028c0                ConfInit
- .text.ClockInit
-                0x00002928       0x54 source/i2s.o
-                0x00002928                ClockInit
- .text          0x0000297c        0x0 source/Wave.o
- .text.Wav_Init
-                0x0000297c      0x240 source/Wave.o
-                0x0000297c                Wav_Init
- .text          0x00002bbc        0x0 source/Delay.o
- .text.NVIC_SetPriority
-                0x00002bbc       0x5c source/Delay.o
- .text.SysTick_Config
-                0x00002c18       0x64 source/Delay.o
- .text.SysTick_Handler
-                0x00002c7c       0x24 source/Delay.o
-                0x00002c7c                SysTick_Handler
- .text.Delay    0x00002ca0       0x34 source/Delay.o
-                0x00002ca0                Delay
- .text.DelayInit
-                0x00002cd4       0x2c source/Delay.o
-                0x00002cd4                DelayInit
- .text          0x00002d00        0x0 source/SerialIO.o
- .text.NVIC_EnableIRQ
-                0x00002d00       0x38 source/SerialIO.o
- .text.NVIC_DisableIRQ
-                0x00002d38       0x3c source/SerialIO.o
- .text.NVIC_SetPriority
-                0x00002d74       0x5c source/SerialIO.o
- .text.UART0_IRQHandler
-                0x00002dd0       0x4c source/SerialIO.o
-                0x00002dd0                UART0_IRQHandler
- .text.ReceiveText
-                0x00002e1c       0xe8 source/SerialIO.o
-                0x00002e1c                ReceiveText
- .text.ReadText
-                0x00002f04       0xa4 source/SerialIO.o
-                0x00002f04                ReadText
- .text.AddTextToBuffer
-                0x00002fa8       0xa4 source/SerialIO.o
-                0x00002fa8                AddTextToBuffer
- .text.ProcessBuffer
-                0x0000304c      0x168 source/SerialIO.o
-                0x0000304c                ProcessBuffer
- .text.TransmitText
-                0x000031b4      0x10c source/SerialIO.o
-                0x000031b4                TransmitText
- .text.InitSerial
-                0x000032c0       0x90 source/SerialIO.o
-                0x000032c0                InitSerial
- .text.WriteText
-                0x00003350       0x30 source/SerialIO.o
-                0x00003350                WriteText
- .text.write_usb_serial_blocking
-                0x00003380       0x2c source/SerialIO.o
-                0x00003380                write_usb_serial_blocking
- .text.InitSerInterrupts
-                0x000033ac      0x154 source/SerialIO.o
-                0x000033ac                InitSerInterrupts
- .text.EnableSerInterrupts
-                0x00003500       0x10 source/SerialIO.o
-                0x00003500                EnableSerInterrupts
- .text.DisableSerInterrupts
-                0x00003510       0x10 source/SerialIO.o
-                0x00003510                DisableSerInterrupts
- .text          0x00003520        0x0 source/interrupt_handlers.o
- .text.NVIC_DisableIRQ
-                0x00003520       0x3c source/interrupt_handlers.o
- .text.I2S_PassThroughInt_Handler
-                0x0000355c       0x10 source/interrupt_handlers.o
-                0x0000355c                I2S_PassThroughInt_Handler
- .text          0x0000356c        0x0 source/I2C.o
- .text.I2CInit  0x0000356c       0x30 source/I2C.o
-                0x0000356c                I2CInit
+ .text          0x00001da8        0x0 source/I2C.o
+ .text.I2CInit  0x00001da8       0x30 source/I2C.o
+                0x00001da8                I2CInit
  .text.SetupVals
-                0x0000359c       0x54 source/I2C.o
-                0x0000359c                SetupVals
+                0x00001dd8       0x54 source/I2C.o
+                0x00001dd8                SetupVals
  .text.SetupPINS
-                0x000035f0       0x44 source/I2C.o
-                0x000035f0                SetupPINS
- .text          0x00003634        0x0 source/SD.o
- .text.NVIC_EnableIRQ
-                0x00003634       0x38 source/SD.o
- .text.NVIC_DisableIRQ
-                0x0000366c       0x3c source/SD.o
- .text.SDPrintFresult
-                0x000036a8       0x70 source/SD.o
-                0x000036a8                SDPrintFresult
- .text.indemalloc
-                0x00003718       0x6c source/SD.o
-                0x00003718                indemalloc
- .text.sd_init  0x00003784       0x50 source/SD.o
-                0x00003784                sd_init
- .text.sd_deinit
-                0x000037d4       0x1c source/SD.o
-                0x000037d4                sd_deinit
- .text.SDMallocFilenames
-                0x000037f0       0x4c source/SD.o
-                0x000037f0                SDMallocFilenames
- .text.SDFreeFilenames
-                0x0000383c       0x54 source/SD.o
-                0x0000383c                SDFreeFilenames
- .text.SDGetAllFiles
-                0x00003890      0x128 source/SD.o
-                0x00003890                SDGetAllFiles
- .text.SDGetDirectories
-                0x000039b8       0xfc source/SD.o
-                0x000039b8                SDGetDirectories
- .text.SDGetFiles
-                0x00003ab4      0x160 source/SD.o
-                0x00003ab4                SDGetFiles
- .text.SDReadBytes
-                0x00003c14       0xc0 source/SD.o
-                0x00003c14                SDReadBytes
- .text.SDGetFileSize
-                0x00003cd4       0x80 source/SD.o
-                0x00003cd4                SDGetFileSize
- .text.SD_READ  0x00003d54       0x38 source/SD.o
-                0x00003d54                SD_READ
- .text.SD_WRITE
-                0x00003d8c       0x38 source/SD.o
-                0x00003d8c                SD_WRITE
- .text          0x00003dc4        0x0 source/TLV320.o
+                0x00001e2c       0x44 source/I2C.o
+                0x00001e2c                SetupPINS
+ .text          0x00001e70        0x0 source/Wave.o
+ .text.Wav_Init
+                0x00001e70      0x240 source/Wave.o
+                0x00001e70                Wav_Init
+ .text          0x000020b0        0x0 source/TLV320.o
  .text.TLV320_ChangeInputVolume
-                0x00003dc4       0x38 source/TLV320.o
-                0x00003dc4                TLV320_ChangeInputVolume
+                0x000020b0       0x38 source/TLV320.o
+                0x000020b0                TLV320_ChangeInputVolume
  .text.TLV320_ChangeOutputVolume
-                0x00003dfc       0x40 source/TLV320.o
-                0x00003dfc                TLV320_ChangeOutputVolume
+                0x000020e8       0x40 source/TLV320.o
+                0x000020e8                TLV320_ChangeOutputVolume
  .text.TLV320_EnablePassThrough
-                0x00003e3c       0x28 source/TLV320.o
-                0x00003e3c                TLV320_EnablePassThrough
+                0x00002128       0x28 source/TLV320.o
+                0x00002128                TLV320_EnablePassThrough
  .text.TLV320_DisablePassThrough
-                0x00003e64       0x30 source/TLV320.o
-                0x00003e64                TLV320_DisablePassThrough
+                0x00002150       0x30 source/TLV320.o
+                0x00002150                TLV320_DisablePassThrough
  .text.TLV320_Setup
-                0x00003e94       0x28 source/TLV320.o
-                0x00003e94                TLV320_Setup
+                0x00002180       0x28 source/TLV320.o
+                0x00002180                TLV320_Setup
  .text.TLV320_EnableDAC
-                0x00003ebc       0x2c source/TLV320.o
-                0x00003ebc                TLV320_EnableDAC
+                0x000021a8       0x2c source/TLV320.o
+                0x000021a8                TLV320_EnableDAC
  .text.TLV320_EnableOutput
-                0x00003ee8       0x2c source/TLV320.o
-                0x00003ee8                TLV320_EnableOutput
+                0x000021d4       0x2c source/TLV320.o
+                0x000021d4                TLV320_EnableOutput
  .text.TLV320_Start_I2S_Polling_Passthrough
-                0x00003f14       0x38 source/TLV320.o
-                0x00003f14                TLV320_Start_I2S_Polling_Passthrough
+                0x00002200       0x38 source/TLV320.o
+                0x00002200                TLV320_Start_I2S_Polling_Passthrough
  .text.TLV320_PlayWav
-                0x00003f4c       0x38 source/TLV320.o
-                0x00003f4c                TLV320_PlayWav
+                0x00002238       0x38 source/TLV320.o
+                0x00002238                TLV320_PlayWav
  .text.TLV320_SendData
-                0x00003f84       0x64 source/TLV320.o
-                0x00003f84                TLV320_SendData
- .text          0x00003fe8        0x0 source/FatFS/ff.o
- .text.ld_word  0x00003fe8       0x34 source/FatFS/ff.o
+                0x00002270       0x64 source/TLV320.o
+                0x00002270                TLV320_SendData
+ .text          0x000022d4        0x0 source/Delay.o
+ .text.NVIC_SetPriority
+                0x000022d4       0x5c source/Delay.o
+ .text.SysTick_Config
+                0x00002330       0x64 source/Delay.o
+ .text.SysTick_Handler
+                0x00002394       0x24 source/Delay.o
+                0x00002394                SysTick_Handler
+ .text.Delay    0x000023b8       0x34 source/Delay.o
+                0x000023b8                Delay
+ .text.DelayInit
+                0x000023ec       0x2c source/Delay.o
+                0x000023ec                DelayInit
+ .text          0x00002418        0x0 source/SerialIO.o
+ .text.NVIC_EnableIRQ
+                0x00002418       0x38 source/SerialIO.o
+ .text.NVIC_DisableIRQ
+                0x00002450       0x3c source/SerialIO.o
+ .text.NVIC_SetPriority
+                0x0000248c       0x5c source/SerialIO.o
+ .text.UART0_IRQHandler
+                0x000024e8       0x4c source/SerialIO.o
+                0x000024e8                UART0_IRQHandler
+ .text.ReceiveText
+                0x00002534       0xe8 source/SerialIO.o
+                0x00002534                ReceiveText
+ .text.ReadText
+                0x0000261c       0xa4 source/SerialIO.o
+                0x0000261c                ReadText
+ .text.AddTextToBuffer
+                0x000026c0       0xa4 source/SerialIO.o
+                0x000026c0                AddTextToBuffer
+ .text.ProcessBuffer
+                0x00002764      0x168 source/SerialIO.o
+                0x00002764                ProcessBuffer
+ .text.TransmitText
+                0x000028cc      0x10c source/SerialIO.o
+                0x000028cc                TransmitText
+ .text.InitSerial
+                0x000029d8       0x90 source/SerialIO.o
+                0x000029d8                InitSerial
+ .text.WriteText
+                0x00002a68       0x30 source/SerialIO.o
+                0x00002a68                WriteText
+ .text.write_usb_serial_blocking
+                0x00002a98       0x2c source/SerialIO.o
+                0x00002a98                write_usb_serial_blocking
+ .text.InitSerInterrupts
+                0x00002ac4      0x154 source/SerialIO.o
+                0x00002ac4                InitSerInterrupts
+ .text.EnableSerInterrupts
+                0x00002c18       0x10 source/SerialIO.o
+                0x00002c18                EnableSerInterrupts
+ .text.DisableSerInterrupts
+                0x00002c28       0x10 source/SerialIO.o
+                0x00002c28                DisableSerInterrupts
+ .text          0x00002c38        0x0 source/interrupt_handlers.o
+ .text.NVIC_DisableIRQ
+                0x00002c38       0x3c source/interrupt_handlers.o
+ .text.I2S_PassThroughInt_Handler
+                0x00002c74       0x10 source/interrupt_handlers.o
+                0x00002c74                I2S_PassThroughInt_Handler
+ .text          0x00002c84        0x0 source/i2s.o
+ .text.NVIC_EnableIRQ
+                0x00002c84       0x38 source/i2s.o
+ .text.NVIC_DisableIRQ
+                0x00002cbc       0x3c source/i2s.o
+ .text.NVIC_SetPriority
+                0x00002cf8       0x5c source/i2s.o
+ .text.I2S_IRQHandler
+                0x00002d54       0x20 source/i2s.o
+                0x00002d54                I2S_IRQHandler
+ .text.i2s_int_Passthrough
+                0x00002d74      0x154 source/i2s.o
+                0x00002d74                i2s_int_Passthrough
+ .text.i2s_playSound
+                0x00002ec8       0x8c source/i2s.o
+                0x00002ec8                i2s_playSound
+ .text.i2s_wav_play_16_bit
+                0x00002f54      0x160 source/i2s.o
+                0x00002f54                i2s_wav_play_16_bit
+ .text.Init_I2S_Wav
+                0x000030b4      0x1a8 source/i2s.o
+                0x000030b4                Init_I2S_Wav
+ .text.I2S_Polling_Init
+                0x0000325c      0x1f8 source/i2s.o
+                0x0000325c                I2S_Polling_Init
+ *fill*         0x00003454        0x4 00
+ .text.I2S_Create_Sine
+                0x00003458      0x160 source/i2s.o
+                0x00003458                I2S_Create_Sine
+ .text.I2S_BaseInit
+                0x000035b8      0x108 source/i2s.o
+                0x000035b8                I2S_BaseInit
+ .text.I2S_Polling_Read
+                0x000036c0       0x84 source/i2s.o
+                0x000036c0                I2S_Polling_Read
+ .text.I2S_Polling_Write
+                0x00003744       0x5c source/i2s.o
+                0x00003744                I2S_Polling_Write
+ .text.ConfInit
+                0x000037a0       0x68 source/i2s.o
+                0x000037a0                ConfInit
+ .text.ClockInit
+                0x00003808       0x54 source/i2s.o
+                0x00003808                ClockInit
+ .text          0x0000385c        0x0 source/SD.o
+ .text.NVIC_EnableIRQ
+                0x0000385c       0x38 source/SD.o
+ .text.NVIC_DisableIRQ
+                0x00003894       0x3c source/SD.o
+ .text.SDPrintFresult
+                0x000038d0       0x70 source/SD.o
+                0x000038d0                SDPrintFresult
+ .text.indemalloc
+                0x00003940       0x6c source/SD.o
+                0x00003940                indemalloc
+ .text.sd_init  0x000039ac       0x50 source/SD.o
+                0x000039ac                sd_init
+ .text.sd_deinit
+                0x000039fc       0x1c source/SD.o
+                0x000039fc                sd_deinit
+ .text.SDMallocFilenames
+                0x00003a18       0x4c source/SD.o
+                0x00003a18                SDMallocFilenames
+ .text.SDFreeFilenames
+                0x00003a64       0x54 source/SD.o
+                0x00003a64                SDFreeFilenames
+ .text.SDGetAllFiles
+                0x00003ab8      0x128 source/SD.o
+                0x00003ab8                SDGetAllFiles
+ .text.SDGetDirectories
+                0x00003be0       0xfc source/SD.o
+                0x00003be0                SDGetDirectories
+ .text.SDGetFiles
+                0x00003cdc      0x160 source/SD.o
+                0x00003cdc                SDGetFiles
+ .text.SDReadBytes
+                0x00003e3c       0xc0 source/SD.o
+                0x00003e3c                SDReadBytes
+ .text.SDGetFileSize
+                0x00003efc       0x80 source/SD.o
+                0x00003efc                SDGetFileSize
+ .text.SD_READ  0x00003f7c       0x38 source/SD.o
+                0x00003f7c                SD_READ
+ .text.SD_WRITE
+                0x00003fb4       0x38 source/SD.o
+                0x00003fb4                SD_WRITE
+ .text          0x00003fec        0x0 source/FatFS/ff.o
+ .text.ld_word  0x00003fec       0x34 source/FatFS/ff.o
  .text.ld_dword
-                0x0000401c       0x58 source/FatFS/ff.o
- .text.st_word  0x00004074       0x40 source/FatFS/ff.o
+                0x00004020       0x58 source/FatFS/ff.o
+ .text.st_word  0x00004078       0x40 source/FatFS/ff.o
  .text.st_dword
-                0x000040b4       0x6c source/FatFS/ff.o
- .text.mem_cpy  0x00004120       0x4c source/FatFS/ff.o
- .text.mem_set  0x0000416c       0x38 source/FatFS/ff.o
- .text.mem_cmp  0x000041a4       0x5c source/FatFS/ff.o
- .text.chk_chr  0x00004200       0x38 source/FatFS/ff.o
- .text.dbc_1st  0x00004238       0x68 source/FatFS/ff.o
- .text.dbc_2nd  0x000042a0       0x8c source/FatFS/ff.o
+                0x000040b8       0x6c source/FatFS/ff.o
+ .text.mem_cpy  0x00004124       0x4c source/FatFS/ff.o
+ .text.mem_set  0x00004170       0x38 source/FatFS/ff.o
+ .text.mem_cmp  0x000041a8       0x5c source/FatFS/ff.o
+ .text.chk_chr  0x00004204       0x38 source/FatFS/ff.o
+ .text.dbc_1st  0x0000423c       0x68 source/FatFS/ff.o
+ .text.dbc_2nd  0x000042a4       0x8c source/FatFS/ff.o
  .text.sync_window
-                0x0000432c       0x90 source/FatFS/ff.o
+                0x00004330       0x90 source/FatFS/ff.o
  .text.move_window
-                0x000043bc       0x68 source/FatFS/ff.o
- .text.sync_fs  0x00004424       0xf8 source/FatFS/ff.o
+                0x000043c0       0x68 source/FatFS/ff.o
+ .text.sync_fs  0x00004428       0xf8 source/FatFS/ff.o
  .text.clst2sect
-                0x0000451c       0x44 source/FatFS/ff.o
- .text.get_fat  0x00004560      0x180 source/FatFS/ff.o
- .text.put_fat  0x000046e0      0x218 source/FatFS/ff.o
+                0x00004520       0x44 source/FatFS/ff.o
+ .text.get_fat  0x00004564      0x180 source/FatFS/ff.o
+ .text.put_fat  0x000046e4      0x218 source/FatFS/ff.o
  .text.remove_chain
-                0x000048f8       0xdc source/FatFS/ff.o
+                0x000048fc       0xdc source/FatFS/ff.o
  .text.create_chain
-                0x000049d4      0x1c4 source/FatFS/ff.o
+                0x000049d8      0x1c4 source/FatFS/ff.o
  .text.dir_clear
-                0x00004b98       0xa4 source/FatFS/ff.o
- .text.dir_sdi  0x00004c3c      0x114 source/FatFS/ff.o
+                0x00004b9c       0xa4 source/FatFS/ff.o
+ .text.dir_sdi  0x00004c40      0x114 source/FatFS/ff.o
  .text.dir_next
-                0x00004d50      0x164 source/FatFS/ff.o
+                0x00004d54      0x164 source/FatFS/ff.o
  .text.dir_alloc
-                0x00004eb4       0x9c source/FatFS/ff.o
+                0x00004eb8       0x9c source/FatFS/ff.o
  .text.ld_clust
-                0x00004f50       0x48 source/FatFS/ff.o
+                0x00004f54       0x48 source/FatFS/ff.o
  .text.st_clust
-                0x00004f98       0x44 source/FatFS/ff.o
+                0x00004f9c       0x44 source/FatFS/ff.o
  .text.dir_read
-                0x00004fdc       0xc4 source/FatFS/ff.o
+                0x00004fe0       0xc4 source/FatFS/ff.o
  .text.dir_find
-                0x000050a0       0xbc source/FatFS/ff.o
+                0x000050a4       0xbc source/FatFS/ff.o
  .text.dir_register
-                0x0000515c       0x74 source/FatFS/ff.o
+                0x00005160       0x74 source/FatFS/ff.o
  .text.dir_remove
-                0x000051d0       0x44 source/FatFS/ff.o
+                0x000051d4       0x44 source/FatFS/ff.o
  .text.get_fileinfo
-                0x00005214       0xf4 source/FatFS/ff.o
+                0x00005218       0xf4 source/FatFS/ff.o
  .text.get_achar
-                0x00005308       0x7c source/FatFS/ff.o
+                0x0000530c       0x7c source/FatFS/ff.o
  .text.pattern_matching
-                0x00005384      0x128 source/FatFS/ff.o
+                0x00005388      0x128 source/FatFS/ff.o
  .text.create_name
-                0x000054ac      0x258 source/FatFS/ff.o
+                0x000054b0      0x258 source/FatFS/ff.o
  .text.follow_path
-                0x00005704      0x140 source/FatFS/ff.o
+                0x00005708      0x140 source/FatFS/ff.o
  .text.get_ldnumber
-                0x00005844       0x9c source/FatFS/ff.o
+                0x00005848       0x9c source/FatFS/ff.o
  .text.check_fs
-                0x000058e0       0xcc source/FatFS/ff.o
+                0x000058e4       0xcc source/FatFS/ff.o
  .text.find_volume
-                0x000059ac      0x540 source/FatFS/ff.o
+                0x000059b0      0x540 source/FatFS/ff.o
  .text.validate
-                0x00005eec       0x74 source/FatFS/ff.o
- .text.f_mount  0x00005f60       0x98 source/FatFS/ff.o
-                0x00005f60                f_mount
- .text.f_open   0x00005ff8      0x354 source/FatFS/ff.o
-                0x00005ff8                f_open
- .text.f_read   0x0000634c      0x2b8 source/FatFS/ff.o
-                0x0000634c                f_read
- .text.f_write  0x00006604      0x324 source/FatFS/ff.o
-                0x00006604                f_write
- .text.f_sync   0x00006928      0x11c source/FatFS/ff.o
-                0x00006928                f_sync
- .text.f_close  0x00006a44       0x44 source/FatFS/ff.o
-                0x00006a44                f_close
+                0x00005ef0       0x74 source/FatFS/ff.o
+ .text.f_mount  0x00005f64       0x98 source/FatFS/ff.o
+                0x00005f64                f_mount
+ .text.f_open   0x00005ffc      0x354 source/FatFS/ff.o
+                0x00005ffc                f_open
+ .text.f_read   0x00006350      0x2b8 source/FatFS/ff.o
+                0x00006350                f_read
+ .text.f_write  0x00006608      0x324 source/FatFS/ff.o
+                0x00006608                f_write
+ .text.f_sync   0x0000692c      0x11c source/FatFS/ff.o
+                0x0000692c                f_sync
+ .text.f_close  0x00006a48       0x44 source/FatFS/ff.o
+                0x00006a48                f_close
  .text.f_chdrive
-                0x00006a88       0x3c source/FatFS/ff.o
-                0x00006a88                f_chdrive
- .text.f_chdir  0x00006ac4       0xa4 source/FatFS/ff.o
-                0x00006ac4                f_chdir
+                0x00006a8c       0x3c source/FatFS/ff.o
+                0x00006a8c                f_chdrive
+ .text.f_chdir  0x00006ac8       0xa4 source/FatFS/ff.o
+                0x00006ac8                f_chdir
  .text.f_getcwd
-                0x00006b68      0x220 source/FatFS/ff.o
-                0x00006b68                f_getcwd
- .text.f_lseek  0x00006d88      0x2a4 source/FatFS/ff.o
-                0x00006d88                f_lseek
+                0x00006b6c      0x220 source/FatFS/ff.o
+                0x00006b6c                f_getcwd
+ .text.f_lseek  0x00006d8c      0x2a4 source/FatFS/ff.o
+                0x00006d8c                f_lseek
  .text.f_opendir
-                0x0000702c       0xc4 source/FatFS/ff.o
-                0x0000702c                f_opendir
+                0x00007030       0xc4 source/FatFS/ff.o
+                0x00007030                f_opendir
  .text.f_closedir
-                0x000070f0       0x34 source/FatFS/ff.o
-                0x000070f0                f_closedir
+                0x000070f4       0x34 source/FatFS/ff.o
+                0x000070f4                f_closedir
  .text.f_readdir
-                0x00007124       0x88 source/FatFS/ff.o
-                0x00007124                f_readdir
+                0x00007128       0x88 source/FatFS/ff.o
+                0x00007128                f_readdir
  .text.f_findnext
-                0x000071ac       0x5c source/FatFS/ff.o
-                0x000071ac                f_findnext
+                0x000071b0       0x5c source/FatFS/ff.o
+                0x000071b0                f_findnext
  .text.f_findfirst
-                0x00007208       0x40 source/FatFS/ff.o
-                0x00007208                f_findfirst
- .text.f_stat   0x00007248       0x80 source/FatFS/ff.o
-                0x00007248                f_stat
+                0x0000720c       0x40 source/FatFS/ff.o
+                0x0000720c                f_findfirst
+ .text.f_stat   0x0000724c       0x80 source/FatFS/ff.o
+                0x0000724c                f_stat
  .text.f_getfree
-                0x000072c8      0x198 source/FatFS/ff.o
-                0x000072c8                f_getfree
+                0x000072cc      0x198 source/FatFS/ff.o
+                0x000072cc                f_getfree
  .text.f_truncate
-                0x00007460      0x148 source/FatFS/ff.o
-                0x00007460                f_truncate
+                0x00007464      0x148 source/FatFS/ff.o
+                0x00007464                f_truncate
  .text.f_unlink
-                0x000075a8      0x18c source/FatFS/ff.o
-                0x000075a8                f_unlink
- .text.f_mkdir  0x00007734      0x1f8 source/FatFS/ff.o
-                0x00007734                f_mkdir
+                0x000075ac      0x18c source/FatFS/ff.o
+                0x000075ac                f_unlink
+ .text.f_mkdir  0x00007738      0x1f8 source/FatFS/ff.o
+                0x00007738                f_mkdir
  .text.f_rename
-                0x0000792c      0x228 source/FatFS/ff.o
-                0x0000792c                f_rename
- .text.f_chmod  0x00007b54       0xd0 source/FatFS/ff.o
-                0x00007b54                f_chmod
- .text.f_utime  0x00007c24       0xb4 source/FatFS/ff.o
-                0x00007c24                f_utime
+                0x00007930      0x228 source/FatFS/ff.o
+                0x00007930                f_rename
+ .text.f_chmod  0x00007b58       0xd0 source/FatFS/ff.o
+                0x00007b58                f_chmod
+ .text.f_utime  0x00007c28       0xb4 source/FatFS/ff.o
+                0x00007c28                f_utime
  .text.f_getlabel
-                0x00007cd8      0x164 source/FatFS/ff.o
-                0x00007cd8                f_getlabel
+                0x00007cdc      0x164 source/FatFS/ff.o
+                0x00007cdc                f_getlabel
  .text.f_setlabel
-                0x00007e3c      0x270 source/FatFS/ff.o
-                0x00007e3c                f_setlabel
- .text.f_mkfs   0x000080ac      0x9d8 source/FatFS/ff.o
-                0x000080ac                f_mkfs
- .text.f_gets   0x00008a84       0x8c source/FatFS/ff.o
-                0x00008a84                f_gets
+                0x00007e40      0x270 source/FatFS/ff.o
+                0x00007e40                f_setlabel
+ .text.f_mkfs   0x000080b0      0x9d8 source/FatFS/ff.o
+                0x000080b0                f_mkfs
+ .text.f_gets   0x00008a88       0x8c source/FatFS/ff.o
+                0x00008a88                f_gets
  .text.putc_bfd
-                0x00008b10       0x80 source/FatFS/ff.o
+                0x00008b14       0x80 source/FatFS/ff.o
  .text.putc_flush
-                0x00008b90       0x50 source/FatFS/ff.o
+                0x00008b94       0x50 source/FatFS/ff.o
  .text.putc_init
-                0x00008be0       0x28 source/FatFS/ff.o
- .text.f_putc   0x00008c08       0x3c source/FatFS/ff.o
-                0x00008c08                f_putc
- .text.f_puts   0x00008c44       0x50 source/FatFS/ff.o
-                0x00008c44                f_puts
+                0x00008be4       0x28 source/FatFS/ff.o
+ .text.f_putc   0x00008c0c       0x3c source/FatFS/ff.o
+                0x00008c0c                f_putc
+ .text.f_puts   0x00008c48       0x50 source/FatFS/ff.o
+                0x00008c48                f_puts
  .text.f_printf
-                0x00008c94      0x524 source/FatFS/ff.o
-                0x00008c94                f_printf
- .text          0x000091b8        0x0 source/FatFS/mmc_176x_ssp.o
+                0x00008c98      0x524 source/FatFS/ff.o
+                0x00008c98                f_printf
+ .text          0x000091bc        0x0 source/FatFS/mmc_176x_ssp.o
  .text.xchg_spi
-                0x000091b8       0x44 source/FatFS/mmc_176x_ssp.o
+                0x000091bc       0x44 source/FatFS/mmc_176x_ssp.o
  .text.rcvr_spi_multi
-                0x000091fc      0x134 source/FatFS/mmc_176x_ssp.o
+                0x00009200      0x134 source/FatFS/mmc_176x_ssp.o
  .text.xmit_spi_multi
-                0x00009330      0x134 source/FatFS/mmc_176x_ssp.o
+                0x00009334      0x134 source/FatFS/mmc_176x_ssp.o
  .text.wait_ready
-                0x00009464       0x48 source/FatFS/mmc_176x_ssp.o
+                0x00009468       0x48 source/FatFS/mmc_176x_ssp.o
  .text.deselect
-                0x000094ac       0x1c source/FatFS/mmc_176x_ssp.o
- .text.select   0x000094c8       0x3c source/FatFS/mmc_176x_ssp.o
+                0x000094b0       0x1c source/FatFS/mmc_176x_ssp.o
+ .text.select   0x000094cc       0x3c source/FatFS/mmc_176x_ssp.o
  .text.power_on
-                0x00009504      0x104 source/FatFS/mmc_176x_ssp.o
+                0x00009508      0x104 source/FatFS/mmc_176x_ssp.o
  .text.power_off
-                0x00009608       0x10 source/FatFS/mmc_176x_ssp.o
+                0x0000960c       0x10 source/FatFS/mmc_176x_ssp.o
  .text.rcvr_datablock
-                0x00009618       0x6c source/FatFS/mmc_176x_ssp.o
+                0x0000961c       0x6c source/FatFS/mmc_176x_ssp.o
  .text.xmit_datablock
-                0x00009684       0x74 source/FatFS/mmc_176x_ssp.o
+                0x00009688       0x74 source/FatFS/mmc_176x_ssp.o
  .text.send_cmd
-                0x000096f8       0xfc source/FatFS/mmc_176x_ssp.o
+                0x000096fc       0xfc source/FatFS/mmc_176x_ssp.o
  .text.disk_initialize
-                0x000097f4      0x25c source/FatFS/mmc_176x_ssp.o
-                0x000097f4                disk_initialize
+                0x000097f8      0x25c source/FatFS/mmc_176x_ssp.o
+                0x000097f8                disk_initialize
  .text.disk_status
-                0x00009a50       0x30 source/FatFS/mmc_176x_ssp.o
-                0x00009a50                disk_status
+                0x00009a54       0x30 source/FatFS/mmc_176x_ssp.o
+                0x00009a54                disk_status
  .text.disk_read
-                0x00009a80       0xd0 source/FatFS/mmc_176x_ssp.o
-                0x00009a80                disk_read
+                0x00009a84       0xd0 source/FatFS/mmc_176x_ssp.o
+                0x00009a84                disk_read
  .text.disk_write
-                0x00009b50      0x128 source/FatFS/mmc_176x_ssp.o
-                0x00009b50                disk_write
+                0x00009b54      0x128 source/FatFS/mmc_176x_ssp.o
+                0x00009b54                disk_write
  .text.disk_ioctl
-                0x00009c78      0x578 source/FatFS/mmc_176x_ssp.o
-                0x00009c78                disk_ioctl
+                0x00009c7c      0x578 source/FatFS/mmc_176x_ssp.o
+                0x00009c7c                disk_ioctl
  .text.disk_timerproc
-                0x0000a1f0       0xa4 source/FatFS/mmc_176x_ssp.o
-                0x0000a1f0                disk_timerproc
- .text          0x0000a294        0x0 source/FatFS/diskio.o
- .text          0x0000a294        0x0 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/core_cm3.o
- .text          0x0000a294        0x0 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
+                0x0000a1f4       0xa4 source/FatFS/mmc_176x_ssp.o
+                0x0000a1f4                disk_timerproc
+ .text          0x0000a298        0x0 source/FatFS/diskio.o
+ .text          0x0000a298        0x0 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/core_cm3.o
+ .text          0x0000a298        0x0 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
  .text.SystemCoreClockUpdate
-                0x0000a294      0x228 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
-                0x0000a294                SystemCoreClockUpdate
+                0x0000a298      0x228 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
+                0x0000a298                SystemCoreClockUpdate
  .text.SystemInit
-                0x0000a4bc      0x240 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
-                0x0000a4bc                SystemInit
- .text          0x0000a6fc       0x14 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/startup_LPC17xx.o
-                0x0000a6fc                NMI_Handler
-                0x0000a6fe                HardFault_Handler
-                0x0000a700                MemManage_Handler
-                0x0000a702                BusFault_Handler
-                0x0000a704                UsageFault_Handler
-                0x0000a706                SVC_Handler
-                0x0000a708                DebugMon_Handler
-                0x0000a70a                PendSV_Handler
-                0x0000a70e                TIMER2_IRQHandler
-                0x0000a70e                RIT_IRQHandler
-                0x0000a70e                I2C0_IRQHandler
-                0x0000a70e                USBActivity_IRQHandler
-                0x0000a70e                PWM1_IRQHandler
-                0x0000a70e                I2C1_IRQHandler
-                0x0000a70e                EINT2_IRQHandler
-                0x0000a70e                UART1_IRQHandler
-                0x0000a70e                CANActivity_IRQHandler
-                0x0000a70e                TIMER3_IRQHandler
-                0x0000a70e                PLL0_IRQHandler
-                0x0000a70e                CAN_IRQHandler
-                0x0000a70e                PLL1_IRQHandler
-                0x0000a70e                SSP0_IRQHandler
-                0x0000a70e                I2C2_IRQHandler
-                0x0000a70e                RTC_IRQHandler
-                0x0000a70e                TIMER0_IRQHandler
-                0x0000a70e                SPI_IRQHandler
-                0x0000a70e                EINT1_IRQHandler
-                0x0000a70e                TIMER1_IRQHandler
-                0x0000a70e                UART2_IRQHandler
-                0x0000a70e                Default_Handler
-                0x0000a70e                ADC_IRQHandler
-                0x0000a70e                SSP1_IRQHandler
-                0x0000a70e                USB_IRQHandler
-                0x0000a70e                BOD_IRQHandler
-                0x0000a70e                WDT_IRQHandler
-                0x0000a70e                QEI_IRQHandler
-                0x0000a70e                EINT0_IRQHandler
-                0x0000a70e                DMA_IRQHandler
-                0x0000a70e                UART3_IRQHandler
-                0x0000a70e                MCPWM_IRQHandler
-                0x0000a70e                ENET_IRQHandler
- .text          0x0000a710       0x10 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-atoi.o)
-                0x0000a710                atoi
-                0x0000a718                _atoi_r
- .text          0x0000a720       0x20 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-malloc.o)
-                0x0000a720                malloc
-                0x0000a730                free
- .text          0x0000a740      0x57c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-mallocr.o)
-                0x0000a740                _malloc_r
- .text          0x0000acbc      0x150 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-memcpy.o)
-                0x0000acbc                memcpy
- .text          0x0000ae0c       0xb4 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
-                0x0000ae0c                memset
- .text          0x0000aec0        0x8 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-mlock.o)
-                0x0000aec0                __malloc_lock
-                0x0000aec4                __malloc_unlock
- .text          0x0000aec8       0x28 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-sbrkr.o)
-                0x0000aec8                _sbrk_r
- .text          0x0000aef0       0x94 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-sprintf.o)
-                0x0000aef0                _sprintf_r
-                0x0000af34                sprintf
- .text          0x0000af84      0x10c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
-                0x0000af84                strchr
- .text          0x0000b090       0xbc /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
-                0x0000b090                strcpy
- .text          0x0000b14c       0x60 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
-                0x0000b14c                strlen
- .text          0x0000b1ac       0xa0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strncmp.o)
-                0x0000b1ac                strncmp
- .text          0x0000b24c       0x7c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strncpy.o)
-                0x0000b24c                strncpy
- .text          0x0000b2c8      0x17c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strtol.o)
-                0x0000b2c8                _strtol_r
-                0x0000b42c                strtol
- .text          0x0000b444     0x1658 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-svfprintf.o)
-                0x0000b444                _svfprintf_r
- .text          0x0000ca9c        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-ctype_.o)
- *fill*         0x0000ca9c        0x4 00
+                0x0000a4c0      0x240 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
+                0x0000a4c0                SystemInit
+ .text          0x0000a700       0x14 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/startup_LPC17xx.o
+                0x0000a700                NMI_Handler
+                0x0000a702                HardFault_Handler
+                0x0000a704                MemManage_Handler
+                0x0000a706                BusFault_Handler
+                0x0000a708                UsageFault_Handler
+                0x0000a70a                SVC_Handler
+                0x0000a70c                DebugMon_Handler
+                0x0000a70e                PendSV_Handler
+                0x0000a712                TIMER2_IRQHandler
+                0x0000a712                RIT_IRQHandler
+                0x0000a712                I2C0_IRQHandler
+                0x0000a712                USBActivity_IRQHandler
+                0x0000a712                PWM1_IRQHandler
+                0x0000a712                I2C1_IRQHandler
+                0x0000a712                EINT2_IRQHandler
+                0x0000a712                UART1_IRQHandler
+                0x0000a712                CANActivity_IRQHandler
+                0x0000a712                TIMER3_IRQHandler
+                0x0000a712                PLL0_IRQHandler
+                0x0000a712                CAN_IRQHandler
+                0x0000a712                PLL1_IRQHandler
+                0x0000a712                SSP0_IRQHandler
+                0x0000a712                I2C2_IRQHandler
+                0x0000a712                RTC_IRQHandler
+                0x0000a712                TIMER0_IRQHandler
+                0x0000a712                SPI_IRQHandler
+                0x0000a712                EINT1_IRQHandler
+                0x0000a712                TIMER1_IRQHandler
+                0x0000a712                UART2_IRQHandler
+                0x0000a712                Default_Handler
+                0x0000a712                ADC_IRQHandler
+                0x0000a712                SSP1_IRQHandler
+                0x0000a712                USB_IRQHandler
+                0x0000a712                BOD_IRQHandler
+                0x0000a712                WDT_IRQHandler
+                0x0000a712                QEI_IRQHandler
+                0x0000a712                EINT0_IRQHandler
+                0x0000a712                DMA_IRQHandler
+                0x0000a712                UART3_IRQHandler
+                0x0000a712                MCPWM_IRQHandler
+                0x0000a712                ENET_IRQHandler
+ .text          0x0000a714       0x10 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-atoi.o)
+                0x0000a714                atoi
+                0x0000a71c                _atoi_r
+ .text          0x0000a724       0x20 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-malloc.o)
+                0x0000a724                malloc
+                0x0000a734                free
+ .text          0x0000a744      0x57c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-mallocr.o)
+                0x0000a744                _malloc_r
+ .text          0x0000acc0      0x150 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-memcpy.o)
+                0x0000acc0                memcpy
+ .text          0x0000ae10       0xb4 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-memset.o)
+                0x0000ae10                memset
+ .text          0x0000aec4        0x8 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-mlock.o)
+                0x0000aec4                __malloc_lock
+                0x0000aec8                __malloc_unlock
+ .text          0x0000aecc       0x28 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-sbrkr.o)
+                0x0000aecc                _sbrk_r
+ .text          0x0000aef4       0x94 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-sprintf.o)
+                0x0000aef4                _sprintf_r
+                0x0000af38                sprintf
+ .text          0x0000af88      0x10c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strchr.o)
+                0x0000af88                strchr
+ .text          0x0000b094       0xbc /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strcpy.o)
+                0x0000b094                strcpy
+ .text          0x0000b150       0x60 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strlen.o)
+                0x0000b150                strlen
+ .text          0x0000b1b0       0xa0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strncmp.o)
+                0x0000b1b0                strncmp
+ .text          0x0000b250       0x7c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strncpy.o)
+                0x0000b250                strncpy
+ .text          0x0000b2cc      0x17c /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-strtol.o)
+                0x0000b2cc                _strtol_r
+                0x0000b430                strtol
+ .text          0x0000b448     0x1658 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-svfprintf.o)
+                0x0000b448                _svfprintf_r
+ .text          0x0000caa0        0x0 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-ctype_.o)
  .text          0x0000caa0     0x1000 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-dtoa.o)
                 0x0000cbcc                _dtoa_r
  .text          0x0000daa0      0x240 /opt/york/cs/net/sourcery-g++-lite-arm-eabi-2010.09.51-i686-1/arm-none-eabi/lib/thumb2/libc.a(lib_a-freer.o)
@@ -1300,21 +1300,21 @@ END GROUP
  .rodata.C.0.2899
                 0x00017678       0x10 source/KeyAccess.o
  .rodata        0x00017688       0x14 source/LCD.o
- .rodata        0x0001769c        0x4 source/i2s.o
- .rodata        0x000176a0       0x1c source/Wave.o
- .rodata        0x000176bc       0xc8 source/SD.o
+ .rodata        0x0001769c       0x1c source/Wave.o
  .rodata.C.1.2907
-                0x00017784       0x18 source/TLV320.o
+                0x000176b8       0x18 source/TLV320.o
  .rodata.C.2.2908
-                0x0001779c       0x18 source/TLV320.o
+                0x000176d0       0x18 source/TLV320.o
  .rodata.C.3.2909
-                0x000177b4       0x10 source/TLV320.o
+                0x000176e8       0x10 source/TLV320.o
  .rodata.C.4.2910
-                0x000177c4        0x8 source/TLV320.o
+                0x000176f8        0x8 source/TLV320.o
  .rodata.C.5.2911
-                0x000177cc        0x8 source/TLV320.o
+                0x00017700        0x8 source/TLV320.o
  .rodata.C.6.2912
-                0x000177d4        0x4 source/TLV320.o
+                0x00017708        0x4 source/TLV320.o
+ .rodata        0x0001770c        0x4 source/i2s.o
+ .rodata        0x00017710       0xc8 source/SD.o
  .rodata.DbcTbl
                 0x000177d8        0xc source/FatFS/ff.o
  .rodata        0x000177e4       0x50 source/FatFS/ff.o
@@ -1458,16 +1458,16 @@ END GROUP
                 0x10000050                clrLine
  .data.Init     0x10000064        0xc source/LCD.o
                 0x10000064                Init
+ .data          0x10000070        0x0 source/I2C.o
+ .data          0x10000070        0x0 source/Wave.o
+ .data          0x10000070        0x0 source/TLV320.o
+ .data          0x10000070        0x0 source/Delay.o
+ .data          0x10000070        0x0 source/SerialIO.o
+ .data          0x10000070        0x0 source/interrupt_handlers.o
  .data          0x10000070        0x0 source/i2s.o
  .data.I2S_int_Handler_Funcs
                 0x10000070        0xc source/i2s.o
- .data          0x1000007c        0x0 source/Wave.o
- .data          0x1000007c        0x0 source/Delay.o
- .data          0x1000007c        0x0 source/SerialIO.o
- .data          0x1000007c        0x0 source/interrupt_handlers.o
- .data          0x1000007c        0x0 source/I2C.o
  .data          0x1000007c        0x0 source/SD.o
- .data          0x1000007c        0x0 source/TLV320.o
  .data          0x1000007c        0x0 source/FatFS/ff.o
  .data          0x1000007c        0x0 source/FatFS/mmc_176x_ssp.o
  .data.Stat     0x1000007c        0x1 source/FatFS/mmc_176x_ssp.o
@@ -1570,14 +1570,14 @@ END GROUP
                 0x10000612                int_Handler_Index
  .bss           0x10000613        0x0 source/KeyAccess.o
  .bss           0x10000613        0x0 source/LCD.o
- .bss           0x10000613        0x0 source/i2s.o
+ .bss           0x10000613        0x0 source/I2C.o
  .bss           0x10000613        0x0 source/Wave.o
+ .bss           0x10000613        0x0 source/TLV320.o
  .bss           0x10000613        0x0 source/Delay.o
  .bss           0x10000613        0x0 source/SerialIO.o
  .bss           0x10000613        0x0 source/interrupt_handlers.o
- .bss           0x10000613        0x0 source/I2C.o
+ .bss           0x10000613        0x0 source/i2s.o
  .bss           0x10000613        0x0 source/SD.o
- .bss           0x10000613        0x0 source/TLV320.o
  .bss           0x10000613        0x0 source/FatFS/ff.o
  *fill*         0x10000613        0x1 00
  .bss.FatFs     0x10000614        0x4 source/FatFS/ff.o
@@ -1756,14 +1756,14 @@ END GROUP
                                  0x2b (size before relaxing)
  .comment       0x00000000       0x2b source/KeyAccess.o
  .comment       0x00000000       0x2b source/LCD.o
- .comment       0x00000000       0x2b source/i2s.o
+ .comment       0x00000000       0x2b source/I2C.o
  .comment       0x00000000       0x2b source/Wave.o
+ .comment       0x00000000       0x2b source/TLV320.o
  .comment       0x00000000       0x2b source/Delay.o
  .comment       0x00000000       0x2b source/SerialIO.o
  .comment       0x00000000       0x2b source/interrupt_handlers.o
- .comment       0x00000000       0x2b source/I2C.o
+ .comment       0x00000000       0x2b source/i2s.o
  .comment       0x00000000       0x2b source/SD.o
- .comment       0x00000000       0x2b source/TLV320.o
  .comment       0x00000000       0x2b source/FatFS/ff.o
  .comment       0x00000000       0x2b source/FatFS/mmc_176x_ssp.o
  .comment       0x00000000       0x2b source/FatFS/diskio.o
@@ -1786,21 +1786,21 @@ END GROUP
  .debug_aranges
                 0x00000128       0x78 source/LCD.o
  .debug_aranges
-                0x000001a0       0x90 source/i2s.o
+                0x000001a0       0x30 source/I2C.o
  .debug_aranges
-                0x00000230       0x20 source/Wave.o
+                0x000001d0       0x20 source/Wave.o
  .debug_aranges
-                0x00000250       0x40 source/Delay.o
+                0x000001f0       0x68 source/TLV320.o
  .debug_aranges
-                0x00000290       0x90 source/SerialIO.o
+                0x00000258       0x40 source/Delay.o
  .debug_aranges
-                0x00000320       0x28 source/interrupt_handlers.o
+                0x00000298       0x90 source/SerialIO.o
  .debug_aranges
-                0x00000348       0x30 source/I2C.o
+                0x00000328       0x28 source/interrupt_handlers.o
  .debug_aranges
-                0x00000378       0x90 source/SD.o
+                0x00000350       0x90 source/i2s.o
  .debug_aranges
-                0x00000408       0x68 source/TLV320.o
+                0x000003e0       0x90 source/SD.o
  .debug_aranges
                 0x00000470      0x248 source/FatFS/ff.o
  .debug_aranges
@@ -1834,21 +1834,21 @@ END GROUP
  .debug_pubnames
                 0x00000352      0x11e source/LCD.o
  .debug_pubnames
-                0x00000470      0x1b2 source/i2s.o
+                0x00000470       0x3a source/I2C.o
  .debug_pubnames
-                0x00000622       0x81 source/Wave.o
+                0x000004aa       0x81 source/Wave.o
  .debug_pubnames
-                0x000006a3       0x4a source/Delay.o
+                0x0000052b      0x116 source/TLV320.o
  .debug_pubnames
-                0x000006ed      0x14f source/SerialIO.o
+                0x00000641       0x4a source/Delay.o
  .debug_pubnames
-                0x0000083c       0x31 source/interrupt_handlers.o
+                0x0000068b      0x14f source/SerialIO.o
  .debug_pubnames
-                0x0000086d       0x3a source/I2C.o
+                0x000007da       0x31 source/interrupt_handlers.o
  .debug_pubnames
-                0x000008a7      0x14b source/SD.o
+                0x0000080b      0x1b2 source/i2s.o
  .debug_pubnames
-                0x000009f2      0x116 source/TLV320.o
+                0x000009bd      0x14b source/SD.o
  .debug_pubnames
                 0x00000b08      0x191 source/FatFS/ff.o
  .debug_pubnames
@@ -1875,14 +1875,14 @@ END GROUP
  .debug_info    0x00000000     0x1e8c main.o
  .debug_info    0x00001e8c      0x3ea source/KeyAccess.o
  .debug_info    0x00002276      0xa66 source/LCD.o
- .debug_info    0x00002cdc     0x104a source/i2s.o
- .debug_info    0x00003d26      0x5a8 source/Wave.o
- .debug_info    0x000042ce      0x5fb source/Delay.o
- .debug_info    0x000048c9      0xcb6 source/SerialIO.o
- .debug_info    0x0000557f      0x359 source/interrupt_handlers.o
- .debug_info    0x000058d8      0x396 source/I2C.o
- .debug_info    0x00005c6e      0xd41 source/SD.o
- .debug_info    0x000069af      0x4d5 source/TLV320.o
+ .debug_info    0x00002cdc      0x396 source/I2C.o
+ .debug_info    0x00003072      0x5a8 source/Wave.o
+ .debug_info    0x0000361a      0x4d5 source/TLV320.o
+ .debug_info    0x00003aef      0x5fb source/Delay.o
+ .debug_info    0x000040ea      0xcb6 source/SerialIO.o
+ .debug_info    0x00004da0      0x359 source/interrupt_handlers.o
+ .debug_info    0x000050f9     0x104a source/i2s.o
+ .debug_info    0x00006143      0xd41 source/SD.o
  .debug_info    0x00006e84     0x2584 source/FatFS/ff.o
  .debug_info    0x00009408      0x64f source/FatFS/mmc_176x_ssp.o
  .debug_info    0x00009a57       0x49 source/FatFS/diskio.o
@@ -1902,14 +1902,14 @@ END GROUP
  .debug_abbrev  0x00000000      0x363 main.o
  .debug_abbrev  0x00000363      0x123 source/KeyAccess.o
  .debug_abbrev  0x00000486      0x1f7 source/LCD.o
- .debug_abbrev  0x0000067d      0x200 source/i2s.o
- .debug_abbrev  0x0000087d      0x141 source/Wave.o
- .debug_abbrev  0x000009be      0x1b5 source/Delay.o
- .debug_abbrev  0x00000b73      0x21e source/SerialIO.o
- .debug_abbrev  0x00000d91       0xe6 source/interrupt_handlers.o
- .debug_abbrev  0x00000e77      0x10d source/I2C.o
- .debug_abbrev  0x00000f84      0x1ff source/SD.o
- .debug_abbrev  0x00001183      0x112 source/TLV320.o
+ .debug_abbrev  0x0000067d      0x10d source/I2C.o
+ .debug_abbrev  0x0000078a      0x141 source/Wave.o
+ .debug_abbrev  0x000008cb      0x112 source/TLV320.o
+ .debug_abbrev  0x000009dd      0x1b5 source/Delay.o
+ .debug_abbrev  0x00000b92      0x21e source/SerialIO.o
+ .debug_abbrev  0x00000db0       0xe6 source/interrupt_handlers.o
+ .debug_abbrev  0x00000e96      0x200 source/i2s.o
+ .debug_abbrev  0x00001096      0x1ff source/SD.o
  .debug_abbrev  0x00001295      0x1a5 source/FatFS/ff.o
  .debug_abbrev  0x0000143a      0x1b8 source/FatFS/mmc_176x_ssp.o
  .debug_abbrev  0x000015f2       0x1f source/FatFS/diskio.o
@@ -1929,14 +1929,14 @@ END GROUP
  .debug_line    0x00000000      0x6a4 main.o
  .debug_line    0x000006a4      0x198 source/KeyAccess.o
  .debug_line    0x0000083c      0x28a source/LCD.o
- .debug_line    0x00000ac6      0x345 source/i2s.o
- .debug_line    0x00000e0b      0x17f source/Wave.o
- .debug_line    0x00000f8a      0x191 source/Delay.o
- .debug_line    0x0000111b      0x360 source/SerialIO.o
- .debug_line    0x0000147b      0x131 source/interrupt_handlers.o
- .debug_line    0x000015ac      0x174 source/I2C.o
- .debug_line    0x00001720      0x31a source/SD.o
- .debug_line    0x00001a3a      0x1d6 source/TLV320.o
+ .debug_line    0x00000ac6      0x174 source/I2C.o
+ .debug_line    0x00000c3a      0x17f source/Wave.o
+ .debug_line    0x00000db9      0x1d6 source/TLV320.o
+ .debug_line    0x00000f8f      0x191 source/Delay.o
+ .debug_line    0x00001120      0x360 source/SerialIO.o
+ .debug_line    0x00001480      0x131 source/interrupt_handlers.o
+ .debug_line    0x000015b1      0x345 source/i2s.o
+ .debug_line    0x000018f6      0x31a source/SD.o
  .debug_line    0x00001c10     0x15c7 source/FatFS/ff.o
  .debug_line    0x000031d7      0x556 source/FatFS/mmc_176x_ssp.o
  .debug_line    0x0000372d       0x1d source/FatFS/diskio.o
@@ -1956,14 +1956,14 @@ END GROUP
  .debug_frame   0x00000000      0x354 main.o
  .debug_frame   0x00000354       0x70 source/KeyAccess.o
  .debug_frame   0x000003c4      0x170 source/LCD.o
- .debug_frame   0x00000534      0x1e0 source/i2s.o
- .debug_frame   0x00000714       0x34 source/Wave.o
- .debug_frame   0x00000748       0x9c source/Delay.o
- .debug_frame   0x000007e4      0x1d8 source/SerialIO.o
- .debug_frame   0x000009bc       0x48 source/interrupt_handlers.o
- .debug_frame   0x00000a04       0x68 source/I2C.o
- .debug_frame   0x00000a6c      0x1f4 source/SD.o
- .debug_frame   0x00000c60      0x158 source/TLV320.o
+ .debug_frame   0x00000534       0x68 source/I2C.o
+ .debug_frame   0x0000059c       0x34 source/Wave.o
+ .debug_frame   0x000005d0      0x158 source/TLV320.o
+ .debug_frame   0x00000728       0x9c source/Delay.o
+ .debug_frame   0x000007c4      0x1d8 source/SerialIO.o
+ .debug_frame   0x0000099c       0x48 source/interrupt_handlers.o
+ .debug_frame   0x000009e4      0x1e0 source/i2s.o
+ .debug_frame   0x00000bc4      0x1f4 source/SD.o
  .debug_frame   0x00000db8      0x8a8 source/FatFS/ff.o
  .debug_frame   0x00001660      0x20c source/FatFS/mmc_176x_ssp.o
  .debug_frame   0x0000186c       0x40 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
@@ -2020,53 +2020,53 @@ END GROUP
  .debug_frame   0x00002d68      0x3a0 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_uart.o)
  .debug_frame   0x00003108       0xe4 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_clkpwr.o)
 
-.debug_str      0x00000000     0x2f73
+.debug_str      0x00000000     0x2f93
  *(.debug_str)
- .debug_str     0x00000000      0xe32 main.o
-                                0xf0e (size before relaxing)
- .debug_str     0x00000e32      0x1bc source/KeyAccess.o
+ .debug_str     0x00000000      0xe38 main.o
+                                0xf14 (size before relaxing)
+ .debug_str     0x00000e38      0x1d6 source/KeyAccess.o
                                 0x29d (size before relaxing)
- .debug_str     0x00000fee       0xdc source/LCD.o
+ .debug_str     0x0000100e       0xdc source/LCD.o
                                 0x67d (size before relaxing)
- .debug_str     0x000010ca      0x1d2 source/i2s.o
-                                0x945 (size before relaxing)
- .debug_str     0x0000129c       0x1c source/Wave.o
-                                0x326 (size before relaxing)
- .debug_str     0x000012b8       0x3a source/Delay.o
-                                0x429 (size before relaxing)
- .debug_str     0x000012f2      0x3ae source/SerialIO.o
-                                0x839 (size before relaxing)
- .debug_str     0x000016a0       0x37 source/interrupt_handlers.o
-                                0x37f (size before relaxing)
- .debug_str     0x000016d7       0x41 source/I2C.o
+ .debug_str     0x000010ea       0x7a source/I2C.o
                                 0x285 (size before relaxing)
- .debug_str     0x00001718      0x132 source/SD.o
-                                0x74b (size before relaxing)
- .debug_str     0x0000184a       0xf6 source/TLV320.o
+ .debug_str     0x00001164       0x1c source/Wave.o
+                                0x326 (size before relaxing)
+ .debug_str     0x00001180       0xf6 source/TLV320.o
                                 0x325 (size before relaxing)
- .debug_str     0x00001940      0x43f source/FatFS/ff.o
+ .debug_str     0x00001276       0x3a source/Delay.o
+                                0x429 (size before relaxing)
+ .debug_str     0x000012b0      0x37d source/SerialIO.o
+                                0x839 (size before relaxing)
+ .debug_str     0x0000162d       0x37 source/interrupt_handlers.o
+                                0x37f (size before relaxing)
+ .debug_str     0x00001664      0x1ca source/i2s.o
+                                0x945 (size before relaxing)
+ .debug_str     0x0000182e      0x132 source/SD.o
+                                0x74b (size before relaxing)
+ .debug_str     0x00001960      0x43f source/FatFS/ff.o
                                 0x718 (size before relaxing)
- .debug_str     0x00001d7f      0x10c source/FatFS/mmc_176x_ssp.o
+ .debug_str     0x00001d9f      0x10c source/FatFS/mmc_176x_ssp.o
                                 0x253 (size before relaxing)
- .debug_str     0x00001e8b       0x16 source/FatFS/diskio.o
+ .debug_str     0x00001eab       0x16 source/FatFS/diskio.o
                                  0x81 (size before relaxing)
- .debug_str     0x00001ea1       0x42 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/core_cm3.o
+ .debug_str     0x00001ec1       0x42 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/core_cm3.o
                                  0xd2 (size before relaxing)
- .debug_str     0x00001ee3       0x77 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
+ .debug_str     0x00001f03       0x77 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
                                 0x2d5 (size before relaxing)
- .debug_str     0x00001f5a      0x36f /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_i2c.o)
+ .debug_str     0x00001f7a      0x36f /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_i2c.o)
                                 0x840 (size before relaxing)
- .debug_str     0x000022c9      0x176 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_i2s.o)
+ .debug_str     0x000022e9      0x176 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_i2s.o)
                                 0x3c5 (size before relaxing)
- .debug_str     0x0000243f       0x26 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_libcfg_default.o)
+ .debug_str     0x0000245f       0x26 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_libcfg_default.o)
                                 0x107 (size before relaxing)
- .debug_str     0x00002465       0xf6 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_pinsel.o)
+ .debug_str     0x00002485       0xf6 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_pinsel.o)
                                 0x359 (size before relaxing)
- .debug_str     0x0000255b      0x245 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_ssp.o)
+ .debug_str     0x0000257b      0x245 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_ssp.o)
                                 0x3e7 (size before relaxing)
- .debug_str     0x000027a0      0x716 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_uart.o)
+ .debug_str     0x000027c0      0x716 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_uart.o)
                                 0xb32 (size before relaxing)
- .debug_str     0x00002eb6       0xbd /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_clkpwr.o)
+ .debug_str     0x00002ed6       0xbd /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/libDriversLPC17xxgnu.a(lpc17xx_clkpwr.o)
                                 0x380 (size before relaxing)
 
 .debug_loc      0x00000000     0x4140
@@ -2074,14 +2074,14 @@ END GROUP
  .debug_loc     0x00000000      0x5d0 main.o
  .debug_loc     0x000005d0       0xaa source/KeyAccess.o
  .debug_loc     0x0000067a      0x24e source/LCD.o
- .debug_loc     0x000008c8      0x318 source/i2s.o
- .debug_loc     0x00000be0       0x3a source/Wave.o
- .debug_loc     0x00000c1a      0x100 source/Delay.o
- .debug_loc     0x00000d1a      0x326 source/SerialIO.o
- .debug_loc     0x00001040       0x64 source/interrupt_handlers.o
- .debug_loc     0x000010a4       0x9c source/I2C.o
- .debug_loc     0x00001140      0x360 source/SD.o
- .debug_loc     0x000014a0      0x232 source/TLV320.o
+ .debug_loc     0x000008c8       0x9c source/I2C.o
+ .debug_loc     0x00000964       0x3a source/Wave.o
+ .debug_loc     0x0000099e      0x232 source/TLV320.o
+ .debug_loc     0x00000bd0      0x100 source/Delay.o
+ .debug_loc     0x00000cd0      0x326 source/SerialIO.o
+ .debug_loc     0x00000ff6       0x64 source/interrupt_handlers.o
+ .debug_loc     0x0000105a      0x318 source/i2s.o
+ .debug_loc     0x00001372      0x360 source/SD.o
  .debug_loc     0x000016d2      0xf80 source/FatFS/ff.o
  .debug_loc     0x00002652      0x394 source/FatFS/mmc_176x_ssp.o
  .debug_loc     0x000029e6       0x58 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
@@ -2125,21 +2125,21 @@ END GROUP
  .ARM.attributes
                 0x000000a4       0x31 source/LCD.o
  .ARM.attributes
-                0x000000d5       0x31 source/i2s.o
+                0x000000d5       0x31 source/I2C.o
  .ARM.attributes
                 0x00000106       0x31 source/Wave.o
  .ARM.attributes
-                0x00000137       0x31 source/Delay.o
+                0x00000137       0x31 source/TLV320.o
  .ARM.attributes
-                0x00000168       0x31 source/SerialIO.o
+                0x00000168       0x31 source/Delay.o
  .ARM.attributes
-                0x00000199       0x31 source/interrupt_handlers.o
+                0x00000199       0x31 source/SerialIO.o
  .ARM.attributes
-                0x000001ca       0x31 source/I2C.o
+                0x000001ca       0x31 source/interrupt_handlers.o
  .ARM.attributes
-                0x000001fb       0x31 source/SD.o
+                0x000001fb       0x31 source/i2s.o
  .ARM.attributes
-                0x0000022c       0x31 source/TLV320.o
+                0x0000022c       0x31 source/SD.o
  .ARM.attributes
                 0x0000025d       0x31 source/FatFS/ff.o
  .ARM.attributes
@@ -2305,21 +2305,21 @@ OUTPUT(bin/main elf32-littlearm)
  .debug_pubtypes
                 0x000001fa       0xc7 source/LCD.o
  .debug_pubtypes
-                0x000002c1      0x13e source/i2s.o
+                0x000002c1       0x74 source/I2C.o
  .debug_pubtypes
-                0x000003ff       0xc7 source/Wave.o
+                0x00000335       0xc7 source/Wave.o
  .debug_pubtypes
-                0x000004c6       0x7a source/Delay.o
+                0x000003fc       0x60 source/TLV320.o
  .debug_pubtypes
-                0x00000540      0x14d source/SerialIO.o
+                0x0000045c       0x7a source/Delay.o
  .debug_pubtypes
-                0x0000068d       0x5c source/interrupt_handlers.o
+                0x000004d6      0x14d source/SerialIO.o
  .debug_pubtypes
-                0x000006e9       0x74 source/I2C.o
+                0x00000623       0x5c source/interrupt_handlers.o
  .debug_pubtypes
-                0x0000075d       0xf9 source/SD.o
+                0x0000067f      0x13e source/i2s.o
  .debug_pubtypes
-                0x00000856       0x60 source/TLV320.o
+                0x000007bd       0xf9 source/SD.o
  .debug_pubtypes
                 0x000008b6       0xda source/FatFS/ff.o
  .debug_pubtypes
@@ -2349,14 +2349,14 @@ OUTPUT(bin/main elf32-littlearm)
  .debug_ranges  0x00000000      0x100 main.o
  .debug_ranges  0x00000100       0x20 source/KeyAccess.o
  .debug_ranges  0x00000120       0x68 source/LCD.o
- .debug_ranges  0x00000188       0x80 source/i2s.o
- .debug_ranges  0x00000208       0x10 source/Wave.o
- .debug_ranges  0x00000218       0x30 source/Delay.o
- .debug_ranges  0x00000248       0x80 source/SerialIO.o
- .debug_ranges  0x000002c8       0x18 source/interrupt_handlers.o
- .debug_ranges  0x000002e0       0x20 source/I2C.o
- .debug_ranges  0x00000300       0x80 source/SD.o
- .debug_ranges  0x00000380       0x58 source/TLV320.o
+ .debug_ranges  0x00000188       0x20 source/I2C.o
+ .debug_ranges  0x000001a8       0x10 source/Wave.o
+ .debug_ranges  0x000001b8       0x58 source/TLV320.o
+ .debug_ranges  0x00000210       0x30 source/Delay.o
+ .debug_ranges  0x00000240       0x80 source/SerialIO.o
+ .debug_ranges  0x000002c0       0x18 source/interrupt_handlers.o
+ .debug_ranges  0x000002d8       0x80 source/i2s.o
+ .debug_ranges  0x00000358       0x80 source/SD.o
  .debug_ranges  0x000003d8      0x238 source/FatFS/ff.o
  .debug_ranges  0x00000610       0x90 source/FatFS/mmc_176x_ssp.o
  .debug_ranges  0x000006a0       0x18 /opt/york/cs/net/lpc1700-cmsis-lite-2011.01.26-i686-1/lib/system_LPC17xx.o
