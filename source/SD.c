@@ -3,7 +3,6 @@
 FATFS sd_init(void);
 
 void sd_deinit();
-
 void SDPrintFresult(FRESULT fr) {
     if (fr == FR_OK) {
         WriteText("OK\n\r");
@@ -67,7 +66,6 @@ uint8_t SDGetAllFiles(char** result) {
   int stack_top = 0;
   char **allDirs = SDMallocFilenames();
   uint8_t allDirsCount = SDGetDirectories("/", allDirs);
-
   uint8_t i = 0, newFilesCount = 0, j = 0;
   char **thisDir = SDMallocFilenames();
   for (i = 0; i < allDirsCount; i += 1) {
