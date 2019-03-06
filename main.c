@@ -463,7 +463,8 @@ void PC_Mode()
           }
 
         case 'T': // Blue Screening
-          LCDPrint("Windows 95 has crashed");
+          LCDClear();
+          LCDPrint("Windows 95 \nhas crashed");
           WriteText("M");
           break;
         case 'B':;//send all browsing data back to embed
