@@ -4,8 +4,8 @@
 #include "LPC17xx.h"
 #include <string.h>
 
-#define malloc_base LPC_AHBRAM1_BASE
-#define malloc_end  LPC_GPIO_BASE
+#define MALLOC_BASE (void*)LPC_AHBRAM1_BASE
+#define MALLOC_END  (void*)LPC_GPIO_BASE
 #define END 100
 
 typedef struct{
@@ -14,9 +14,10 @@ typedef struct{
 }UsedMemory;
 
 
-void* NewMalloc(unsigned long data);
+void* NewMalloc(unsigned long size);
 void NewFree(void* toRemove);
 void initMalloc();
-
+void insertionSort();
+void* assignAddress(void* address,unsigned long size);
 
 #endif

@@ -5,36 +5,39 @@
 
 
 UsedMemory Used[END];//max number of malloc instructions
+int length =0;
 
-void* NewMalloc(long size)
+void* assignAddress(void* address,unsigned long size)
 {
-  void* newAddress;
+  Used[length].Address = address;
+  Used[length].EndAddress = address + size;
+  length ++;
+  insertionSort();
+  return address;
+}
+
+
+void* NewMalloc(unsigned long size)
+{
   int i =0;
-  if(Used.Address[0] == 0)
-  {
-    newAddress = LPC_AHBRAM1_BASE;
-    break;
-  }
+  if(length == 0)return assignAddress(MALLOC_BASE,size); //if no addresses are set yet
+  else if(size <= Used[0].Address - MALLOC_BASE)return assignAddress(MALLOC_BASE,size);//if there's space before the first address
   else
   {
-    for(i =1; i<END;i++)
+    for(i =1; i<length;i++)
     {
-      if(Used.Address[i] - Used.EndAddress[i-1] > size)
+      if(Used[i].Address - Used[i-1].EndAddress > size)
       {
-        newAddress = Used.EndAddress[i-1];
-        break;
+        if(length<END)
+        {
+          return assignAddress(Used[i-1].EndAddress,size);
+        }
+        else{return 0;}
       }
     }
-  }
-
-  for (i =0; i<END;i++)
-  {
-    if(Used.Address[i] == 0x00)
+    if(Used[length-1].EndAddress + size < MALLOC_END && length<END)
     {
-      Used.Address[i] = newAddress;
-      Used.EndAddress[i] = newAddress + size;
-      insertionSort();
-      return newAddress;
+      return assignAddress(Used[length-1].EndAddress,size);
     }
   }
   return 0x00;
@@ -42,10 +45,11 @@ void* NewMalloc(long size)
 
 void insertionSort()
 {
-   int i, key, j,v,c;
-   for (i = 1; i < END; i++)
+   int i, j;
+   void* key;
+   for (i = 1; i < length; i++)
    {
-       key = Used.Address[i];
+       key = Used[i].Address;
        if(key != 0)
        {
          j = i-1;
@@ -53,30 +57,13 @@ void insertionSort()
          /* Move elements of arr[0..i-1], that are
             greater than key, to one position ahead
             of their current position unless the value is */
-         v = 1;
-         c=0;
-         while (j >= 0 && (Used.Address[j] > key || Used.Address[j] == 0))
+         while (j >= 0 && Used[j].Address > key)
          {
-           if(Used.Address[j+v] == 0)v++;
-           else
-           {
-             c++;
-             Used.Address[j+v] = Used.Address[j];
-             Used.EndAddress[j+v] = Used.EndAddress[j];
-             j = j-v;
-           }
+             Used[j+1] = Used[j];
+             j = j-1;
          }
-         Used.Address[j+v] = key;
-         for(j=0;j<c;j++) //shift everything back to remove zeros
-         {
-           Used.Address[j] = Used.Address[j+v];
-           Used.EndAddress[j] = Used.EndAddress[j+v];
-         }
+         Used[j+1].Address = key;
        }
-   }
-   for(i=0;i<END;i++)
-   {
-     if(Used.Address[i] != 0)break;
    }
 }
 
@@ -86,10 +73,14 @@ void NewFree(void* toRemove)
   int i;
   for(i =0;i< END;i++)
   {
-    if(Used.Address[i] == toRemove)
+    if(Used[i].Address == toRemove)
     {
-      Used.Address[i] == 0x00;//Ghost it
-      Used.EndAddress[i] = 0x00;
+      for(;i<length;++i)//shift everything back
+      {
+        Used[i-1] = Used[i];
+      }
+      length--;
+      return;
     }
   }
 }
@@ -99,7 +90,7 @@ void initMalloc()
   int i;
   for(i =0;i<END;i++)
   {
-    Used.Address = 0;
-    Used.EndAddress = 0;
+    Used[i].Address = 0;
+    Used[i].EndAddress = 0;
   }
 }

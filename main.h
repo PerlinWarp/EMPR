@@ -44,7 +44,7 @@
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
-
+#include "source/NewMalloc.h"
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
 //#include "source/FatFS/mmc_176x_ssp.c"
