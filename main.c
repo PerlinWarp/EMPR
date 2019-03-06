@@ -434,12 +434,12 @@ void PC_Mode()
           A1();
           break;
 
-        case 'F': //Files - D3 for copying and deleting files. 
+        case 'F':; //Files - D3 for copying and deleting files.
           char fileName[100];
           strcpy(fileName,READ_SERIAL+1);
           char func = READ_SERIAL[1];
           WriteText(func);
-          
+
           switch (func)
           {
             case 'P':
@@ -455,7 +455,7 @@ void PC_Mode()
             break;
 
             case 'A':
-            //Adjust the volumem 
+            //Adjust the volumem
 
             break;
           }
@@ -475,6 +475,7 @@ void PC_Mode()
             WriteText(output);
           }
           WriteText("||");
+          WriteText("done");
           SDFreeFilenames(fileList);
           break;
       }

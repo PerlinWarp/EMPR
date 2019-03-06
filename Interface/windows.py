@@ -284,7 +284,7 @@ class loadingScreen(PlaceWindow):
         PlaceWindow.show_All(self)
         self.animate()
     def animate(self):
-        if self.frame.ser.in_waiHEADting > 0:
+        if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             if d == "CONNECT":
                 self.serConnected == True
@@ -300,7 +300,7 @@ class Browse(PlaceWindow):
         if len(path) == 1:
             if path[0][-1] =='d':#is a directory
                 directoryTree[path[0][:-1]] = {}#empty folder = dictionary
-            elif path[0][-1] =='HEADf':
+            elif path[0][-1] =='f':
                 directoryTree[path[0][:-1]] = path[0][:-1]
             return directoryTree
 
@@ -316,7 +316,7 @@ class Browse(PlaceWindow):
                 self.widgets[path] = browserButton(self.widgets["fileWindow"],self,directoryTree,item_type)
             else:
                 item_type = "folder"
-                for key in direcHEADtoryTree.keys():
+                for key in directoryTree.keys():
                     self.init_directories(directoryTree[key],path+"/"+key)
                 self.widgets[path] = browserButton(self.widgets["fileWindow"],self,path.split('/')[-1],item_type)
     def place_directories(self,directoryTree,path):
@@ -348,7 +348,7 @@ class Browse(PlaceWindow):
     def find_directory(self,directoryTree,path):
         if path in directoryTree.keys():
             return directoryTree[path]
-        else:HEAD
+        else:
             new_path = path.partition('/')
             if new_path[0] in directoryTree.keys():
                 return self.find_directory(directoryTree[new_path[0]],new_path[2])
