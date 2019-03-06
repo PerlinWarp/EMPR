@@ -1,6 +1,10 @@
 #include "main.h"
 
 
+DWORD get_fattime (void)
+{
+  return(0);
+}
 
 uint8_t SelectOne(char** items, char* header, uint8_t fileCount);
 uint8_t TextEntry(char* result, char* header);
@@ -267,7 +271,7 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  char fpath[100] = "/FILE1.WAV";// = browse_Files();
+  char fpath[100] = "/MEME2.WAV";// = browse_Files();
   Play(fpath);
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
@@ -277,13 +281,14 @@ void Play_Audio()
 
 void Play(char* directory)
 {
+  uint32_t MEME[BUFFER_SIZE];
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = MEME;
   fr = f_mount(&FatFs, "", 0);
-  if(fr)return;
+  SDPrintFresult(fr);
   fr = f_open(&fil, directory, FA_READ);
-  if(fr)return;
+  SDPrintFresult(fr);
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
 //
@@ -482,38 +487,84 @@ uint32_t bytesToUInt32(char* head) {
   return result;
 }
 
-int main()
-{//CURRENTLY PIN 28 IS BEING USED FOR EINT3
-    InitSerial();
-    serialInitialized = 0;
-    SystemInit();
-    DelayInit();
-    I2CInit();
-    IRQInit();
-    LCDInit();
-    LCDClear();
-    // BYTE readbuff[64];
-    // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
+int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
+  
+  InitSerial();
+  // serialInitialized = 0;
+  SystemInit();
+  DelayInit();
+  I2CInit();
+  IRQInit();
+  LCDInit();
+  LCDClear();
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  // WriteText("Mount Check Start\n\r");
+  // fr = f_mount(&fs, "", 0);
+  // WriteText("Mount Check Done\n\r");
 
-    // char charbuff[44];
-    // uint8_t i = 0;
-    // for (i = 0; i < 43; i++) {
-    //     charbuff[i] = (char)readbuff[i];
-    // }
+  // if (fr)
+  // {
+  //   sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+  //   WriteText(line);
+  //   return (int)fr;
+  // }
 
-    // // strncpy(readbuff, charbuff, 43);
-    // charbuff[43] = '\0';
-    // // WriteText(charbuff);
+  // /* Open a text file */
+  // WriteText("File Read Start\n\r");
+  // fr = f_open(&fil, "a.wav", FA_READ);
+  // WriteText("File Read End\n\r");
 
-    // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
-    // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
-    // WriteText(charbuff);
+  // if (fr)
+  // {
+  //   sprintf(line, "Exited with Error Code: %d\n\r",fr);
+  //   WriteText(line);
+  //   return (int)fr;
+  // }
+
+  // WriteText("No Errors!\n");
+
+  // /* Read every line and display it */
+  // uint y;
+  // char buffer [0x20];
+  // WriteText("Buffer Initialised\n");
+
+  // while (!fr){
+  //     fr = f_read(&fil,buffer,0x20, &y);
+  //     //n = sprintf(buffer,"%s\n\r", line);
+  //     write_usb_serial_blocking(buffer,y);
+  // }
+
+  // /* Close the file */
+  // f_close(&fil);
+
+  // //Unmount the file system
+  // f_mount(0, "", 0);
+
+  // return 0;
+  // BYTE readbuff[64];
+  // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
+
+  // char charbuff[44];
+  // uint8_t i = 0;
+  // for (i = 0; i < 43; i++) {
+  //     charbuff[i] = (char)readbuff[i];
+  // }
+
+  // // strncpy(readbuff, charbuff, 43);
+  // charbuff[43] = '\0';
+  // // WriteText(charbuff);
+
+  // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
+  // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
+  // WriteText(charbuff);
+
+  Play_Audio();
+  Menu();
 
 
-    Menu();
-
-
-    return 0;
+  return 0;
 }
 void temp(){buttonpress = 0;}//Delete at your earliest convienience
 

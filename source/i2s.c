@@ -2,7 +2,7 @@
 
 uint8_t I2S_ihf_Index;
 static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&i2s_wav_play_16_bit,&i2s_playSound};
-
+uint32_t buff2[BUFFER_SIZE];
 void I2S_IRQHandler()
 {
   I2S_int_Handler_Funcs[I2S_ihf_Index]();
@@ -43,27 +43,42 @@ void i2s_playSound()
     }
   }
 }
+int counter = 0;
+uint32_t* bufs[2];
+int bufidx = 0;
 void i2s_wav_play_16_bit()
 {
   if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
   {
-    if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
-    {
+    // if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
+    // {
       if(WriteInd < BUFFER_SIZE)
       {
-         buffer[WriteInd] = bswap_32(buffer[WriteInd]);
-         //__bit_rev(buffer[WriteInd]);
-         I2S_Send(LPC_I2S,buffer[WriteInd]);
-         ++WriteInd;
-      }
-      else
+      buffer[WriteInd] = bswap_32(buffer[WriteInd]);
+      //__bit_rev(buffer[WriteInd]);
+      I2S_Send(LPC_I2S,bufs[1-bufidx][WriteInd]);
+     //for(counter = 0;counter<200;counter++);
+      ++WriteInd;
+      // if(counter<48)
+      //   {++WriteInd;counter++;}
+      // else
+      //   {counter = 0;
+
+
+      //   }
+    }
+    else
       {
-        //Read Buffer full and reset write and readInd
         NVIC_DisableIRQ(I2S_IRQn);
+        //Read Buffer full and reset write and readInd
+        //char output[29];
+        //sprintf(output,"%lu ",fileptr->fptr);
+        //WriteText(output);
+        // SD_READ(fileptr,buffer,BUFFER_SIZE);
         WriteInd = 0;
       }
     }
-  }
+  // }
 }
 /*
 To do this, we are going to create a small read write buffer of
@@ -80,8 +95,9 @@ void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSampl
   I2S_Init(LPC_I2S);
   ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_STEREO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
-  I2S_FreqConfig(LPC_I2S, BASE_FREQUENCY, I2S_TX_MODE);//Set frequency for output
-  I2S_FreqConfig(LPC_I2S, BASE_FREQUENCY, I2S_RX_MODE);
+  I2S_FreqConfig(LPC_I2S, 16000, I2S_TX_MODE);//Set frequency for output
+  I2S_FreqConfig(LPC_I2S, 16000, I2S_RX_MODE);
+  WriteText("test");
   WriteInd = 0;
   LPC_I2S->I2STXRATE = 0x00;
   LPC_I2S->I2STXBITRATE = 0x00;
@@ -91,17 +107,21 @@ void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSampl
   I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
   NVIC_SetPriority(I2S_IRQn, 0x03);
   fileptr = fil;
-  TLV320_Start_I2S_Polling_Passthrough();
+  TLV320_Start_I2S_WavPlay();
   I2S_ihf_Index = 1;
+   bufs[0] = buffer;
+   bufs[1] = buff2;
   //Read a buffer of audio into the data
-
-  uint32_t count;
+  f_lseek(fileptr,44);
+  SD_READ(fileptr,bufs[bufidx],BUFFER_SIZE);
+  bufidx = (1 - bufidx);
+  NVIC_EnableIRQ(I2S_IRQn);
+  
   while(1){
-    count = SD_READ(fileptr,buffer,BUFFER_SIZE);//read the buffer full
-    f_lseek(fileptr,44);
-    if(count == BUFFER_SIZE)NVIC_EnableIRQ(I2S_IRQn);
-    else {break;}
-  }
+    SD_READ(fileptr,bufs[bufidx],BUFFER_SIZE);
+    bufidx = (1 - bufidx);//read the buffer full
+    NVIC_EnableIRQ(I2S_IRQn);
+    }
   WriteText("end");
 }
 
@@ -115,8 +135,8 @@ void I2S_Polling_Init(uint32_t freq,int i2smode)
   ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_STEREO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
 
-  I2S_FreqConfig(LPC_I2S, freq, I2S_TX_MODE);//Set frequency for output
-  I2S_FreqConfig(LPC_I2S, freq, I2S_RX_MODE);
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_TX_MODE);//Set frequency for output
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_RX_MODE);
   if(i2smode){
     WriteInd = ReadInd =0;
     LPC_I2S->I2STXRATE = 0x00;
