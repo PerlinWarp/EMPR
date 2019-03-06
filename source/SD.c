@@ -66,6 +66,7 @@ uint8_t SDGetAllFiles(char** result) {
   int stack_top = 0;
   char **allDirs = SDMallocFilenames();
   uint8_t allDirsCount = SDGetDirectories("/", allDirs);
+  char output[30];
   uint8_t i = 0, newFilesCount = 0, j = 0;
   char **thisDir = SDMallocFilenames();
   for (i = 0; i < allDirsCount; i += 1) {
@@ -74,6 +75,7 @@ uint8_t SDGetAllFiles(char** result) {
       if (thisDir[j][0] == '-') {
         indemalloc(result, stack_top, 16);
         sprintf(result[stack_top], "%s/%s", allDirs[i], thisDir[j] + 2);
+        WriteText(result[stack_top]);
         stack_top += 1;
       }
     }

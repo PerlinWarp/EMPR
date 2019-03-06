@@ -468,14 +468,12 @@ void PC_Mode()
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
           int i,len = SDGetAllFiles(fileList);
-          WriteText("test");
           for(i=0;i<len;i++)
           {
             sprintf(output,"%s|",fileList[i]);
             WriteText(output);
           }
           WriteText("||");
-          WriteText("done");
           SDFreeFilenames(fileList);
           break;
       }
