@@ -19,7 +19,7 @@ class WindowManager(Frame):
         #Change this to menu or play to switch between the windows
         self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
-        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self)}#initialize array of window contents
+        self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browse":Browse(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
         self.menus[self.currentScreen].hide_All()
@@ -78,6 +78,7 @@ class MainMenu(PlaceWindow):
         self.widgets["loading"] = Label(self.frame, text = "Connecting...",foreground = "white",font= "Arial")
         self.widgets["button_Area"] = betterLabel(self.frame, "buttonBox")
         self.widgets["nanocross"] = hoverButton(self.frame,self,"nanoCross",menu="BlueScreen")
+        self.widgets["testing_Cross"] = hoverButton(self.frame,self,"nanoCross",menu="TestingScreen")
 
         self.widgets["backButton"] = functionalButton(self.frame,self,"menuplay",lambda: self.frame.switch("browse"))
         self.widgets["menuRecord"] = functionalButton(self.frame,self,"menuRecord",lambda: self.frame.switch("browse"))
@@ -92,6 +93,7 @@ class MainMenu(PlaceWindow):
         self.widgets["loading"].place(x=700,y = 120)
         self.widgets["button_Area"].place(x = 80,y =180 )
 
+        self.widgets["testing_Cross"].place(x=780,y=0) #800x600
         self.widgets["nanocross"].place(x=309,y=183)
         self.widgets["backButton"].place(x=130,y =260)
         self.widgets["menuRecord"].place(x=130,y =330)
@@ -222,8 +224,28 @@ class BlueScreen(PlaceWindow):
             if d == "CONNECT":
                 self.serConnected == True
                 self.frame.switch("play")
-                
 
+class TestingScreen(PlaceWindow):
+    '''
+    For testing the differerent serial functions before we get file management to work
+    On the string sent from the PC:
+    first byte = F for files
+    Second byte is one of: P,C,D,A,R
+    From the second 2 bytes to the null is the file directory. 
+    '''
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
+
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        PlaceWindow.show_All(self)
+        
+        self.frame.ser.write(b"T|")
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until('|')
+            if d == "CONNECT":
+                self.serConnected == True
+                self.frame.switch("play")
 
 class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
