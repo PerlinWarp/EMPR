@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "SerialIO.h"
 #include "LPC17xx.h"
+#include "NewMalloc.h"
 #include "lpc17xx_i2s.h"
 
 #define SD_DEBUG 1 // enables status printing, assumes SerialInit() was ran

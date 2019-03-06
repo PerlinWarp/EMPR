@@ -43,6 +43,13 @@ void* NewMalloc(unsigned long size)
   return 0x00;
 }
 
+void* NewCalloc(unsigned long Count,unsigned long size)
+{
+  void* addr = NewMalloc(Count*size);
+  memset((char*)addr,0,Count*size);
+  return addr;
+}
+
 void insertionSort()
 {
    int i, j;

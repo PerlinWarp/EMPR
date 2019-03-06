@@ -117,7 +117,7 @@ void Menu()
 void I2S_PassThroughLoop()
 {
   //int i =0;
-  BufferOut = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   //for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
   LCDClear();
   LCDPrint("I2S Passthrough\n......Mode......");
@@ -129,13 +129,12 @@ void I2S_PassThroughLoop()
     I2S_Polling_Write(BufferOut,1);
   }
   I2S_DeInit(LPC_I2S);
-  //free(BufferOut);
+  NewFree(buffer);
   buttonpress = 0;
 }
 void I2S_PassThroughInterrupt()
 {
-  BufferOut = (uint32_t*)(I2S_SRC);
-  buffer = BufferOut;
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   LCDClear();
   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
   TLV320_Start_I2S_Polling_Passthrough();
@@ -145,7 +144,7 @@ void I2S_PassThroughInterrupt()
   int_Handler_Enable =0;
   WriteText("Finis");
   I2S_DeInit(LPC_I2S);
-  //free(BufferOut);
+  NewFree(buffer);
   buttonpress = 0;
 }
 
@@ -154,7 +153,6 @@ void FileInfo() {
 
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)(I2S_SRC);
   uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
   sd_init();
@@ -279,7 +277,7 @@ void Play(char* directory)
 {
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   fr = f_mount(&FatFs, "", 0);
   if(fr)return;
   fr = f_open(&fil, directory, FA_READ);
@@ -308,6 +306,7 @@ void Play(char* directory)
 //   I2S_DeInit(LPC_I2S);
 //   // CS_LOW();
 //
+  NewFree(buffer);
   f_close(&fil);
 }
 
@@ -591,7 +590,7 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 
 void A2()
 {
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   LCDGoHome();
   TLV320_Start_I2S_Polling_Passthrough();
   int_Handler_Enable =1;
@@ -603,11 +602,12 @@ void A2()
   while(!buttonpress);
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
 }
 
 void A1()
 {/*Considerations for alaiasing and nyquists theroem should be made in your solution*/
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   uint32_t BufferOut[1];
   char output[34];
   LCDGoHome();
@@ -618,12 +618,13 @@ void A1()
   {
     while(!buttonpress);
     I2S_Polling_Read(BufferOut,1);
-    sprintf(output,"  Just Read In  \n0x%04X",(signed int)BufferOut[0]);//print the left channel as a signed integer
+    sprintf(output,"  Just Read In  \n   0x%04X   ",(signed int)BufferOut[0]);//print the left channel as a signed integer
     LCDGoHome();
     LCDPrint(output);
     buttonpress = 0;
   }
   I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
 }
 
 void A3()
