@@ -44,6 +44,7 @@ void DAC_StartSend(int Frequency,int NumSamples)
 
   DAC_SetDMATimeOut(LPC_DAC,25000000/(Frequency*NumSamples));//Set the time between connections
   DAC_ConfigDAConverterControl(LPC_DAC,&DAC_Conv);
+  NVIC_SetPriority(DMA_IRQn, 0x02);
   NVIC_EnableIRQ (DMA_IRQn); //Enable DMA interrupts
   GPDMA_ChannelCmd(1,ENABLE);//Enable GPDMA on channel specified
 }

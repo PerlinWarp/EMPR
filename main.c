@@ -273,6 +273,18 @@ void Play_Audio()
   I2S_DeInit(LPC_I2S);
 }
 
+void Play_OnBoard_Audio()
+{
+  char fpath[20] = "/A.WAV";
+  FIL fil;
+  f_mount(&FatFs,"",0);
+  f_open(&fil,fpath,FA_READ);
+  WAVE_HEADER w = Wav_Init(&fil);
+  init_onboard_audio(&fil,48000);
+  f_close(&fil);
+}
+
+
 void Play(char* directory)
 {
   FIL fil;        /* File object */

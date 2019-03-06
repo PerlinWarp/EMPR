@@ -13,5 +13,7 @@
 #include "SD.h"
 #include "Wave.h"
 
+volatile int buttonpress;
+
 void init_onboard_audio(FIL* fil,uint32_t Frequency)
 #endif

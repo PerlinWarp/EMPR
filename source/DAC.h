@@ -1,6 +1,7 @@
 #ifndef DAC_H_
 #define DAC_H_
 
+#include "LPC17xx.h"
 #include "lpc17xx_dac.h"
 #include "lpc17xx_gpdma.h"//Do Direct memory access Deely
 #include "lpc17xx_libcfg_default.h"

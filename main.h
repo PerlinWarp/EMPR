@@ -42,8 +42,9 @@
 #include "source/NewMalloc.h"
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
+#include "source/Play_Audio.h"
 //#include "source/FatFS/mmc_176x_ssp.c"
-volatile int buttonpress;
+extern volatile int buttonpress;
 volatile char prevKey,key;
 volatile char* Audio_buf;
  uint32_t* BufferOut;
