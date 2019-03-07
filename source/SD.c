@@ -67,7 +67,7 @@ void SDPrintFresult(FRESULT fr) {
 
 void indemalloc(char** arr, uint8_t idx, uint8_t len) {
   if (arr[idx] == 0x0) {
-    arr[idx] = (char*)NewMalloc(len* sizeof(char));
+    arr[idx] = (char*)malloc(len* sizeof(char));
     #if SD_DEBUG == 1
       if (arr[idx] == 0x0) {
         WriteText("you ran out of heap my dude\n\r");
@@ -94,17 +94,17 @@ void sd_deinit() {
 #define MAX_FILE_COUNT 12
 
 char** SDMallocFilenames() {
-    char** filenames = (char**)NewCalloc(MAX_FILE_COUNT,sizeof(char*)); // max 128 filenames for now
+    char** filenames = (char**)calloc(MAX_FILE_COUNT,sizeof(char*)); // max 128 filenames for now
     return filenames;
 }
 void SDFreeFilenames(char** filenames) {
   int i = 0;
   for (i = 0; i < MAX_FILE_COUNT; i ++ ) {
     // if (filenames[i] == 0x00) break;
-    NewFree(filenames[i]);
+    free(filenames[i]);
     filenames[i] = 0x00;
   }
-  NewFree(filenames);
+  free(filenames);
 }
 
 
@@ -131,6 +131,26 @@ uint8_t SDGetAllFiles(char** result) {
   return stack_top;
 }
 
+uint8_t SDGetAllFilesandDirs(char** result,char**allDirs) {
+  int stack_top = 0;
+  uint8_t allDirsCount = SDGetDirectories("/", allDirs);
+  char output[30];
+  uint8_t i = 0, newFilesCount = 0, j = 0;
+  char **thisDir = SDMallocFilenames();
+  for (i = 0; i < allDirsCount; i += 1) {
+    newFilesCount = SDGetFiles(allDirs[i], thisDir);
+    for (j = 0; j < newFilesCount; j += 1) {
+      if (thisDir[j][0] == '-') {
+        indemalloc(result, stack_top, 16);
+        sprintf(result[stack_top], "%s/%s", allDirs[i], thisDir[j] + 2);
+        SDCleanPath(result[stack_top]);
+        stack_top += 1;
+      }
+    }
+  }
+  SDFreeFilenames(thisDir);
+  return stack_top;
+}
 
 uint8_t SDGetDirectories(char *path, char** result) {
 	int stack_begin = 0;
@@ -143,8 +163,8 @@ uint8_t SDGetDirectories(char *path, char** result) {
 	char** thisDir = SDMallocFilenames();
 	while(stack_begin < stack_len) {
 		int thisDirLen = SDGetFiles(result[stack_begin], thisDir);
-
 		for (i=0; i<thisDirLen; i++) {
+
 			if (thisDir[i][0] == 'd') {
 				sprintf(buff, "%s/%s", result[stack_begin], thisDir[i] + 2);
         SDCleanPath(buff);

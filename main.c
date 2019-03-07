@@ -303,11 +303,10 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[20] = "/A.WAV";
+  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
   FIL fil;
   f_mount(&FatFs,"",0);
   f_open(&fil,fpath,FA_READ);
-  WAVE_HEADER w = Wav_Init(&fil);
   init_onboard_audio(&fil,48000);
   f_close(&fil);
 }
@@ -599,16 +598,26 @@ void PC_Mode()
           //WriteText("M");
           break;
         case 'B':;//send all browsing data back to embed
-          char output[SERIAL_BUFFER_MAXSIZE];
+          char output[100];
+
           char ** fileList = SDMallocFilenames();
-          int i,len = SDGetAllFiles(fileList);
+          char ** allDirs = SDMallocFilenames();
+          int i,len = SDGetAllFilesandDirs(fileList,allDirs);
           for(i=0;i<len;i++)
           {
-            sprintf(output,"%s|",fileList[i]);
+            sprintf(output,"%sf|",fileList[i]);
             WriteText(output);
           }
-          WriteText("||");
           SDFreeFilenames(fileList);
+
+          for(i=0;i<len;i++)
+          {
+            sprintf(output,"%sd|",allDirs[i],len);
+            WriteText(output);
+          }
+          SDFreeFilenames(allDirs);
+
+          WriteText("ed|");
           break;
       }
       POP_SERIAL;
