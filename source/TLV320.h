@@ -29,6 +29,7 @@ void TLV320_ChangeOutputVolume(uint8_t newVolume);
 void TLV320_EnablePassThrough();
 void TLV320_DisablePassThrough();
 void TLV320_Setup();
+void TLV320_Start_I2S_WavPlay();
 void TLV320_SendData(uint8_t* Data,int length);
 void TLV320_EnableOutput();
 void TLV320_Start_I2S_Polling_Passthrough();

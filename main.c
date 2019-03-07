@@ -1,6 +1,10 @@
 #include "main.h"
 
 
+DWORD get_fattime (void)
+{
+  return(0);
+}
 
 uint8_t SelectOne(char** items, char* header, uint8_t fileCount);
 uint8_t TextEntry(char* result, char* header);
@@ -166,9 +170,15 @@ void Passthrough()
 
 void FileInfo() {
   FileSelection();
+  if(SELECTED_FILE[0] == '\0') {
+    return;
+  }
+  WriteText(SELECTED_FILE);
 
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
+  buffer = (uint32_t*)(I2S_SRC);
+  WriteText(" Filesize fresult: ");
   uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
   sd_init();
@@ -198,7 +208,7 @@ uint8_t NewFileSelection(char* newpath) {
     // SDFreeFilenames(directoryNames);
     int dir = SelectOne(directoryNames, "Location:\n", directoryCount);
     WriteText("oi\n\r");
-
+    uint8_t tmp;
     if (dir == 100) {
       return 0;
     } else {
@@ -207,7 +217,10 @@ uint8_t NewFileSelection(char* newpath) {
     	WriteText("\n\r");
     	char newfilename[16];
     	TextEntry(newfilename, "Name? (# ends)\n");
-    	return sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+    	tmp = sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+      SDCleanPath(SELECTED_FILE);
+      return tmp;
+
     }
 }
 // Stores full path to selected file in SELECTED_FILE
@@ -239,12 +252,12 @@ void FileSelection() {
    if(filenames[chosenIndex][0] == 'd') {
       int curlen = strlen(path);
       sprintf(path + curlen, "/%s", filenames[chosenIndex] + 2);
+      SDCleanPath(path);
    } else {
     SELECTED_FILE[0] = '/';
     sprintf(SELECTED_FILE, "/%s/%s", path, filenames[chosenIndex] + 2);
-    // WriteText("chosen file: ");
-    // WriteText(filenames[chosenIndex]);
-    // WriteText("\n\r");
+    SDCleanPath(SELECTED_FILE);
+
     break;
    }
   }
@@ -281,7 +294,7 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  char fpath[100] = "/FILE1.WAV";// = browse_Files();
+  char fpath[100] = "/MEME2.WAV";// = browse_Files();
   Play(fpath);
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
@@ -303,13 +316,14 @@ void Play_OnBoard_Audio()
 
 void Play(char* directory)
 {
+  uint32_t MEME[BUFFER_SIZE];
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  buffer = MEME;
   fr = f_mount(&FatFs, "", 0);
-  if(fr)return;
+  SDPrintFresult(fr);
   fr = f_open(&fil, directory, FA_READ);
-  if(fr)return;
+  SDPrintFresult(fr);
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
 //
@@ -464,7 +478,7 @@ void PC_Mode()
 
         case 'F':; //Files - D3 for copying and deleting files.
           /*
-          
+
           For testing the differerent serial functions before we get file management to work
           On the string sent from the PC:
           first byte = F for files
@@ -472,12 +486,12 @@ void PC_Mode()
           From the second 2 bytes to the null is the file directory.
 
           E.g. FPa.wav|
-          Byte one means File, P means play, then the last of the string is the path to the file. 
+          Byte one means File, P means play, then the last of the string is the path to the file.
 
-          The only difference from this is change volume. 
+          The only difference from this is change volume.
           Where I send:
-          FA100 For max volume and FA0 for min.  
-          
+          FA100 For max volume and FA0 for min.
+
           */
 
           char argument[100]; // File name or volume
@@ -594,46 +608,23 @@ void PC_Mode()
   //do each task
 }
 
-uint32_t bytesToUInt32(char* head) {
-  uint32_t result = 0;
-  // result |= ((uint32_t)head[3]) << 24;
-  // result |= ((uint32_t)head[2]) << 16;
-  // result |= ((uint32_t)head[1]) << 8;
-  result |= ((uint32_t)head[3]);
-  return result;
-}
 
-int main()
-{//CURRENTLY PIN 28 IS BEING USED FOR EINT3
-    InitSerial();
-    serialInitialized = 0;
-    SystemInit();
-    DelayInit();
-    I2CInit();
-    IRQInit();
-    LCDInit();
-    LCDClear();
-    initMalloc();
-    // BYTE readbuff[64];
-    // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
 
-    // char charbuff[44];
-    // uint8_t i = 0;
-    // for (i = 0; i < 43; i++) {
-    //     charbuff[i] = (char)readbuff[i];
-    // }
+int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
 
-    // // strncpy(readbuff, charbuff, 43);
-    // charbuff[43] = '\0';
-    // // WriteText(charbuff);
+  InitSerial();
+  // serialInitialized = 0;
+  SystemInit();
+  DelayInit();
+  I2CInit();
+  IRQInit();
+  LCDInit();
+  LCDClear();
+  Menu();
+  initMalloc();
 
-    // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
-    // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
-    // WriteText(charbuff);
 
-    Menu();
-
-    return 0;
+  return 0;
 }
 void temp(){buttonpress = 0;}//Delete at your earliest convienience
 
