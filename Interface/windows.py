@@ -259,12 +259,22 @@ class TestingScreen(PlaceWindow):
     See main.c switchstatement for more details
     '''
     def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
-
+        self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
+        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A1)
+        self.widgets["test"] = functionalButton(self.frame,self,"okbutton",self.test)
+    
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["okButton"].place(x=700,y=100)
+        self.widgets["test"].place(x=700,y=125)
         PlaceWindow.show_All(self)
 
+    def A1(self):
+        print("Starting A1")
+        self.frame.ser.write(b"S|")
+
+    def test(self):
+        print("Starting test")
         self.frame.ser.write(b"FPa.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
