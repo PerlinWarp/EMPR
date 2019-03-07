@@ -532,6 +532,45 @@ void PC_Mode()
             break;
           }
 
+        case 'A':
+            LCDClear();
+            LCDPrint("Starting A1");
+            char func = READ_SERIAL[1];
+                      switch (func)
+          {
+            case '1':
+            LCDClear();
+            LCDPrint("Starting A1");
+            //Play the file in fileName.
+            break;
+
+            case '2':
+            //Copy the file in fileName.
+            LCDClear();
+            LCDPrint("Starting A2");
+            break;
+
+            case '3':
+            //Delete the file in fileName.
+            LCDClear();
+            LCDPrint("Starting A3");
+            break;
+
+            case '4':
+            //Adjust the volume
+            // Uses a different format than the others
+            LCDClear();
+            LCDPrint("Starting A4");
+            break;
+
+            case '5':
+            // Reversing playback of the audio
+            LCDClear();
+            LCDPrint("Testing mode");
+            break;
+          }
+            break;
+
         case 'T': // Blue Screening
           //LCDClear();
           //LCDPrint("Windows 95 \nhas crashed");
@@ -705,13 +744,63 @@ void A3()
   LCDGoHome();
   LCDPrint("A3 Demo \n Recording Audio");
 }
+
 void A4()
 {
   LCDClear();
   LCDPrint("A4 Demo \nPlaying from SD");
 
-  while(1){}
-  
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  FATFS *fs;
+
+  fs = malloc(sizeof(FATFS));
+
+  WriteText("Mount Check Start\n");
+  fr = f_mount(fs, "", 0);
+  WriteText("Mount Check Done\n");
+
+  if (fr)
+  {
+    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+    WriteText(line);
+    return (int)fr;
+  }
+
+  /* Open a text file */
+  WriteText("File Read Start\n");
+  fr = f_open(&fil, "a.wav", FA_READ);
+  WriteText("File Read End\n");
+
+  if (fr)
+  {
+    sprintf(line, "Exited with Error Code: %d\n\r",fr);
+    WriteText(line);
+    return (int)fr;
+  }
+
+  WriteText("No Errors!\n");
+
+  /* Read every line and display it */
+  uint y;
+  char buffer [0x20];
+  WriteText("Buffer Initialised\n");
+
+  while (!fr){
+      fr = f_read(&fil,buffer,0x20, &y);
+      //n = sprintf(buffer,"%s\n\r", line);
+      write_usb_serial_blocking(buffer,y);
+  }
+
+  /* Close the file */
+  f_close(&fil);
+
+  //Unmount the file system
+  f_mount(0, "", 0);
+  free(fs);
+
+  return 0;
 }
 
 
