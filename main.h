@@ -54,9 +54,9 @@ int SelMenuItem;
 uint8_t int_Handler_Enable=0,int_Handler_Index =0;
 
 
-char* MenuText[MENUTEXTNUM] = {"A1.Rec Audio  ","A2.Play Audio  ",
-                     "A3.Save to SD  ", "A4.Browse SD   ",
-                     "U2.IPod Mode   ","N1.PassThrough "," "};
+char* MenuText[MENUTEXTNUM] = {"0-A1.Rec Audio ","1-A2.Play Audio ",
+                     "2-A3.Save to SD  ", "3-A4.Browse SD  ",
+                     "4-U2.IPod Mode  ","5-N1.PassThrough"," "};
 FATFS FatFs;
 
 int settings[20];
@@ -84,18 +84,20 @@ char SELECTED_FILE[32];
 
 void A1();
 void A2();
+void A3();
+void A4();
 
 void (*menuFuncs[])(void) = {
 	&A1,
 	&A2,
 	&I2S_PassThroughLoop,
+	&A4,
 	&I2S_PassThroughInterrupt,
-	&UART_Mode,
 	&PC_Mode,
 	&FatRead,
 	&PassThroughLoop,
 	&FileInfo,
-	&temp};
+	&UART_Mode};
 
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
 
