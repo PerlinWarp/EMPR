@@ -51,15 +51,15 @@ void DAC_StartSend(uint32_t Frequency,uint32_t NumSamples)
 
 void InitTimer(uint32_t Frequency)
 {
-  uint8_t mseconds = 1/Frequency * 1000000;
+  uint8_t mseconds = (uint8_t)((1/(float)Frequency) * 1000000);
   TIM_TIMERCFG_Type TIM_ConfigStruct;
   TIM_MATCHCFG_Type TIM_MatchConfigStruct;
   TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
-  TIM_ConfigStruct.PrescaleValue  = 100;
+  TIM_ConfigStruct.PrescaleValue  = mseconds;
   TIM_Init(LPC_TIM1, TIM_TIMER_MODE,&TIM_ConfigStruct);
 
   TIM_MatchConfigStruct.MatchChannel = 0;
-  TIM_MatchConfigStruct.MatchValue   = 600;//match every time
+  TIM_MatchConfigStruct.MatchValue   = mseconds;//match every time
   TIM_MatchConfigStruct.IntOnMatch   = TRUE;
   TIM_MatchConfigStruct.ResetOnMatch = TRUE;
   TIM_MatchConfigStruct.StopOnMatch  = FALSE;

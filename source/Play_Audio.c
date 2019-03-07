@@ -2,6 +2,7 @@
 
 volatile uint8_t SampleDone,InputDone,bufferIndex;
 volatile uint32_t Freq;
+uint32_t* buffers[2];
 GPDMA_Channel_CFG_Type CCFG_Struct[2];
 
 void TIMER1_IRQHandler(void)
@@ -11,10 +12,10 @@ void TIMER1_IRQHandler(void)
   TIM_ResetCounter(LPC_TIM1);
   if(SampleDone && InputDone)
   {
-    WriteText("next Sample");
     SampleDone = InputDone = 0;
     bufferIndex = 1 - bufferIndex;
     GPDMA_Setup(&CCFG_Struct[bufferIndex]);
+    GPDMA_ChannelCmd(1, ENABLE);
     NVIC_EnableIRQ(DMA_IRQn);
     DAC_StartSend(Freq,PRECISION);
   }
@@ -31,8 +32,10 @@ void DMA_IRQHandler()
     if(GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 1))
     {
       SampleDone =1;
-      WriteText("int triggered");
+
+      GPDMA_ChannelCmd(1, DISABLE);
       GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 1);
+      DAC_UpdateValue(LPC_DAC,buffers[bufferIndex][PRECISION-1]);
       NVIC_DisableIRQ(DMA_IRQn);//This runs when the buffer has emptied
     }
   }
@@ -46,12 +49,12 @@ little endian
 void init_onboard_audio(FIL* fil,uint32_t Frequency)
 {//NOTE: Pin Is PIN 18 on the header board --CHECK PINOUTS!!!
   int count = 0;
-  Freq = Frequency;
+  Freq = 48000;
   uint32_t* buf1 = (uint32_t*)NewMalloc(sizeof(uint32_t)*PRECISION);//Ping pong buffers: while one is DMA'd, the other is filling
   uint32_t* buf2 = (uint32_t*)NewMalloc(sizeof(uint32_t)*PRECISION);
   char* inbuf1 = (char*)NewMalloc(sizeof(char)*PRECISION);
   char* inbuf2 = (char*)NewMalloc(sizeof(char)*PRECISION);
-  uint32_t* buffers[2];
+
   char* inbuffers[2];
   buffers[0] = buf1;
   buffers[1] = buf2;
@@ -69,7 +72,7 @@ void init_onboard_audio(FIL* fil,uint32_t Frequency)
   buttonpress = 0;
   int i;
   SampleDone = 1;
-  InitTimer(48000);
+  InitTimer(Freq);
   TIM_Cmd(LPC_TIM1,ENABLE);
   while(buttonpress == 0)
   {
@@ -77,7 +80,7 @@ void init_onboard_audio(FIL* fil,uint32_t Frequency)
     if(count != PRECISION)break;
     for(i = 0;i<PRECISION;i++)
     {
-      buffers[bufferIndex][i] = (uint32_t)inbuffers[bufferIndex][i]<<8;
+      buffers[bufferIndex][i] = ((uint32_t)inbuffers[bufferIndex][i])<<8;
     }
     InputDone = 1;
     while(InputDone == 1);
