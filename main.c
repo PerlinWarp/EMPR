@@ -121,7 +121,7 @@ void Menu()
 void I2S_PassThroughLoop()
 {
   //int i =0;
-  BufferOut = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   //for(i=0;i<0x400;i++)BufferOut[i] = (i%30)*60;
   LCDClear();
   LCDPrint("I2S Passthrough\n......Mode......");
@@ -133,13 +133,12 @@ void I2S_PassThroughLoop()
     I2S_Polling_Write(BufferOut,1);
   }
   I2S_DeInit(LPC_I2S);
-  //free(BufferOut);
+  NewFree(buffer);
   buttonpress = 0;
 }
 void I2S_PassThroughInterrupt()
 {
-  BufferOut = (uint32_t*)(I2S_SRC);
-  buffer = BufferOut;
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   LCDClear();
   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
   TLV320_Start_I2S_Polling_Passthrough();
@@ -149,7 +148,7 @@ void I2S_PassThroughInterrupt()
   int_Handler_Enable =0;
   WriteText("Finis");
   I2S_DeInit(LPC_I2S);
-  //free(BufferOut);
+  NewFree(buffer);
   buttonpress = 0;
 }
 
@@ -287,6 +286,18 @@ void Play_Audio()
   I2S_DeInit(LPC_I2S);
 }
 
+void Play_OnBoard_Audio()
+{
+  char fpath[20] = "/A.WAV";
+  FIL fil;
+  f_mount(&FatFs,"",0);
+  f_open(&fil,fpath,FA_READ);
+  WAVE_HEADER w = Wav_Init(&fil);
+  init_onboard_audio(&fil,48000);
+  f_close(&fil);
+}
+
+
 void Play(char* directory)
 {
   uint32_t MEME[BUFFER_SIZE];
@@ -321,6 +332,7 @@ void Play(char* directory)
 //   I2S_DeInit(LPC_I2S);
 //   // CS_LOW();
 //
+  NewFree(buffer);
   f_close(&fil);
 }
 
@@ -448,17 +460,72 @@ void PC_Mode()
           A1();
           break;
 
+        case 'F':; //Files - D3 for copying and deleting files.
+          /*
+
+          For testing the differerent serial functions before we get file management to work
+          On the string sent from the PC:
+          first byte = F for files
+          Second byte is one of: P(lay),C(opy),D(elete),A(djust Volume),R(everse)
+          From the second 2 bytes to the null is the file directory.
+
+          E.g. FPa.wav|
+          Byte one means File, P means play, then the last of the string is the path to the file.
+
+          The only difference from this is change volume.
+          Where I send:
+          FA100 For max volume and FA0 for min.
+
+          */
+
+          char argument[100]; // File name or volume
+          strcpy(argument,&READ_SERIAL[2]);
+          char func = READ_SERIAL[1];
+          WriteText(func);
+
+          switch (func)
+          {
+            case 'P':
+            LCDClear();
+            LCDPrint(argument);
+            //Play the file in fileName.
+            break;
+
+            case 'C':
+            //Copy the file in fileName.
+            LCDClear();
+            LCDPrint(argument);
+            break;
+
+            case 'D':
+            //Delete the file in fileName.
+            LCDClear();
+            LCDPrint(argument);
+            break;
+
+            case 'A':
+            //Adjust the volume
+            // Uses a different format than the others
+            LCDClear();
+            LCDPrint(argument);
+            break;
+
+            case 'R':
+            // Reversing playback of the audio
+            LCDClear();
+            LCDPrint(argument);
+            break;
+          }
+
         case 'T': // Blue Screening
-          LCDPrint("Windows 95 has crashed");
-          WriteText("M");
+          //LCDClear();
+          //LCDPrint("Windows 95 \nhas crashed");
+          //WriteText("M");
           break;
         case 'B':;//send all browsing data back to embed
           char output[SERIAL_BUFFER_MAXSIZE];
           char ** fileList = SDMallocFilenames();
-          sprintf(output,"ad:%d",fileList[2]);
-          WriteText(output);
           int i,len = SDGetAllFiles(fileList);
-          WriteText("test");
           for(i=0;i<len;i++)
           {
             sprintf(output,"%s|",fileList[i]);
@@ -499,6 +566,7 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   LCDInit();
   LCDClear();
   Menu();
+  initMalloc();
 
 
   return 0;
@@ -580,7 +648,7 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 
 void A2()
 {
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   LCDGoHome();
   TLV320_Start_I2S_Polling_Passthrough();
   int_Handler_Enable =1;
@@ -592,11 +660,12 @@ void A2()
   while(!buttonpress);
   int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
 }
 
 void A1()
 {/*Considerations for alaiasing and nyquists theroem should be made in your solution*/
-  buffer = (uint32_t*)(I2S_SRC);
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
   uint32_t BufferOut[1];
   char output[34];
   LCDGoHome();
@@ -607,12 +676,13 @@ void A1()
   {
     while(!buttonpress);
     I2S_Polling_Read(BufferOut,1);
-    sprintf(output,"  Just Read In  \n0x%04X",(signed int)BufferOut[0]);//print the left channel as a signed integer
+    sprintf(output,"  Just Read In  \n   0x%04X   ",(signed int)BufferOut[0]);//print the left channel as a signed integer
     LCDGoHome();
     LCDPrint(output);
     buttonpress = 0;
   }
   I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
 }
 
 void A3()

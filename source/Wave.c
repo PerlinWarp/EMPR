@@ -4,7 +4,7 @@
 WAVE_HEADER Wav_Init(FIL* file )
 {
   WAVE_HEADER w;
-  head_buffer = (char*)malloc(43);
+  head_buffer = (char*)NewMalloc(43);
   UINT size;
   f_read(file,head_buffer,43, &size);
   if(size < 43)return w;
@@ -32,8 +32,8 @@ WAVE_HEADER Wav_Init(FIL* file )
   w.Subchunk2ID   = &head_buffer[36];
   if(strncmp(w.Subchunk2ID,"data",4))return w;
   w.Subchunk2Size = __ctl(&head_buffer[40]);
-  
-  #if DEBUG==1
+
+  #if WAVE_DEBUG==1
   char fileInfo[100];
   sprintf(fileInfo,"Audio Format: %u\n\rNum Channels: %u\n\rSample Rate: %u\n\r",w.AudioFormat,w.NumChannels,w.SampleRate);
   WriteText(fileInfo);
@@ -44,6 +44,6 @@ WAVE_HEADER Wav_Init(FIL* file )
   WriteText("loaded Wave Successfully\n\r");
   #endif
 
-  free(head_buffer);
+  NewFree(head_buffer);
   return w;
 }

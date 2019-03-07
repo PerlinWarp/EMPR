@@ -104,7 +104,7 @@ void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSampl
   I2S_Start(LPC_I2S);
   I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
   I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
-  NVIC_SetPriority(I2S_IRQn, 0x03);
+  NVIC_SetPriority(I2S_IRQn, 0x04);
   fileptr = fil;
   TLV320_Start_I2S_WavPlay();
   I2S_ihf_Index = 1;

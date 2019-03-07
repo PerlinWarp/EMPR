@@ -1,6 +1,8 @@
 #include "SD.h"
 
-#if SD_DEBUG == 1
+FATFS sd_init(void);
+
+void sd_deinit();
 void SDPrintFresult(FRESULT fr) {
   char buff[32];
   switch (fr) {
@@ -63,11 +65,10 @@ void SDPrintFresult(FRESULT fr) {
     WriteText(buff);
   }
 }
-#endif
 
 void indemalloc(char** arr, uint8_t idx, uint8_t len) {
   if (arr[idx] == 0x0) {
-    arr[idx] = (char*)malloc(len* sizeof(char));
+    arr[idx] = (char*)NewMalloc(len* sizeof(char));
     #if SD_DEBUG == 1
       if (arr[idx] == 0x0) {
         WriteText("you ran out of heap my dude\n\r");
@@ -94,17 +95,17 @@ void sd_deinit() {
 #define MAX_FILE_COUNT 12
 
 char** SDMallocFilenames() {
-    char** filenames = (char**)calloc(MAX_FILE_COUNT,sizeof(char*)); // max 128 filenames for now
+    char** filenames = (char**)NewCalloc(MAX_FILE_COUNT,sizeof(char*)); // max 128 filenames for now
     return filenames;
 }
 void SDFreeFilenames(char** filenames) {
   int i = 0;
   for (i = 0; i < MAX_FILE_COUNT; i ++ ) {
     // if (filenames[i] == 0x00) break;
-    free(filenames[i]);
+    NewFree(filenames[i]);
     filenames[i] = 0x00;
   }
-  free(filenames);
+  NewFree(filenames);
 }
 
 
@@ -112,11 +113,9 @@ uint8_t SDGetAllFiles(char** result) {
   int stack_top = 0;
   char **allDirs = SDMallocFilenames();
   uint8_t allDirsCount = SDGetDirectories("/", allDirs);
-
+  char output[30];
   uint8_t i = 0, newFilesCount = 0, j = 0;
   char **thisDir = SDMallocFilenames();
-  int tmp;
-  char buff[32];
   for (i = 0; i < allDirsCount; i += 1) {
     newFilesCount = SDGetFiles(allDirs[i], thisDir);
     for (j = 0; j < newFilesCount; j += 1) {

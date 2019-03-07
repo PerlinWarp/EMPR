@@ -20,11 +20,6 @@
 #define BUTTON_CONFIRM '0'
 #define BUTTON_CANCEL '8'
 
-//Buffer length in bytes
-#define BUFO_LENGTH 150
-#define BUFI_LENGTH 150
-#define I2S_SRC LPC_AHBRAM1_BASE
-#define I2S_DST (I2S_SRC + 0x1000UL)
 
 #define EGG_ON_TOAST(bufd) (bufd+10)
 
@@ -44,11 +39,12 @@
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
-
+#include "source/NewMalloc.h"
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
+#include "source/Play_Audio.h"
 //#include "source/FatFS/mmc_176x_ssp.c"
-volatile int buttonpress;
+extern volatile int buttonpress;
 volatile char prevKey,key;
 volatile char* Audio_buf;
  uint32_t* BufferOut;

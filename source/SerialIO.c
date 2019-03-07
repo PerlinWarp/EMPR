@@ -74,7 +74,6 @@ call before then
 */
 void ProcessBuffer()
 {
-	char output[50];
 	char tmp[INSTR_MAX_LEN];
 	tmp[INSTR_MAX_LEN-1] = '\0';
 	int i = INSTR_MAX_LEN-1;
