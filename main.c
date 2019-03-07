@@ -508,9 +508,47 @@ void PC_Mode()
             break;
 
             case 'C':
-              //Copy the file in fileName.
+              /* 
+              Copy the file in fileName.
+              1. Open the source
+              2. Create the destination
+              3. Use a loop to copy the files over
+              5. Close both files. 
+              */
               LCDClear();
+              LCDPrint("Starting copying");
+
+              FIL fsrc, fdst;    /* File objects */
+              UINT br, bw;         /* File read/write count */
+              FRESULT fe;     /* FatFs return code */
+
+              f_mount(&fs, "", 0);
+
+              /* Open a text file */
+              fe = f_open(&fsrc, argument, FA_READ);
+              if (fe) return (int)fe;
+              strcat(argument,".copy");
+              fe = f_open(&fdst, argument, FA_WRITE | FA_CREATE_ALWAYS);
+              if (fe) return (int)fe;
+
+              /* Copy source to destination */
+              for (;;) {
+                  fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
+                  if (fe || br == 0) break; /* error or eof */
+                  fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
+                  if (fe || bw < br) break; /* error or disk full */
+              }
+
+
+              /* Close the file */
+              f_close(&fsrc);
+              f_close(&fdst);
+
+              //Unmount the file system
+              f_mount(0, "", 0);
+              strcat(argument, "\n was copied.");
               LCDPrint(argument);
+              WriteText("Copied");
             break;
 
             case 'D':
