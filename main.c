@@ -155,10 +155,15 @@ void I2S_PassThroughInterrupt()
 
 void FileInfo() {
   FileSelection();
+  if(SELECTED_FILE[0] == '\0') {
+    return;
+  }
+  WriteText(SELECTED_FILE);
 
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
   buffer = (uint32_t*)(I2S_SRC);
+  WriteText(" Filesize fresult: ");
   uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
   sd_init();
@@ -188,7 +193,7 @@ uint8_t NewFileSelection(char* newpath) {
     // SDFreeFilenames(directoryNames);
     int dir = SelectOne(directoryNames, "Location:\n", directoryCount);
     WriteText("oi\n\r");
-
+    uint8_t tmp;
     if (dir == 100) {
       return 0;
     } else {
@@ -197,7 +202,10 @@ uint8_t NewFileSelection(char* newpath) {
     	WriteText("\n\r");
     	char newfilename[16];
     	TextEntry(newfilename, "Name? (# ends)\n");
-    	return sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+    	tmp = sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+      SDCleanPath(SELECTED_FILE);
+      return tmp;
+
     }
 }
 // Stores full path to selected file in SELECTED_FILE
@@ -229,12 +237,12 @@ void FileSelection() {
    if(filenames[chosenIndex][0] == 'd') {
       int curlen = strlen(path);
       sprintf(path + curlen, "/%s", filenames[chosenIndex] + 2);
+      SDCleanPath(path);
    } else {
     SELECTED_FILE[0] = '/';
     sprintf(SELECTED_FILE, "/%s/%s", path, filenames[chosenIndex] + 2);
-    // WriteText("chosen file: ");
-    // WriteText(filenames[chosenIndex]);
-    // WriteText("\n\r");
+    SDCleanPath(SELECTED_FILE);
+
     break;
    }
   }

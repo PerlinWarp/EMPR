@@ -1,18 +1,69 @@
 #include "SD.h"
 
+#if SD_DEBUG == 1
 void SDPrintFresult(FRESULT fr) {
-    if (fr == FR_OK) {
-        WriteText("OK\n\r");
-    } else if (fr == FR_NO_FILESYSTEM) {
-        WriteText("SD FILESYSTEM CORRUPTED\n\r");
-    } else if (fr == FR_NOT_READY) {
-        WriteText("SD NOT PLUGGED IN\n\r");
-    } else { // unrecognised error, just print the code
-        char err[30];
-        sprintf(err, "Error code: %d\n\r", fr);
-        WriteText(err);
-    }
+  char buff[32];
+  switch (fr) {
+    case FR_OK:
+    WriteText("OK\n\r");
+    break;
+    case FR_DISK_ERR:
+    WriteText("FR_DISK_ERR\n\r");
+    break;
+    case FR_INT_ERR:
+    WriteText("FR_INT_ERR\n\r");
+    break;
+    case FR_NOT_READY:
+    WriteText("FR_NOT_READY (SD NOT PLUGGED IN?)\n\r");
+    break;
+    case FR_NO_FILE:
+    WriteText("FR_NO_FILE\n\r");
+    break;
+    case FR_NO_PATH:
+    WriteText("FR_NO_PATH\n\r");
+    break;
+    case FR_INVALID_NAME:
+    WriteText("FR_INVALID_NAME\n\r");
+    break;
+    case FR_EXIST:
+    WriteText("FR_EXIST\n\r");
+    break;
+    case FR_INVALID_OBJECT:
+    WriteText("FR_INVALID_OBJECT\n\r");
+    break;
+    case FR_WRITE_PROTECTED:
+    WriteText("FR_WRITE_PROTECTED\n\r");
+    break;
+    case FR_INVALID_DRIVE:
+    WriteText("FR_INVALID_DRIVE\n\r");
+    break;
+    case FR_NOT_ENABLED:
+    WriteText("FR_NOT_ENABLED\n\r");
+    break;
+    case FR_NO_FILESYSTEM:
+    WriteText("FR_NO_FILESYSTEM\n\r");
+    break;
+    case FR_MKFS_ABORTED:
+    WriteText("FR_MKFS_ABORTED\n\r");
+    break;
+    case FR_TIMEOUT:
+    WriteText("FR_TIMEOUT\n\r");
+    break;
+    case FR_LOCKED:
+    WriteText("FR_NOT_ENOUGH_CORE\n\r");
+    break;
+    case FR_NOT_ENOUGH_CORE:
+    WriteText("FR_NOT_ENOUGH_CORE\n\r");
+    break;
+    case FR_TOO_MANY_OPEN_FILES:
+    WriteText("FR_TOO_MANY_OPEN_FILES\n\r");
+    break;
+    default:
+    sprintf(buff, "Unknown Error Code: %i", fr);
+    WriteText(buff);
+  }
 }
+#endif
 
 void indemalloc(char** arr, uint8_t idx, uint8_t len) {
   if (arr[idx] == 0x0) {
@@ -30,7 +81,7 @@ void indemalloc(char** arr, uint8_t idx, uint8_t len) {
 // card is mounted and unmounted for each operation to minimise risk
 void sd_init(void) {
     FRESULT fr;
-    fr = f_mount(&fs, "", 1);
+    fr = f_mount(&fs, "", 0);
     #if SD_DEBUG == 1
     SDPrintFresult(fr);
     #endif
@@ -72,6 +123,7 @@ uint8_t SDGetAllFiles(char** result) {
       if (thisDir[j][0] == '-') {
         indemalloc(result, stack_top, 16);
         sprintf(result[stack_top], "%s/%s", allDirs[i], thisDir[j] + 2);
+        SDCleanPath(result[stack_top]);
         stack_top += 1;
       }
     }
@@ -97,6 +149,7 @@ uint8_t SDGetDirectories(char *path, char** result) {
 		for (i=0; i<thisDirLen; i++) {
 			if (thisDir[i][0] == 'd') {
 				sprintf(buff, "%s/%s", result[stack_begin], thisDir[i] + 2);
+        SDCleanPath(buff);
         indemalloc(result, stack_len, 16);
 				strcpy(result[stack_len], buff);
 				stack_len++;
@@ -123,6 +176,13 @@ uint8_t SDGetFiles(char* path, char** result) {
         res = f_readdir(&dir, &fno);
 
         while(fno.fname[0] != 0 && i < MAX_FILE_COUNT) {
+          if (fno.fattrib & AM_DIR && (
+              (fno.fname[0] == '.' && fno.fname[1] == '\0') ||
+              (fno.fname[0] == '.' && fno.fname[1] == '.' && fno.fname[2] == '\0')
+            ) ) {
+            f_readdir(&dir, &fno);
+            continue;
+        }
           indemalloc(result, i, 16);
           strcpy(result[i] + 2, (char*)&fno.fname);
           if (fno.fattrib & AM_DIR) {
@@ -131,6 +191,7 @@ uint8_t SDGetFiles(char* path, char** result) {
               result[i][0] = '-';
           }
           result[i][1] = ' ';
+          SDCleanPath(result[i]);
 
           f_readdir(&dir, &fno);
           i += 1;
@@ -144,6 +205,33 @@ uint8_t SDGetFiles(char* path, char** result) {
     }
     sd_deinit();
     return i;
+}
+
+// Pete's SD module does not like multiple slashes (eg //path)
+// this replaces all multiple slashes with single ones
+// also makes everything lowercase for no good reason
+void SDCleanPath(char *path) {
+  int i = 0, j = 0;
+  char buff[64];
+  while(path[i] != '\0') {
+    if (path[i] == '/') {
+      buff[j] = '/';
+      while (path[i] == '/') i++;
+      j++;
+      continue;
+    }
+    else if (path[i] >= 'A' && path[i] <= 'Z') {
+      buff[j] = (char)((uint8_t)path[i] + 32);
+    }
+    else {
+      buff[j] = path[i];
+    }
+    j++;
+    i++;
+  }
+  buff[j] = '\0';
+
+  strcpy(path, buff);
 }
 // read at most n bytes from path and store them in result, returning how many were actually read
 uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
