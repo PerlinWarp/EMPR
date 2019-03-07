@@ -35,7 +35,7 @@ void DMA_IRQHandler()
 
       GPDMA_ChannelCmd(1, DISABLE);
       GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 1);
-      DAC_UpdateValue(LPC_DAC,buffers[bufferIndex][PRECISION-1]);
+      //DAC_UpdateValue(LPC_DAC,buffers[bufferIndex][PRECISION-1]);
       NVIC_DisableIRQ(DMA_IRQn);//This runs when the buffer has emptied
     }
   }
