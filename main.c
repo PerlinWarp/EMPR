@@ -275,11 +275,10 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[20] = "/A.WAV";
+  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
   FIL fil;
   f_mount(&FatFs,"",0);
   f_open(&fil,fpath,FA_READ);
-  WAVE_HEADER w = Wav_Init(&fil);
   init_onboard_audio(&fil,48000);
   f_close(&fil);
 }
@@ -448,7 +447,7 @@ void PC_Mode()
 
         case 'F':; //Files - D3 for copying and deleting files.
           /*
-          
+
           For testing the differerent serial functions before we get file management to work
           On the string sent from the PC:
           first byte = F for files
@@ -456,12 +455,12 @@ void PC_Mode()
           From the second 2 bytes to the null is the file directory.
 
           E.g. FPa.wav|
-          Byte one means File, P means play, then the last of the string is the path to the file. 
+          Byte one means File, P means play, then the last of the string is the path to the file.
 
-          The only difference from this is change volume. 
+          The only difference from this is change volume.
           Where I send:
-          FA100 For max volume and FA0 for min.  
-          
+          FA100 For max volume and FA0 for min.
+
           */
 
           char argument[100]; // File name or volume

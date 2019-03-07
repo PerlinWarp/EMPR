@@ -6,12 +6,15 @@
 #include "lpc17xx_gpdma.h"//Do Direct memory access Deely
 #include "lpc17xx_libcfg_default.h"
 #include "lpc17xx_pinsel.h"
+#include "lpc17xx_timer.h"
 
 void InitializeDAC();
 
 void DAC_StartSend(uint32_t Frequency,uint32_t NumSamples);
 
 void InitializeGPDMA(uint32_t* Source,GPDMA_LLI_Type* DMA_Struct,GPDMA_Channel_CFG_Type* GPDMA_Cfg, int NumSamples);
+
+void InitTimer(uint32_t Frequency);
 
 
 #endif
