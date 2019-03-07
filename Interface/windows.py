@@ -443,6 +443,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["nanocross"] = hoverButtoninFrame(self.widgets["fileWindow"],self,"nanoCross","play")
         self.widgets["backButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserUp",function = self.outof_dir)
         self.widgets["deleteButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserDelete",function = self.delete)
+        self.widgets["copyButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserCopy",function = self.copy)
         self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
         self.widgets["dirEntry"] = directoryEntry(self.widgets["fileWindow"],self,self.path)
         self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "#C0C0C0",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
@@ -469,10 +470,33 @@ class Browse_For_Play(PlaceWindow):
         self.hide_directories(self.workingTree,self.path)
         #self.recursiveDelete(self.workingTree[self.selectedFile])
         self.workingTree.pop(self.selectedFile,None)
-        self.frame.ser.write(bytes("D:"+self.path +"/" +self.selectedFile+"/"+'|',"utf-8"))
+        if len(self.path) == 2:#if is "C:"
+            p = "/"
+        else: #if is "C:/xxx/xx etc."
+            p = self.path[2:]
+
+        print("FD"+ p +self.selectedFile+'|')
+        self.frame.ser.write(bytes("FD"+ p +self.selectedFile+'|',"utf-8"))
         self.place_directories(self.workingTree,self.path)
         for i in ["rightclickmenu_file","delete","rename","open"]:
             self.widgets[i].place_forget()
+    def copy(self):
+        self.hide_directories(self.workingTree,self.path)
+        if len(self.path) == 2:#if is "C:"
+            p = "/"
+        else: #if is "C:/xxx/xx etc."
+            p = self.path[2:]
+        print("FC"+p +self.selectedFile+'|')
+        self.frame.ser.write(bytes("FC"+p +self.selectedFile+'|',"utf-8"))
+        filetype = self.widgets[self.path+"/"+self.selectedFile].filetype
+        text = self.selectedFile + ".copy"
+        if filetype == "folder":
+            self.workingTree[text] = {}
+        else:
+            self.workingTree[text] = text
+        self.widgets[self.path+"/"+text] = browserButton(self.widgets["fileWindow"],self,text,filetype)
+        self.place_directories(self.workingTree,self.path)
+
     def rename(self):#TODO
         if type(self.workingTree[self.selectedFile]) == type({}):
             self.delete()
@@ -488,7 +512,6 @@ class Browse_For_Play(PlaceWindow):
         self.counter +=1
         self.widgets["objects"].config(text = str(self.counter) + " Object(s)")
     def newDone(self,text,filetype):
-        print("test")
         self.widgets["newFile"].place_forget()
         del self.widgets["newFile"]
         self.widgets.pop("newFile",None)
@@ -517,16 +540,6 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
 
     def show_All(self):
-        #self.frame.ser.write(b"B|")#Make this happen in place.
-
-        while(False):
-            d = str(self.frame.ser.read_until("|"))
-            print(d)
-            if d == "|":
-                break
-            path = d[:-1].split('/')
-            self.workingTree = self.add_directories(self.workingTree,path)
-
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
@@ -535,6 +548,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["fileWindowbg"].place(x=0,y=0)
         self.place_directories(self.workingTree,self.path)
         self.widgets["deleteButton"].place(x=443,y=49)
+        self.widgets["copyButton"].place(x=360,y=49)
         self.widgets["nanocross"].place(x=596,y=6)
         self.widgets["start"].place(x=1,y =576)
         self.widgets["folderName"].place(x = 115, y = 133)
@@ -545,7 +559,7 @@ class Browse_For_Play(PlaceWindow):
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>")
 class Browse_For_Record(Browse_For_Play):
-    def show_All(self):
+    def getDirs(self):
         self.frame.ser.write(b"B|")#Make this happen in place.
         while(True):
             d = self.frame.ser.read_until(b'|').decode("utf-8")
@@ -557,19 +571,8 @@ class Browse_For_Record(Browse_For_Play):
             #print(path)
             if path[0] != 'd' and path[0] != 'null)d':
                 self.workingTree = self.add_directories(self.workingTree,path)
-
         self.init_directories(self.workingTree,self.path)
-        print(self.workingTree)
-        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
-        self.widgets["fileWindow"].place(x=80,y=18)
-        self.widgets["taskbar"].place(x =0,y = 574)
-        self.bindings["startBinding"] = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
-        self.bindings["rightclickmenuBinding"] = self.frame.root.bind("<Button-1>",self.widgets["fileWindow"].check_focus,"+")
-        self.widgets["fileWindowbg"].place(x=0,y=0)
-        self.place_directories(self.workingTree,self.path)
-        self.widgets["deleteButton"].place(x=443,y=49)
-        self.widgets["nanocross"].place(x=596,y=6)
-        self.widgets["start"].place(x=1,y =576)
-        self.widgets["folderName"].place(x = 115, y = 133)
-        self.widgets["dirEntry"].place(x = 77,y = 93)
-        self.widgets["objects"].place(x=8,y=504)
+
+    def show_All(self):
+        self.getDirs()
+        Browse_For_Play.show_All(self)

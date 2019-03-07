@@ -507,12 +507,12 @@ void PC_Mode()
             break;
 
             case 'C':
-              /* 
+              /*
               Copy the file in fileName.
               1. Open the source
               2. Create the destination
               3. Use a loop to copy the files over
-              5. Close both files. 
+              5. Close both files.
               */
               LCDClear();
               LCDPrint("Starting copying");
@@ -589,6 +589,20 @@ void PC_Mode()
 
             case 'R':
               // Reversing playback of the audio
+              LCDClear();
+              LCDPrint(argument);
+            break;
+            case 'N':
+              switch(READ_SERIAL[2])
+              {
+                case 'd'://new folder
+
+                break;
+                case 'f'://new file
+
+                break;
+              }
+            //New file and folder creation
               LCDClear();
               LCDPrint(argument);
             break;
