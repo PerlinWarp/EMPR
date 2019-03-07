@@ -35,7 +35,7 @@ void InitializeDAC()
 
 }
 
-void DAC_StartSend(int Frequency,int NumSamples)
+void DAC_StartSend(uint32_t Frequency,uint32_t NumSamples)
 {
   DAC_CONVERTER_CFG_Type DAC_Conv;
 
