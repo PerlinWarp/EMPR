@@ -271,7 +271,7 @@ class TestingScreen(PlaceWindow):
 
     def A1(self):
         print("Starting A1")
-        self.frame.ser.write(b"S|")
+        self.frame.ser.write(b"A1|")
 
     def test(self):
         print("Starting test")
