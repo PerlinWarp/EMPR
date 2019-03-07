@@ -260,7 +260,7 @@ class TestingScreen(PlaceWindow):
 
     def test(self):
         print("Starting test")
-        self.frame.ser.write(b"FCdeleteme.wav|")
+        self.frame.ser.write(b"FCcopyme.txt|")
         print("FCdeleteme.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
