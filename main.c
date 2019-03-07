@@ -148,6 +148,22 @@ void I2S_PassThroughInterrupt()
   buttonpress = 0;
 }
 
+void Passthrough()
+{
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  LCDClear();
+  LCDPrint("I2S Passthrough\n.Interrupt Mode.");
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
+  while(!buttonpress);
+  int_Handler_Enable =0;
+  WriteText("Finis");
+  I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
+  buttonpress = 0;
+}
+
 void FileInfo() {
   FileSelection();
 
