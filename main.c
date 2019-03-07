@@ -712,11 +712,16 @@ void A1()
 
 void A3()
 {
-
+  LCDGoHome();
+  LCDPrint("A3 Demo \n Recording Audio");
 }
 void A4()
 {
+  LCDClear();
+  LCDPrint("A4 Demo \nPlaying from SD");
 
+  while(1){}
+  
 }
 
 
