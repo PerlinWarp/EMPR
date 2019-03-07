@@ -500,40 +500,101 @@ void PC_Mode()
           switch (func)
           {
             case 'P':
-            LCDClear();
-            LCDPrint(argument);
-            //Play the file in fileName.
+              LCDClear();
+              LCDPrint(argument);
+              //Play the file in fileName.
+
             break;
 
             case 'C':
-            //Copy the file in fileName.
-            LCDClear();
-            LCDPrint(argument);
+              /* 
+              Copy the file in fileName.
+              1. Open the source
+              2. Create the destination
+              3. Use a loop to copy the files over
+              5. Close both files. 
+              */
+              LCDClear();
+              LCDPrint("Starting copying");
+
+              FIL fsrc, fdst;    /* File objects */
+              UINT br, bw;         /* File read/write count */
+              FRESULT fe;     /* FatFs return code */
+
+              f_mount(&fs, "", 0);
+
+              /* Open a text file */
+              fe = f_open(&fsrc, argument, FA_READ);
+              if (fe) return (int)fe;
+              strcat(argument,".copy");
+              fe = f_open(&fdst, argument, FA_WRITE | FA_CREATE_ALWAYS);
+              if (fe) return (int)fe;
+
+              /* Copy source to destination */
+              for (;;) {
+                  fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
+                  if (fe || br == 0) break; /* error or eof */
+                  fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
+                  if (fe || bw < br) break; /* error or disk full */
+              }
+
+
+              /* Close the file */
+              f_close(&fsrc);
+              f_close(&fdst);
+
+              //Unmount the file system
+              f_mount(0, "", 0);
+              strcat(argument, "\n was copied.");
+              LCDPrint(argument);
+              WriteText("Copied");
             break;
 
             case 'D':
-            //Delete the file in fileName.
-            LCDClear();
-            LCDPrint(argument);
+              //Delete the file in fileName.
+              LCDClear();
+
+              FIL fil;        /* File object */
+              char line[100]; /* Line buffer */
+              FRESULT fr;     /* FatFs return code */
+              FATFS *fs;
+
+              fs = malloc(sizeof(FATFS));
+              fr = f_mount(fs, "", 0);
+
+              if (fr)
+              {
+                sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+                return (int)fr;
+              }
+
+              /* Open a text file */
+              fr = f_unlink(argument);
+
+              //Unmount the file system
+              f_mount(0, "", 0);
+              free(fs);
+              write_usb_serial_blocking("File deleted",9);
+
+              strcat(argument, "\n was deleted.");
+              LCDPrint(argument);
             break;
 
             case 'A':
-            //Adjust the volume
-            // Uses a different format than the others
-            LCDClear();
-            LCDPrint(argument);
+              //Adjust the volume
+              // Uses a different format than the others
+              LCDClear();
+              LCDPrint(argument);
             break;
 
             case 'R':
-            // Reversing playback of the audio
-            LCDClear();
-            LCDPrint(argument);
+              // Reversing playback of the audio
+              LCDClear();
+              LCDPrint(argument);
             break;
           }
 
         case 'A':
-            LCDClear();
-            LCDPrint("Starting A1");
             func = READ_SERIAL[1];
             switch (func)
             {

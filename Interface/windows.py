@@ -260,14 +260,19 @@ class TestingScreen(PlaceWindow):
 
     def test(self):
         print("Starting test")
-        self.frame.ser.write(b"FPa.wav|")
+        self.frame.ser.write(b"FCdeleteme.wav|")
+        print("FCdeleteme.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             print(d)
 
-            if d == "CONNECT":
-                self.serConnected == True
-                self.frame.switch("play")
+    def deleting(self):
+        print("Starting deleting test")
+        self.frame.ser.write(b"FDdelete.wav|")
+        print("FDdelete.wav|")
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until('|')
+            print(d)
 
     def A4(self):
         file = bytes([])
