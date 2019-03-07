@@ -1,7 +1,6 @@
 #include "SD.h"
 
-FATFS sd_init(void);
-
+void sd_init(void);
 void sd_deinit();
 void SDPrintFresult(FRESULT fr) {
   char buff[32];

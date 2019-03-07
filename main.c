@@ -177,7 +177,6 @@ void FileInfo() {
 
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)(I2S_SRC);
   WriteText(" Filesize fresult: ");
   uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
