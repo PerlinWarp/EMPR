@@ -75,6 +75,7 @@ void UART_Mode();
 void temp();
 void FatRead();
 void PC_Mode();
+void Play_OnBoard_Audio();
 void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();

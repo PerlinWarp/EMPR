@@ -7,6 +7,6 @@
 *.DS_Store
 source/*.o
 main.o
-
+*.wav
 # Genarated binaries
 bin/*

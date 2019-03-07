@@ -18,7 +18,7 @@ void InitializeGPDMA(uint32_t* Source,GPDMA_LLI_Type* DMA_Struct,GPDMA_Channel_C
   GPDMA_Cfg->TransferType = GPDMA_TRANSFERTYPE_M2P;
   GPDMA_Cfg->SrcConn = 0;
   GPDMA_Cfg->DstConn = GPDMA_CONN_DAC; //Point give data to the DAC converter memory address
-  GPDMA_Cfg->DMALLI = 0;//(uint32_t)DMA_Struct;//Maybe try changing this back
+  GPDMA_Cfg->DMALLI = (uint32_t)DMA_Struct;//Maybe try changing this back
 }
 
 void InitializeDAC()
@@ -44,7 +44,29 @@ void DAC_StartSend(uint32_t Frequency,uint32_t NumSamples)
 
   DAC_SetDMATimeOut(LPC_DAC,25000000/(Frequency*NumSamples));//Set the time between connections
   DAC_ConfigDAConverterControl(LPC_DAC,&DAC_Conv);
-  NVIC_SetPriority(DMA_IRQn, 0x02);
+  NVIC_SetPriority(DMA_IRQn, 0x01);
   NVIC_EnableIRQ (DMA_IRQn); //Enable DMA interrupts
   GPDMA_ChannelCmd(1,ENABLE);//Enable GPDMA on channel specified
+}
+
+void InitTimer(uint32_t Frequency)
+{
+  uint8_t mseconds = (uint8_t)((1/(float)Frequency) * 1000000);
+  TIM_TIMERCFG_Type TIM_ConfigStruct;
+  TIM_MATCHCFG_Type TIM_MatchConfigStruct;
+  TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
+  TIM_ConfigStruct.PrescaleValue  = mseconds;
+  TIM_Init(LPC_TIM1, TIM_TIMER_MODE,&TIM_ConfigStruct);
+
+  TIM_MatchConfigStruct.MatchChannel = 0;
+  TIM_MatchConfigStruct.MatchValue   = mseconds;//match every time
+  TIM_MatchConfigStruct.IntOnMatch   = TRUE;
+  TIM_MatchConfigStruct.ResetOnMatch = TRUE;
+  TIM_MatchConfigStruct.StopOnMatch  = FALSE;
+  TIM_MatchConfigStruct.ExtMatchOutputType = TIM_EXTMATCH_NOTHING;//Nothing as only for the interrupt
+  TIM_ConfigMatch(LPC_TIM1,&TIM_MatchConfigStruct);
+
+  NVIC_SetPriority(TIMER1_IRQn, ((0x01<<3)|0x02));
+  NVIC_EnableIRQ(TIMER1_IRQn);
+  TIM_Init(LPC_TIM1,TIM_TIMER_MODE,&TIM_ConfigStruct);
 }

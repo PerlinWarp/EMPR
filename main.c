@@ -306,11 +306,10 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[20] = "/A.WAV";
+  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
   FIL fil;
   f_mount(&FatFs,"",0);
   f_open(&fil,fpath,FA_READ);
-  WAVE_HEADER w = Wav_Init(&fil);
   init_onboard_audio(&fil,48000);
   f_close(&fil);
 }
@@ -511,73 +510,34 @@ void PC_Mode()
             break;
 
             case 'C':
-              /* 
+              /*
               Copy the file in fileName.
               1. Open the source
               2. Create the destination
               3. Use a loop to copy the files over
-              5. Close both files. 
+              5. Close both files.
               */
               LCDClear();
               LCDPrint("Starting copying");
-
-              FIL fsrc, fdst;    /* File objects */
-              UINT br, bw;         /* File read/write count */
-              FRESULT fe;     /* FatFs return code */
-
-              f_mount(&fs, "", 0);
-
-              /* Open a text file */
-              fe = f_open(&fsrc, argument, FA_READ);
-              if (fe) return (int)fe;
-              strcat(argument,".copy");
-              fe = f_open(&fdst, argument, FA_WRITE | FA_CREATE_ALWAYS);
-              if (fe) return (int)fe;
-
-              /* Copy source to destination */
-              for (;;) {
-                  fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
-                  if (fe || br == 0) break; /* error or eof */
-                  fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
-                  if (fe || bw < br) break; /* error or disk full */
+              int error;
+              char line[100]; /* Line buffer */
+              WriteText("Starting Copying");
+              error = f_copy(argument);
+              sprintf(line, "Exited with Error Code: %d\n\r",error);
+              WriteText(line);
+              if(error){ //fr/error = 0 = F OK
+                LCDClear();
+                strcat(argument, "\n was made.");
+                LCDPrint(argument);
+                WriteText("Copied");
               }
-
-
-              /* Close the file */
-              f_close(&fsrc);
-              f_close(&fdst);
-
-              //Unmount the file system
-              f_mount(0, "", 0);
-              strcat(argument, "\n was copied.");
-              LCDPrint(argument);
-              WriteText("Copied");
             break;
 
             case 'D':
               //Delete the file in fileName.
               LCDClear();
 
-              FIL fil;        /* File object */
-              char line[100]; /* Line buffer */
-              FRESULT fr;     /* FatFs return code */
-              FATFS *fs;
-
-              fs = malloc(sizeof(FATFS));
-              fr = f_mount(fs, "", 0);
-
-              if (fr)
-              {
-                sprintf(line, "Not Mounted With Code: %d\n\r",fr);
-                return (int)fr;
-              }
-
-              /* Open a text file */
-              fr = f_unlink(argument);
-
-              //Unmount the file system
-              f_mount(0, "", 0);
-              free(fs);
+              f_delete(argument);
               write_usb_serial_blocking("File deleted",9);
 
               strcat(argument, "\n was deleted.");
@@ -641,16 +601,26 @@ void PC_Mode()
           //WriteText("M");
           break;
         case 'B':;//send all browsing data back to embed
-          char output[SERIAL_BUFFER_MAXSIZE];
+          char output[100];
+
           char ** fileList = SDMallocFilenames();
-          int i,len = SDGetAllFiles(fileList);
+          char ** allDirs = SDMallocFilenames();
+          int i,len = SDGetAllFilesandDirs(fileList,allDirs);
           for(i=0;i<len;i++)
           {
-            sprintf(output,"%s|",fileList[i]);
+            sprintf(output,"%sf|",fileList[i]);
             WriteText(output);
           }
-          WriteText("||");
           SDFreeFilenames(fileList);
+
+          for(i=0;i<len;i++)
+          {
+            sprintf(output,"%sd|",allDirs[i],len);
+            WriteText(output);
+          }
+          SDFreeFilenames(allDirs);
+
+          WriteText("ed|");
           break;
       }
       POP_SERIAL;
@@ -765,6 +735,15 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
   }
 }
 
+/*
+    File functions
+*/
+
+void f_delete(filepath){
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  FATFS *fs;
 
 void U2() {
   char newname[32];
@@ -813,6 +792,45 @@ void A2()
   NewFree(buffer);
 }
 
+int f_copy(filepath){
+  WriteText("Starting the copy");
+  FIL fsrc, fdst;    /* File objects */
+  UINT br, bw;         /* File read/write count */
+  FRESULT fe;     /* FatFs return code */
+
+  f_mount(&fs, "", 0);
+
+  /* Open a text file */
+  fe = f_open(&fsrc, filepath, FA_READ);
+  if (fe) return (int)fe;
+  int len = strlen(filepath);
+  filepath[strlen-3] = '\0';
+  strcat(filepath,".copy");
+  fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
+  if (fe) return (int)fe;
+
+  /* Copy source to destination */
+  for (;;) {
+      fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
+      if (fe || br == 0) break; /* error or eof */
+      fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
+      if (fe || bw < br) break; /* error or disk full */
+  }
+
+
+  /* Close the file */
+  f_close(&fsrc);
+  f_close(&fdst);
+  //Unmount the file system
+  f_mount(0, "", 0);
+  WriteText("File wrote");perlinwarp
+  return 0;
+}
+
+/*
+    Tasks
+*/
+
 void A1()
 {/*Considerations for alaiasing and nyquists theroem should be made in your solution*/
   buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
@@ -834,6 +852,23 @@ void A1()
     LCDPrint(output);
     buttonpress = 0;
   }
+  I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
+}
+
+void A2()
+{
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  LCDGoHome();
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  char result[16];
+  TextEntry(result, "Pick a Frequency\n");
+  uint32_t frequency = atoi(result);
+  LCDPrint("**PLAYING SINE**\n******WAVE******");
+  I2S_Create_Sine(frequency);
+  while(!buttonpress);
+  int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
   NewFree(buffer);
 }
@@ -939,7 +974,7 @@ void Reverse_Wav(char* src) {
   f_write(&fdst, fbuff, WAV_H_SIZE, &dummy);
 
   char pbuff[32];
-  
+
   uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0;
   for (i = fsize / 256; i > 0; i--) {
     f_lseek(&fsrc, WAV_H_SIZE + i * 256);
@@ -963,4 +998,3 @@ void Reverse_Wav(char* src) {
 
   sd_deinit();
 }
-
