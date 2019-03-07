@@ -19,7 +19,7 @@ void init_onboard_audio(FIL* fil,uint32_t Frequency)
   int count = 0,bufferIndex = 0;
   uint32_t* buf1 = (uint32_t*)NewMalloc(sizeof(uint32_t)*PRECISION);//Ping pong buffers: while one is DMA'd, the other is filling
   uint32_t* buf2 = (uint32_t*)NewMalloc(sizeof(uint32_t)*PRECISION);
-  uint32_t** buffers[2];
+  uint32_t* buffers[2];
   buffers[0] = buf1;
   buffers[1] = buf2;
 
