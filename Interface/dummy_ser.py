@@ -1,6 +1,6 @@
 class dummy_ser():
     def __init__(self):
-        self.in_waiting =0 
+        self.in_waiting =0
         pass
     def flushInput(self):
         pass
@@ -12,3 +12,5 @@ class dummy_ser():
         pass
     def read_until(self,*inputs):
         pass
+    def connected(self):
+        return False

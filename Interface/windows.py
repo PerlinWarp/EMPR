@@ -21,9 +21,18 @@ class WindowManager(Frame):
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browsePlay":Browse_For_Play(self),"browseRecord":Browse_For_Record(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
-        self.menus[self.currentScreen].hide_All()
-        self.menus[screen].show_All()
-        self.currentScreen = screen
+        if self.menus[self.currentScreen].serConnected == True:
+
+            self.menus[self.currentScreen].hide_All()
+            self.menus[screen].show_All()
+            self.menus[screen].serConnected = True
+            self.currentScreen = screen
+        else:
+            self.menus[self.currentScreen].hide_All()
+            self.menus["load"].show_All()
+            self.currentScreen = "load"
+            self.menus["load"].nextScreen = screen
+
 
 class Window():
 #To Inherit, change load_image_set, and init_frames
@@ -109,7 +118,7 @@ class PlayScreen(PlaceWindow):
     def play(self):
         print("pause")
 
-    # Interface functions
+    # Interface functionsswitch
     def redraw_Canvas(self):
         self.widgets["canvas"].delete("all")
         yscale = self.canvas_height/max(self.song_data)
@@ -309,6 +318,7 @@ class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
         self.frame.switch("menu")
     def init_widgets(self):
+        self.nextScreen = "menu"
         self.frame.bind("<Escape>",self.return_to_menu)
         self.frame.focus_set()
         self.widgets["background"] = layeredLabel(self.frame,[("menubkg",0,0),("connecting",150,500),("embedfs",250,150)])
@@ -320,14 +330,14 @@ class loadingScreen(PlaceWindow):
         self.animate()
     def animate(self):
         if self.frame.ser.in_waiting > 0:
-            d = self.frame.ser.read_until('|')
-            if d == "CONNECT":
-                self.serConnected == True
-                self.frame.switch("play")
-                self.frame.ser.write("ACK|")
+            d = self.frame.ser.read_until(b'|')
+            if d.endswith(b"CONNECT|"):
+                self.serConnected = True
+                self.frame.ser.write(b"ACK|")
+                self.frame.switch(self.nextScreen)
         if self.serConnected == False:
             self.widgets["load_big"].inc_image()
-            self.frame.after(70,self.animate)#repeat every 40 ms
+            self.frame.after(140,self.animate)#repeat every 40 ms
 
 
 class Browse_For_Play(PlaceWindow):
