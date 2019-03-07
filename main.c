@@ -516,7 +516,6 @@ void PC_Mode()
             case 'D':
               //Delete the file in fileName.
               LCDClear();
-              LCDPrint(argument);
 
               FIL fil;        /* File object */
               char line[100]; /* Line buffer */
@@ -533,12 +532,15 @@ void PC_Mode()
               }
 
               /* Open a text file */
-              fr = f_unlink(&fil, argument, FA_READ);
+              fr = f_unlink(argument);
 
               //Unmount the file system
               f_mount(0, "", 0);
               free(fs);
               write_usb_serial_blocking("File deleted",9);
+
+              strcat(argument, "\n was deleted.");
+              LCDPrint(argument);
             break;
 
             case 'A':
@@ -556,8 +558,6 @@ void PC_Mode()
           }
 
         case 'A':
-            LCDClear();
-            LCDPrint("Starting A1");
             func = READ_SERIAL[1];
             switch (func)
             {
