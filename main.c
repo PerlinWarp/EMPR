@@ -501,34 +501,57 @@ void PC_Mode()
           switch (func)
           {
             case 'P':
-            LCDClear();
-            LCDPrint(argument);
-            //Play the file in fileName.
+              LCDClear();
+              LCDPrint(argument);
+              //Play the file in fileName.
+
             break;
 
             case 'C':
-            //Copy the file in fileName.
-            LCDClear();
-            LCDPrint(argument);
+              //Copy the file in fileName.
+              LCDClear();
+              LCDPrint(argument);
             break;
 
             case 'D':
-            //Delete the file in fileName.
-            LCDClear();
-            LCDPrint(argument);
+              //Delete the file in fileName.
+              LCDClear();
+              LCDPrint(argument);
+
+              FIL fil;        /* File object */
+              char line[100]; /* Line buffer */
+              FRESULT fr;     /* FatFs return code */
+              FATFS *fs;
+
+              fs = malloc(sizeof(FATFS));
+              fr = f_mount(fs, "", 0);
+
+              if (fr)
+              {
+                sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+                return (int)fr;
+              }
+
+              /* Open a text file */
+              fr = f_unlink(&fil, argument, FA_READ);
+
+              //Unmount the file system
+              f_mount(0, "", 0);
+              free(fs);
+              write_usb_serial_blocking("File deleted",9);
             break;
 
             case 'A':
-            //Adjust the volume
-            // Uses a different format than the others
-            LCDClear();
-            LCDPrint(argument);
+              //Adjust the volume
+              // Uses a different format than the others
+              LCDClear();
+              LCDPrint(argument);
             break;
 
             case 'R':
-            // Reversing playback of the audio
-            LCDClear();
-            LCDPrint(argument);
+              // Reversing playback of the audio
+              LCDClear();
+              LCDPrint(argument);
             break;
           }
 
