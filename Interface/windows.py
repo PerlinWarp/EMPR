@@ -1,7 +1,6 @@
 import serial
 from tkinter import *
 from tkinter.ttk import Combobox
-from os import *
 from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
@@ -173,7 +172,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
-          
+
 
     def adjust_counter(self):
         self.songCounter = self.frame.root.winfo_pointerx() - 190
@@ -258,20 +257,48 @@ class TestingScreen(PlaceWindow):
     From the second 2 bytes to the null is the file directory.
     See main.c switchstatement for more details
     '''
-    def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("bluescreen",0,0)])
 
-    def show_All(self):
-        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
-        PlaceWindow.show_All(self)
-
+    def test(self):
+        print("Starting test")
         self.frame.ser.write(b"FPa.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             print(d)
+
             if d == "CONNECT":
                 self.serConnected == True
                 self.frame.switch("play")
+
+    def A4(self):
+        file = bytes([])
+        print("Starting A4")
+        self.frame.ser.write(b"A4|")
+        while(self.frame.ser.in_waiting > 0):
+            d = self.frame.ser.read_until('EndOfFile')
+            file += d
+            #print(d)
+        print("Reached the end of the file")
+        print(len(file))
+
+        print("Writing to a file")
+        #The b opens the file in binary mode to write hex directly.
+        f = open('dataFile.wav','wb')
+        f.write(file)
+        f.close()
+        print("Done ")
+
+
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
+        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A4)
+        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.test)
+
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["okButton"].place(x=700,y=100)
+        self.widgets["test"].place(x=700,y=125)
+        PlaceWindow.show_All(self)
+
 
 class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
@@ -297,75 +324,29 @@ class loadingScreen(PlaceWindow):
             self.widgets["load_big"].inc_image()
             self.frame.after(70,self.animate)#repeat every 40 ms
 
-class Browse_For_Record(PlaceWindow):
-
-    def add_directories(self,directoryTree,path):
-        if len(path) == 1:
-            if path[0][-1] =='d':#is a directory
-                directoryTree[path[0][:-1]] = {}#empty folder = dictionary
-            elif path[0][-1] =='f':
-                directoryTree[path[0][:-1]] = path[0][:-1]
-            return directoryTree
-
-        p = path.pop(0)
-        if p in directoryTree:
-            self.add_directories(directoryTree[p],path)
-        else:
-            directoryTree[p] = self.add_directories(directoryTree,path)
-        return directoryTree
-    def init_directories(self,directoryTree,path):
-            if type(directoryTree) != type(dict()):
-                item_type = "file"
-                self.widgets[path] = browserButton(self.widgets["fileWindow"],self,directoryTree,item_type)
-            else:
-                item_type = "folder"
-                for key in directoryTree.keys():
-                    self.init_directories(directoryTree[key],path+"/"+key)
-                self.widgets[path] = browserButton(self.widgets["fileWindow"],self,path.split('/')[-1],item_type)
-    def place_directories(self,directoryTree,path):
-        self.counter = 0
-        for key in directoryTree.keys():
-            self.bindings[path+"/"+key] = self.frame.root.bind("<Button-1>",self.widgets[path+"/"+key].check_focus,"+")
-            self.widgets[path+"/"+key].place(x = 189+(78*(self.counter%5)),y=169+ (75*(self.counter//5)))
-            self.counter+=1
-        self.widgets["objects"].config(text = str(self.counter) + " Object(s)")
-        self.widgets["dirEntry"].change_dir(self.path)
-
-    def hide_directories(self,directoryTree,path):
-        for key in directoryTree.keys():
-            self.widgets[path+"/"+key].place_forget()
-    def into_dir(self,new_path):
-        self.widgets["folderName"].config(text = new_path.rpartition('/')[2])
-        self.hide_directories(self.workingTree,self.path)
-        self.path += "/"+new_path
-        self.workingTree = self.workingTree[new_path]
-        self.place_directories(self.workingTree,self.path)
-        if self.path == "C:":
-            self.widgets["backButton"].place_forget()
-            self.hidden = True
-        elif self.hidden == True:
-            self.widgets["backButton"].place(x = 149,y = 49)
-            self.hidden = False
 
 class Browse_For_Play(PlaceWindow):
     '''
     While Idris works on the MBED file reading code
-    I will impliment communication in changes in volume 
+    I will impliment communication in changes in volume
     '''
     def add_directories(self,directoryTree,path):
         if len(path) == 1:
+            print(path[0])
             if path[0][-1] =='d':#is a directory
-                directoryTree[path[0][:-1]] = {}#empty folder = dictionary
+                if path[0][:-1] not in directoryTree:
+                    directoryTree[path[0][:-1]] = {}#empty folder = dictionary
             elif path[0][-1] =='f':
                 directoryTree[path[0][:-1]] = path[0][:-1]
             return directoryTree
 
         p = path.pop(0)
-        if p in directoryTree:
+        if p in directoryTree.keys():
             self.add_directories(directoryTree[p],path)
         else:
-            directoryTree[p] = self.add_directories(directoryTree,path)
+            directoryTree[p] = self.add_directories({},path)
         return directoryTree
+
     def init_directories(self,directoryTree,path):
             if type(directoryTree) != type(dict()):
                 item_type = "file"
@@ -439,9 +420,9 @@ class Browse_For_Play(PlaceWindow):
         self.hidden = True
         self.bindings = {}
 
-        for p in ["rootd|","root/newd|","hellof|","root/hif|","root/hellof|","root/new/boyd|"]:
-            path = p[:-1].split('/')
-            directoryTree = self.add_directories(directoryTree,path)
+        #for p in ["rootd|","root/newd|","hellof|","root/hif|","root/hellof|","root/new/boyd|"]:
+        #    path = p[:-1].split('/')
+        #    directoryTree = self.add_directories(directoryTree,path)
 
         self.directoryTree = {"C:":directoryTree}
         self.workingTree = directoryTree
@@ -558,3 +539,32 @@ class Browse_For_Play(PlaceWindow):
         self.hidden = True
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>")
+class Browse_For_Record(Browse_For_Play):
+    def show_All(self):
+        self.frame.ser.write(b"B|")#Make this happen in place.
+        while(True):
+            d = self.frame.ser.read_until(b'|').decode("utf-8")
+            if d == "ed|":
+                break
+            d =  d[1:]#will always start with a /, so remove
+            #print(d)
+            path = d[:-1].split('/')
+            #print(path)
+            if path[0] != 'd' and path[0] != 'null)d':
+                self.workingTree = self.add_directories(self.workingTree,path)
+
+        self.init_directories(self.workingTree,self.path)
+        print(self.workingTree)
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["fileWindow"].place(x=80,y=18)
+        self.widgets["taskbar"].place(x =0,y = 574)
+        self.bindings["startBinding"] = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
+        self.bindings["rightclickmenuBinding"] = self.frame.root.bind("<Button-1>",self.widgets["fileWindow"].check_focus,"+")
+        self.widgets["fileWindowbg"].place(x=0,y=0)
+        self.place_directories(self.workingTree,self.path)
+        self.widgets["deleteButton"].place(x=443,y=49)
+        self.widgets["nanocross"].place(x=596,y=6)
+        self.widgets["start"].place(x=1,y =576)
+        self.widgets["folderName"].place(x = 115, y = 133)
+        self.widgets["dirEntry"].place(x = 77,y = 93)
+        self.widgets["objects"].place(x=8,y=504)

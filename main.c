@@ -1,6 +1,10 @@
 #include "main.h"
 
 
+DWORD get_fattime (void)
+{
+  return(0);
+}
 
 uint8_t SelectOne(char** items, char* header, uint8_t fileCount);
 uint8_t TextEntry(char* result, char* header);
@@ -148,11 +152,32 @@ void I2S_PassThroughInterrupt()
   buttonpress = 0;
 }
 
+void Passthrough()
+{
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  LCDClear();
+  LCDPrint("I2S Passthrough\n.Interrupt Mode.");
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  I2S_Polling_Init(48000,I2S_MODE_INTERRUPT);
+  while(!buttonpress);
+  int_Handler_Enable =0;
+  WriteText("Finis");
+  I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
+  buttonpress = 0;
+}
+
 void FileInfo() {
   FileSelection();
+  if(SELECTED_FILE[0] == '\0') {
+    return;
+  }
+  WriteText(SELECTED_FILE);
 
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
+  WriteText(" Filesize fresult: ");
   uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
   sd_init();
@@ -182,7 +207,7 @@ uint8_t NewFileSelection(char* newpath) {
     // SDFreeFilenames(directoryNames);
     int dir = SelectOne(directoryNames, "Location:\n", directoryCount);
     WriteText("oi\n\r");
-
+    uint8_t tmp;
     if (dir == 100) {
       return 0;
     } else {
@@ -191,7 +216,10 @@ uint8_t NewFileSelection(char* newpath) {
     	WriteText("\n\r");
     	char newfilename[16];
     	TextEntry(newfilename, "Name? (# ends)\n");
-    	return sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+    	tmp = sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+      SDCleanPath(SELECTED_FILE);
+      return tmp;
+
     }
 }
 // Stores full path to selected file in SELECTED_FILE
@@ -223,12 +251,12 @@ void FileSelection() {
    if(filenames[chosenIndex][0] == 'd') {
       int curlen = strlen(path);
       sprintf(path + curlen, "/%s", filenames[chosenIndex] + 2);
+      SDCleanPath(path);
    } else {
     SELECTED_FILE[0] = '/';
     sprintf(SELECTED_FILE, "/%s/%s", path, filenames[chosenIndex] + 2);
-    // WriteText("chosen file: ");
-    // WriteText(filenames[chosenIndex]);
-    // WriteText("\n\r");
+    SDCleanPath(SELECTED_FILE);
+
     break;
    }
   }
@@ -265,7 +293,7 @@ void PassThroughLoop()
 
 void Play_Audio()
 {
-  char fpath[100] = "/FILE1.WAV";// = browse_Files();
+  char fpath[100] = "/MEME2.WAV";// = browse_Files();
   Play(fpath);
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
@@ -286,13 +314,14 @@ void Play_OnBoard_Audio()
 
 void Play(char* directory)
 {
+  uint32_t MEME[BUFFER_SIZE];
   FIL fil;        /* File object */
   FRESULT fr;     /* FatFs return code */
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  buffer = MEME;
   fr = f_mount(&FatFs, "", 0);
-  if(fr)return;
+  SDPrintFresult(fr);
   fr = f_open(&fil, directory, FA_READ);
-  if(fr)return;
+  SDPrintFresult(fr);
   WAVE_HEADER w = Wav_Init(&fil);
   Init_I2S_Wav(w.NumChannels,w.SampleRate,w.BitsPerSample,&fil);
 //
@@ -502,22 +531,71 @@ void PC_Mode()
             break;
           }
 
+        case 'A':
+            LCDClear();
+            LCDPrint("Starting A1");
+            func = READ_SERIAL[1];
+            switch (func)
+            {
+              case '1':
+              LCDClear();
+              LCDPrint("Starting A1");
+              A1();
+              //Play the file in fileName.
+              break;
+
+              case '2':
+              //Copy the file in fileName.
+              LCDClear();
+              LCDPrint("Starting A2");
+              break;
+
+              case '3':
+              //Delete the file in fileName.
+              LCDClear();
+              LCDPrint("Starting A3");
+              break;
+
+              case '4':
+              //Adjust the volume
+              // Uses a different format than the others
+              A4();
+              break;
+
+              case '5':
+              // Reversing playback of the audio
+              LCDClear();
+              LCDPrint("Testing mode");
+              break;
+            }
+          break;
+
         case 'T': // Blue Screening
           //LCDClear();
           //LCDPrint("Windows 95 \nhas crashed");
           //WriteText("M");
           break;
         case 'B':;//send all browsing data back to embed
-          char output[SERIAL_BUFFER_MAXSIZE];
+          char output[100];
+
           char ** fileList = SDMallocFilenames();
-          int i,len = SDGetAllFiles(fileList);
+          char ** allDirs = SDMallocFilenames();
+          int i,len = SDGetAllFilesandDirs(fileList,allDirs);
           for(i=0;i<len;i++)
           {
-            sprintf(output,"%s|",fileList[i]);
+            sprintf(output,"%sf|",fileList[i]);
             WriteText(output);
           }
-          WriteText("||");
           SDFreeFilenames(fileList);
+
+          for(i=0;i<len;i++)
+          {
+            sprintf(output,"%sd|",allDirs[i],len);
+            WriteText(output);
+          }
+          SDFreeFilenames(allDirs);
+
+          WriteText("ed|");
           break;
       }
       POP_SERIAL;
@@ -538,46 +616,23 @@ void PC_Mode()
   //do each task
 }
 
-uint32_t bytesToUInt32(char* head) {
-  uint32_t result = 0;
-  // result |= ((uint32_t)head[3]) << 24;
-  // result |= ((uint32_t)head[2]) << 16;
-  // result |= ((uint32_t)head[1]) << 8;
-  result |= ((uint32_t)head[3]);
-  return result;
-}
 
-int main()
-{//CURRENTLY PIN 28 IS BEING USED FOR EINT3
-    InitSerial();
-    serialInitialized = 0;
-    SystemInit();
-    DelayInit();
-    I2CInit();
-    IRQInit();
-    LCDInit();
-    LCDClear();
-    initMalloc();
-    // BYTE readbuff[64];
-    // uint8_t numread = SDReadBytes("FILE1.WAV", readbuff, 64);
 
-    // char charbuff[44];
-    // uint8_t i = 0;
-    // for (i = 0; i < 43; i++) {
-    //     charbuff[i] = (char)readbuff[i];
-    // }
+int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
 
-    // // strncpy(readbuff, charbuff, 43);
-    // charbuff[43] = '\0';
-    // // WriteText(charbuff);
+  InitSerial();
+  // serialInitialized = 0;
+  SystemInit();
+  DelayInit();
+  I2CInit();
+  IRQInit();
+  LCDInit();
+  LCDClear();
+  Menu();
+  initMalloc();
 
-    // // WAVE_HEADER w = Wav_Read_Buffered_Header(charbuff);
-    // // sprintf(charbuff, "%d", bytesToUInt32(w.NumChannels));
-    // WriteText(charbuff);
 
-    Menu();
-
-    return 0;
+  return 0;
 }
 void temp(){buttonpress = 0;}//Delete at your earliest convienience
 
@@ -695,11 +750,57 @@ void A1()
 
 void A3()
 {
-
+  LCDGoHome();
+  LCDPrint("A3 Demo \n Recording Audio");
 }
+
 void A4()
 {
+  LCDClear();
+  LCDPrint("A4 Demo \nPlaying from SD");
 
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  FATFS *fs;
+
+  fs = malloc(sizeof(FATFS));
+  fr = f_mount(fs, "", 0);
+
+  if (fr)
+  {
+    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+    return (int)fr;
+  }
+
+  /* Open a text file */
+  fr = f_open(&fil, "a.wav", FA_READ);
+
+  if (fr)
+  {
+    sprintf(line, "Exited with Error Code: %d\n\r",fr);
+    WriteText(line);
+    return (int)fr;
+  }
+
+  /* Read every line and display it */
+  uint y;
+  char buffer [0x20];
+
+  while (!fr){
+      fr = f_read(&fil,buffer,0x20, &y);
+      //n = sprintf(buffer,"%s\n\r", line);
+      write_usb_serial_blocking(buffer,y);
+  }
+
+  /* Close the file */
+  f_close(&fil);
+
+  //Unmount the file system
+  f_mount(0, "", 0);
+  free(fs);
+  write_usb_serial_blocking("EndOfFile",9);
+  return 0;
 }
 
 
