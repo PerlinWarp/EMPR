@@ -201,7 +201,7 @@ void FileInfo() {
 }
 
 // Stores full path to new file in SELECTED_FILE
-uint8_t NewFileSelection(char* newpath) {
+uint8_t NewFileSelection() {
 	char** directoryNames = SDMallocFilenames();
     int directoryCount = SDGetDirectories("/", directoryNames);
     // SDFreeFilenames(directoryNames);
@@ -209,6 +209,7 @@ uint8_t NewFileSelection(char* newpath) {
     WriteText("oi\n\r");
     uint8_t tmp;
     if (dir == 100) {
+      SDFreeFilenames(directoryNames);
       return 0;
     } else {
     	WriteText("Selected Directory: ");
@@ -217,10 +218,12 @@ uint8_t NewFileSelection(char* newpath) {
     	char newfilename[16];
     	TextEntry(newfilename, "Name? (# ends)\n");
     	tmp = sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+      SDFreeFilenames(directoryNames);
       SDCleanPath(SELECTED_FILE);
       return tmp;
 
     }
+
 }
 // Stores full path to selected file in SELECTED_FILE
 void FileSelection() {
@@ -590,8 +593,8 @@ void PC_Mode()
 
             case 'R':
               // Reversing playback of the audio
-              LCDClear();
-              LCDPrint(argument);
+              Reverse_Wav(argument);
+
             break;
           }
 
@@ -680,8 +683,10 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   IRQInit();
   LCDInit();
   LCDClear();
-  Menu();
+  // U2();
   initMalloc();
+  // I2S_PassThroughLoop();
+  Menu();
 
 
   return 0;
@@ -761,6 +766,36 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
 }
 
 
+void U2() {
+  char newname[32];
+  NewFileSelection();
+  WriteText(SELECTED_FILE);
+  LCDClear();
+  LCDPrint("Recording...\n(# ends)");
+  uint32_t iobuff[32];
+  UINT written = 0;
+
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
+
+  sd_init();
+  FIL fil;
+  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_WRITE | FA_CREATE_ALWAYS));
+  while(key != '#')
+  {
+    I2S_Polling_Read(iobuff,32);
+    SDPrintFresult(f_write(&fil, iobuff, 32, &written));
+    if (written < 32) {
+      WriteText("kekerino");
+    }
+  }
+  WriteText("done writing\n\r");
+  f_close(&fil);
+  sd_deinit();
+
+  I2S_DeInit(LPC_I2S);
+}
+
 void A2()
 {
   buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
@@ -790,8 +825,11 @@ void A1()
   while(key != '#')
   {
     while(!buttonpress);
+
     I2S_Polling_Read(BufferOut,1);
+    WriteText("about to read\n\r");
     sprintf(output,"  Just Read In  \n   0x%04X   ",(signed int)BufferOut[0]);//print the left channel as a signed integer
+    WriteText(output);
     LCDGoHome();
     LCDPrint(output);
     buttonpress = 0;
@@ -882,3 +920,47 @@ uint8_t TextEntry(char* result, char* header) {
 
 	return i;
 }
+
+
+// relies on 16bit samplesize (swaps 2-byte chunks around)
+#define WAV_H_SIZE 44
+void Reverse_Wav(char* src) {
+  char dst[32];
+  sprintf(dst, "/inv%s", src + 1);
+
+  sd_init();
+  FIL fsrc, fdst;
+  f_open(&fsrc, src, FA_READ);
+  f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
+
+  char fbuff[256], tmp[2];
+  uint32_t countread, dummy;
+  f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
+  f_write(&fdst, fbuff, WAV_H_SIZE, &dummy);
+
+  char pbuff[32];
+  
+  uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0;
+  for (i = fsize / 256; i > 0; i--) {
+    f_lseek(&fsrc, WAV_H_SIZE + i * 256);
+    f_read(&fsrc, fbuff, 256, &countread);
+    for (j = 0; j < countread / 2 - 1; j ++) {
+      tmp[0] = fbuff[j];
+      tmp[1] = fbuff[j + 1];
+      fbuff[j] = fbuff[countread - j - 2];
+      fbuff[j + 1] = fbuff[countread - j - 1];
+      fbuff[countread - j - 2] = tmp[0];
+      fbuff[countread - j - 1] = tmp[1];
+    };
+    f_write(&fdst, fbuff, countread, &dummy);
+  }
+
+  f_close(&fsrc);
+  f_close(&fdst);
+
+  f_unlink(src);
+  f_rename(dst, src);
+
+  sd_deinit();
+}
+
