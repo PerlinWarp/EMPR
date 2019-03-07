@@ -535,41 +535,41 @@ void PC_Mode()
         case 'A':
             LCDClear();
             LCDPrint("Starting A1");
-            char func = READ_SERIAL[1];
-                      switch (func)
-          {
-            case '1':
-            LCDClear();
-            LCDPrint("Starting A1");
-            //Play the file in fileName.
-            break;
+            func = READ_SERIAL[1];
+            switch (func)
+            {
+              case '1':
+              LCDClear();
+              LCDPrint("Starting A1");
+              A1();
+              //Play the file in fileName.
+              break;
 
-            case '2':
-            //Copy the file in fileName.
-            LCDClear();
-            LCDPrint("Starting A2");
-            break;
+              case '2':
+              //Copy the file in fileName.
+              LCDClear();
+              LCDPrint("Starting A2");
+              break;
 
-            case '3':
-            //Delete the file in fileName.
-            LCDClear();
-            LCDPrint("Starting A3");
-            break;
+              case '3':
+              //Delete the file in fileName.
+              LCDClear();
+              LCDPrint("Starting A3");
+              break;
 
-            case '4':
-            //Adjust the volume
-            // Uses a different format than the others
-            LCDClear();
-            LCDPrint("Starting A4");
-            break;
+              case '4':
+              //Adjust the volume
+              // Uses a different format than the others
+              A4();
+              break;
 
-            case '5':
-            // Reversing playback of the audio
-            LCDClear();
-            LCDPrint("Testing mode");
-            break;
-          }
-            break;
+              case '5':
+              // Reversing playback of the audio
+              LCDClear();
+              LCDPrint("Testing mode");
+              break;
+            }
+          break;
 
         case 'T': // Blue Screening
           //LCDClear();
