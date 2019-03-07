@@ -27,6 +27,10 @@ class WindowManager(Frame):
             self.menus[screen].show_All()
             self.menus[screen].serConnected = True
             self.currentScreen = screen
+        elif screen == "menu":
+            self.menus[self.currentScreen].hide_All()
+            self.menus[screen].show_All()
+            self.currentScreen = screen 
         else:
             self.menus[self.currentScreen].hide_All()
             self.menus["load"].show_All()
@@ -115,7 +119,7 @@ class PlayScreen(PlaceWindow):
     def pause(self):
         print("play")
 
-    def play(self):
+    def playSong(self):
         print("pause")
 
     # Interface functionsswitch
@@ -144,7 +148,7 @@ class PlayScreen(PlaceWindow):
             if d == "|":
                 break
             self.song_data.append(d[:-1])
-        self.redraw_canvas()
+        self.redraw_Canvas()
         self.songLength = int(self.frame.ser.read_until("|")[:-1])#in seconds
         while(self.frame.ser.read_until("|") != "Play|"):
             pass
@@ -171,7 +175,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["start"] = startButton(self.frame,self,"winstart")
         self.widgets["cross"] = hoverButton(self.frame,self,"cross",menu="BlueScreen")
         self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
-        self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.play)
+        self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.playSong)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
         self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda:None,296,352,"y")
@@ -337,7 +341,13 @@ class loadingScreen(PlaceWindow):
                 self.frame.switch(self.nextScreen)
         if self.serConnected == False:
             self.widgets["load_big"].inc_image()
-            self.frame.after(140,self.animate)#repeat every 40 ms
+            self.job = self.frame.after(140,self.animate)#repeat every 40 ms
+    
+    def hide_All(self):
+        PlaceWindow.hide_All(self)
+        if self.job is not None:
+            self.frame.after_cancel(self.job)
+        self.job = None
 
 
 class Browse_For_Play(PlaceWindow):
