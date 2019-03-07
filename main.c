@@ -756,22 +756,16 @@ void A4()
   FATFS *fs;
 
   fs = malloc(sizeof(FATFS));
-
-  WriteText("Mount Check Start\n");
   fr = f_mount(fs, "", 0);
-  WriteText("Mount Check Done\n");
 
   if (fr)
   {
     sprintf(line, "Not Mounted With Code: %d\n\r",fr);
-    WriteText(line);
     return (int)fr;
   }
 
   /* Open a text file */
-  WriteText("File Read Start\n");
   fr = f_open(&fil, "a.wav", FA_READ);
-  WriteText("File Read End\n");
 
   if (fr)
   {
@@ -780,12 +774,9 @@ void A4()
     return (int)fr;
   }
 
-  WriteText("No Errors!\n");
-
   /* Read every line and display it */
   uint y;
   char buffer [0x20];
-  WriteText("Buffer Initialised\n");
 
   while (!fr){
       fr = f_read(&fil,buffer,0x20, &y);
@@ -799,7 +790,7 @@ void A4()
   //Unmount the file system
   f_mount(0, "", 0);
   free(fs);
-
+  write_usb_serial_blocking("EndOfFile",9);
   return 0;
 }
 

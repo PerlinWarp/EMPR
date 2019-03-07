@@ -1,7 +1,6 @@
 import serial
 from tkinter import *
 from tkinter.ttk import Combobox
-from os import *
 from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
@@ -258,20 +257,6 @@ class TestingScreen(PlaceWindow):
     From the second 2 bytes to the null is the file directory.
     See main.c switchstatement for more details
     '''
-    def init_widgets(self):
-        self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
-        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A1)
-        self.widgets["test"] = functionalButton(self.frame,self,"okbutton",self.test)
-    
-    def show_All(self):
-        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
-        self.widgets["okButton"].place(x=700,y=100)
-        self.widgets["test"].place(x=700,y=125)
-        PlaceWindow.show_All(self)
-
-    def A1(self):
-        print("Starting A1")
-        self.frame.ser.write(b"A4|")
 
     def test(self):
         print("Starting test")
@@ -279,9 +264,41 @@ class TestingScreen(PlaceWindow):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             print(d)
+
             if d == "CONNECT":
                 self.serConnected == True
                 self.frame.switch("play")
+
+    def A4(self):
+        file = bytes([])
+        print("Starting A4")
+        self.frame.ser.write(b"A4|")
+        while(self.frame.ser.in_waiting > 0):
+            d = self.frame.ser.read_until('EndOfFile')
+            file += d
+            #print(d)
+        print("Reached the end of the file")
+        print(len(file))
+
+        print("Writing to a file")
+        #The b opens the file in binary mode to write hex directly. 
+        f = open('dataFile.wav','wb') 
+        f.write(file)
+        f.close()
+        print("Done ")
+
+
+    def init_widgets(self):
+        self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
+        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A4)
+        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.test)
+    
+    def show_All(self):
+        self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
+        self.widgets["okButton"].place(x=700,y=100)
+        self.widgets["test"].place(x=700,y=125)
+        PlaceWindow.show_All(self)
+
 
 class loadingScreen(PlaceWindow):
     def return_to_menu(self,event):
