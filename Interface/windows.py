@@ -331,12 +331,13 @@ class TestingScreen(PlaceWindow):
         print("Starting streaming")
         self.frame.ser.write(b"AS|")
         eof = False
-        #while(True):
-        while(self.frame.ser.in_waiting > 0):
+        d = self.frame.ser.read(2)
+        #while(self.frame.ser.in_waiting > 0 and not str(d) == b''):
             d = self.frame.ser.read(2)
             val = int.from_bytes(d,"little",signed=True)
             print("Data:", d)
             print("Int:  ",str(int.from_bytes(d,"little",signed=True)))
+
             self.widgets["canvas"].delete("all")
             self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
         print("Reached the end of the file")
