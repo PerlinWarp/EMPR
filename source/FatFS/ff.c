@@ -14,6 +14,80 @@
 //   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
 // * Redistributions of source code must retain the above copyright notice.
 //
+/*									
+/ Feb 26,'06 R0.00  Prototype.
+/
+/ Apr 29,'06 R0.01  First stable version.
+/
+/ Jun 01,'06 R0.02  Added FAT12 support.
+/                   Removed unbuffered mode.
+/                   Fixed a problem on small (<32M) partition.
+/ Jun 10,'06 R0.02a Added a configuration option (_FS_MINIMUM).
+/
+/ Sep 22,'06 R0.03  Added f_rename().
+/                   Changed option _FS_MINIMUM to _FS_MINIMIZE.
+/ Dec 11,'06 R0.03a Improved cluster scan algorithm to write files fast.
+/                   Fixed f_mkdir() creates incorrect directory on FAT32.
+/
+/ Feb 04,'07 R0.04  Supported multiple drive system.
+/                   Changed some interfaces for multiple drive system.
+/                   Changed f_mountdrv() to f_mount().
+/                   Added f_mkfs().
+/ Apr 01,'07 R0.04a Supported multiple partitions on a physical drive.
+/                   Added a capability of extending file size to f_lseek().
+/                   Added minimization level 3.
+/                   Fixed an endian sensitive code in f_mkfs().
+/ May 05,'07 R0.04b Added a configuration option _USE_NTFLAG.
+/                   Added FSInfo support.
+/                   Fixed DBCS name can result FR_INVALID_NAME.
+/                   Fixed short seek (<= csize) collapses the file object.
+/
+/ Aug 25,'07 R0.05  Changed arguments of f_read(), f_write() and f_mkfs().
+/                   Fixed f_mkfs() on FAT32 creates incorrect FSInfo.
+/                   Fixed f_mkdir() on FAT32 creates incorrect directory.
+/ Feb 03,'08 R0.05a Added f_truncate() and f_utime().
+/                   Fixed off by one error at FAT sub-type determination.
+/                   Fixed btr in f_read() can be mistruncated.
+/                   Fixed cached sector is not flushed when create and close without write.
+/
+/ Apr 01,'08 R0.06  Added fputc(), fputs(), fprintf() and fgets().
+/                   Improved performance of f_lseek() on moving to the same or following cluster.
+/
+/ Apr 01,'09 R0.07  Merged Tiny-FatFs as a buffer configuration option. (_FS_TINY)
+/                   Added long file name support.
+/                   Added multiple code page support.
+/                   Added re-entrancy for multitask operation.
+/                   Added auto cluster size selection to f_mkfs().
+/                   Added rewind option to f_readdir().
+/                   Changed result code of critical errors.
+/                   Renamed string functions to avoid name collision.
+/ Apr 14,'09 R0.07a Separated out OS dependent code on reentrant cfg.
+/                   Added multiple sector size support.
+/ Jun 21,'09 R0.07c Fixed f_unlink() can return FR_OK on error.
+/                   Fixed wrong cache control in f_lseek().
+/                   Added relative path feature.
+/                   Added f_chdir() and f_chdrive().
+/                   Added proper case conversion to extended char.
+/ Nov 03,'09 R0.07e Separated out configuration options from ff.h to ffconf.h.
+/                   Fixed f_unlink() fails to remove a sub-dir on _FS_RPATH.
+/                   Fixed name matching error on the 13 char boundary.
+/                   Added a configuration option, _LFN_UNICODE.
+/                   Changed f_readdir() to return the SFN with always upper case on non-LFN cfg.
+/
+/ May 15,'10 R0.08  Added a memory configuration option. (_USE_LFN = 3)
+/                   Added file lock feature. (_FS_SHARE)
+/                   Added fast seek feature. (_USE_FASTSEEK)
+/                   Changed some types on the API, XCHAR->TCHAR.
+/                   Changed fname member in the FILINFO structure on Unicode cfg.
+/                   String functions support UTF-8 encoding files on Unicode cfg.
+/ Aug 16,'10 R0.08a Added f_getcwd(). (_FS_RPATH = 2)
+/                   Added sector erase feature. (_USE_ERASE)
+/                   Moved file lock semaphore table from fs object to the bss.
+/                   Fixed a wrong directory entry is created on non-LFN cfg when the given name contains ';'.
+/                   Fixed f_mkfs() creates wrong FAT32 volume.
+/ Jan 2015, Mixed the functions into my code for the mbed board, here at york
+/ Sept 2015, Cleaned comments and coding style to what I use
+/---------------------------------------------------------------------------*/
 
 #include "ff.h"			/* FatFs configurations and declarations */
 #include "diskio.h"		/* Declarations of low level disk I/O functions */
@@ -598,6 +672,7 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 	if (clst < 2 || clst >= fs->n_fatent)	/* Chack range */
 		return 1;
 
+#if !_FAST_F_READ
 	switch (fs->fs_type) {
 	case FS_FAT12 :
 		bc = (UINT)clst; bc += bc / 2;
@@ -617,12 +692,32 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 		p = &fs->win[clst * 4 % SS(fs)];
 		return LD_DWORD(p) & 0x0FFFFFFF;
 	}
+#endif
+#if _FAST_F_READ
+	//For FAT32 Only!
+	if (move_window(fs, fs->fatbase + (clst / (SS(fs) / 4))));
+		p = &fs->win[clst * 4 % SS(fs)];
+		return LD_DWORD(p) & 0x0FFFFFFF;
+#endif
 
 	return 0xFFFFFFFF;	/* An error occurred at the disk I/O layer */
 }
 
+DWORD get_fat_fast (FATFS *fs, DWORD clst)
+{
+	UINT wc, bc;
+	BYTE *p;
+
+	if (clst < 2 || clst >= fs->n_fatent)	/* Chack range */
+		return 1;
 
 
+	if (move_window(fs, fs->fatbase + (clst / (SS(fs) / 4))));
+		p = &fs->win[clst * 4 % SS(fs)];
+		return LD_DWORD(p) & 0x0FFFFFFF;
+
+	return 0xFFFFFFFF;	/* An error occurred at the disk I/O layer */
+}
 
 /*----------------------------------------------------------------------*/
 /*									*/
@@ -2146,6 +2241,7 @@ FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 
 	*br = 0;	/* Initialize byte counter */
 
+
 	res = validate(fp->fs, fp->id);					/* Check validity of the object */
 	if (res != FR_OK) LEAVE_FF(fp->fs, res);
 	if (fp->flag & FA__ERROR)						/* Check abort flag */
@@ -2215,6 +2311,80 @@ FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
+
+FRESULT f_read_fast (FIL *fp, void *buff, UINT btr, UINT *br)
+{
+	FRESULT res;
+	DWORD clst, sect, remain;
+	UINT rcnt, cc;
+	BYTE csect, *rbuff = buff;
+
+
+	*br = 0;	/* Initialize byte counter */
+	remain = fp->fsize - fp->fptr;
+	if (btr > remain) btr = (UINT)remain;			/* Truncate btr by remaining bytes */
+
+	for ( ;  btr;									/* Repeat until all data transferred */
+		rbuff += rcnt, fp->fptr += rcnt, *br += rcnt, btr -= rcnt) {
+		if ((fp->fptr % SS(fp->fs)) == 0) {			/* On the sector boundary? */
+			csect = (BYTE)(fp->fptr / SS(fp->fs) & (fp->fs->csize - 1));	/* Sector offset in the cluster */
+			if (!csect) {							/* On the cluster boundary? */
+				clst = (fp->fptr == 0) ?			/* On the top of the file? */
+					fp->org_clust : get_fat_fast(fp->fs, fp->curr_clust);
+				if (clst <= 1) ABORT(fp->fs, FR_INT_ERR);
+				if (clst == 0xFFFFFFFF) ABORT(fp->fs, FR_DISK_ERR);
+				fp->curr_clust = clst;				/* Update current cluster */
+			}
+			sect = clust2sect(fp->fs, fp->curr_clust);	/* Get current sector */
+			if (!sect) ABORT(fp->fs, FR_INT_ERR);
+			sect += csect;
+			cc = btr / SS(fp->fs);					/* When remaining bytes >= sector size, */
+			if (cc) {								/* Read maximum contiguous sectors directly */
+				if (csect + cc > fp->fs->csize)		/* Clip at cluster boundary */
+					cc = fp->fs->csize - csect;
+				if (disk_read_fast(fp->fs->drv, rbuff, sect, (BYTE)cc) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+#if !_FS_READONLY && _FS_MINIMIZE <= 2				/* Replace one of the read sectors with cached data if it contains a dirty sector */
+#if _FS_TINY
+				if (fp->fs->wflag && fp->fs->winsect - sect < cc)
+					mem_cpy(rbuff + ((fp->fs->winsect - sect) * SS(fp->fs)), fp->fs->win, SS(fp->fs));
+#else
+				if ((fp->flag & FA__DIRTY) && fp->dsect - sect < cc)
+					mem_cpy(rbuff + ((fp->dsect - sect) * SS(fp->fs)), fp->buf, SS(fp->fs));
+#endif
+#endif
+				rcnt = SS(fp->fs) * cc;				/* Number of bytes transferred */
+				continue;
+			}
+#if !_FS_TINY
+#if !_FS_READONLY
+			if (fp->flag & FA__DIRTY) {				/* Write sector I/O buffer if needed */
+				if (disk_write(fp->fs->drv, fp->buf, fp->dsect, 1) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+				fp->flag &= ~FA__DIRTY;
+			}
+#endif
+			if (fp->dsect != sect) {				/* Fill sector buffer with file data */
+				if (disk_read_fast(fp->fs->drv, fp->buf, sect, 1) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+			}
+#endif
+			fp->dsect = sect;
+		}
+		rcnt = SS(fp->fs) - (fp->fptr % SS(fp->fs));	/* Get partial sector data from sector buffer */
+		if (rcnt > btr) rcnt = btr;
+#if _FS_TINY
+		if (move_window(fp->fs, fp->dsect))			/* Move sector window */
+			ABORT(fp->fs, FR_DISK_ERR);
+		mem_cpy(rbuff, &fp->fs->win[fp->fptr % SS(fp->fs)], rcnt);	/* Pick partial sector */
+#else
+		mem_cpy(rbuff, &fp->buf[fp->fptr % SS(fp->fs)], rcnt);	/* Pick partial sector */
+#endif
+	}
+
+	LEAVE_FF(fp->fs, FR_OK);
+}
+
 #if !_FS_READONLY
 /*----------------------------------------------------------------------*/
 /*									*/

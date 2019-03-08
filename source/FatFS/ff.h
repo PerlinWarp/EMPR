@@ -485,6 +485,7 @@ typedef enum {
 FRESULT f_mount (FATFS*, const TCHAR*, BYTE);					/* Mount/Unmount a logical drive */
 FRESULT f_open (FIL*, const TCHAR*, BYTE);			/* Open or create a file */
 FRESULT f_read (FIL*, void*, UINT, UINT*);			/* Read data from a file */
+FRESULT f_read_fast (FIL*, void*, UINT, UINT*);		/* Read data from file - Only for FAT32 */
 FRESULT f_lseek (FIL*, DWORD);					/* Move file pointer of a file object */
 FRESULT f_close (FIL*);						/* Close an open file object */
 FRESULT f_opendir (ff_DIR*, const TCHAR*);			/* Open an existing directory */
