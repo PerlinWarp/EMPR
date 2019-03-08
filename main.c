@@ -20,6 +20,7 @@ void EINT3_IRQHandler(void)
     prevKey = key;
     if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
     NVIC_DisableIRQ(TIMER1_IRQn);
+    timerDone = 1;
     breakout = 1;
   }
   else if (key == ' ')
@@ -315,7 +316,7 @@ void Play_OnBoard_Audio()
   SPLIFF_HEADER s = SPLIFF_DECODE(&fil);
   sprintf(SELECTED_FILE,"SRate: %lu\n\r",s.Sample_Rate);
   WriteText(SELECTED_FILE);
-  init_onboard_audio_no_DMA(&fil,2000);
+  init_onboard_audio_no_DMA(&fil,1000);
   f_close(&fil);
   f_mount(0, "", 0);
 }
@@ -711,12 +712,8 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   IRQInit();
   LCDInit();
   LCDClear();
-  // U2();
   initMalloc();
-  // I2S_PassThroughLoop();
 
-  //Record_OnBoard_Audio();
-  Play_OnBoard_Audio();
 
 
   Menu();
