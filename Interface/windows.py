@@ -315,11 +315,24 @@ class TestingScreen(PlaceWindow):
         f.close()
         print("Done ")
 
+    def stream(self):
+        print("Starting streaming")
+        self.frame.ser.write(b"AS|")
+        if(self.frame.ser.in_waiting > 0):
+            d = self.frame.ser.read(2)
+            print("Data:", d)
+            print("Type:", type(d))
+            print("Hex:  ",str(int.from_bytes(d,"little",signed=True)))
+        print("Reached the end of the file")
+
+        #The b opens the file in binary mode to write hex directly.
+        print("Done ")
+
 
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
         self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A4)
-        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.test)
+        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.stream)
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
