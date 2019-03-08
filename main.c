@@ -306,7 +306,7 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
+  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
   FIL fil;
   f_mount(&FatFs,"",0);
   f_open(&fil,fpath,FA_READ);
@@ -317,11 +317,37 @@ void Play_OnBoard_Audio()
 
 void Record_OnBoard_Audio()
 {
-  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
+  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
+
   FIL fil;
   f_mount(&FatFs,"",0);
+  FRESULT fr = f_open(&fil,fpath,FA_WRITE|FA_OPEN_EXISTING);
+
+  LCDClear();
+  sprintf(fpath,"%s\nalready exists.",fpath);
+  LCDPrint(fpath);
+  Delay(30);
+  LCDGoHome();
+  LCDPrint("Will you:       \n># Stop >* Write");
+
+  while(buttonpress == 0);
+  if(key != '*')
+  {
+    f_mount(0, "", 0);
+    return;
+  }
+  buttonpress = 0;
+
   f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
-  record_onboard_audio_no_DMA(&fil,48000);
+  
+  TextEntry(fpath, "Pick a Frequency\n");
+  uint32_t frequency = atoi(fpath);
+/*
+Add spliff header decoding here.
+
+*/
+  
+  record_onboard_audio_no_DMA(&fil,frequency);
   f_close(&fil);
   f_mount(0, "", 0);
 }
