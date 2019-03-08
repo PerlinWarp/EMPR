@@ -826,23 +826,6 @@ void U2() {
   I2S_DeInit(LPC_I2S);
 }
 
-void A2()
-{
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
-  LCDGoHome();
-  TLV320_Start_I2S_Polling_Passthrough();
-  int_Handler_Enable =1;
-  char result[16];
-  TextEntry(result, "Pick a Frequency\n");
-  uint32_t frequency = atoi(result);
-  LCDPrint("**PLAYING SINE**\n******WAVE******");
-  I2S_Create_Sine(frequency);
-  while(!buttonpress);
-  int_Handler_Enable =0;
-  I2S_DeInit(LPC_I2S);
-  NewFree(buffer);
-}
-
 int f_copy(filepath){
   WriteText("Starting the copy");
   FIL fsrc, fdst;    /* File objects */
