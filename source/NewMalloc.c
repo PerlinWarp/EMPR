@@ -26,7 +26,7 @@ void* NewMalloc(unsigned long size)
   {
     for(i =1; i<length;i++)
     {
-      if(Used[i].Address - Used[i-1].EndAddress => size)
+      if(Used[i].Address - Used[i-1].EndAddress >= size)
       {
         if(length<END)
         {
@@ -80,7 +80,6 @@ void insertionSort()
 
 void NewFree(void* toRemove)
 {
-  char output[50];
   int i;
   for(i =0;i<length;i++)
   {

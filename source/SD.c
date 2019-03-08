@@ -112,7 +112,6 @@ uint8_t SDGetAllFiles(char** result) {
   int stack_top = 0;
   char **allDirs = SDMallocFilenames();
   uint8_t allDirsCount = SDGetDirectories("/", allDirs);
-  char output[30];
   uint8_t i = 0, newFilesCount = 0, j = 0;
   char **thisDir = SDMallocFilenames();
   for (i = 0; i < allDirsCount; i += 1) {
@@ -134,7 +133,6 @@ uint8_t SDGetAllFiles(char** result) {
 uint8_t SDGetAllFilesandDirs(char** result,char**allDirs) {
   int stack_top = 0;
   uint8_t allDirsCount = SDGetDirectories("/", allDirs);
-  char output[30];
   uint8_t i = 0, newFilesCount = 0, j = 0;
   char **thisDir = SDMallocFilenames();
   for (i = 0; i < allDirsCount; i += 1) {
@@ -182,7 +180,6 @@ uint8_t SDGetDirectories(char *path, char** result) {
 uint8_t SDGetFiles(char* path, char** result) {
     sd_init();
     ff_DIR dir;
-    char buff[64];
     FRESULT res = f_opendir(&dir, path);
     #if SD_DEBUG == 1
     WriteText("Reading Files: ");

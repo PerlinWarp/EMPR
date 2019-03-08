@@ -43,8 +43,8 @@ typedef struct {
 
 
 typedef struct {
-  char Format[5];//should be "SPLIFF"
-  char HeaderID; //H for header start
+  char* Format;//should be "SPLIFF"
+  char Header_ID; //H for header start
   uint32_t Header_Size; //always 32 bytes
   uint32_t Sample_Rate; //sample rate in hz
   uint32_t Byte_Rate; //will be 32*sample rate

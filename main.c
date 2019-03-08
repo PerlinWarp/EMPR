@@ -176,7 +176,6 @@ void FileInfo() {
   WriteText(SELECTED_FILE);
 
   FIL fil;        /* File object */
-  FRESULT fr;     /* FatFs return code */
   WriteText(" Filesize fresult: ");
   uint32_t fileSize = SDGetFileSize(SELECTED_FILE);
 
@@ -193,9 +192,9 @@ void FileInfo() {
   showItems[3] = sampleSizeItem;
 
   char header[16] = "File Details:\n";
-  sprintf(fileSizeItem, "size: %db", fileSize);
+  sprintf(fileSizeItem, "size: %db", (int)fileSize);
   sprintf(playingTimeItem, "time: %.2fs", fileSize / ((float)w.ByteRate));
-  sprintf(byteRateItem, "rate: %dHz", w.ByteRate);
+  sprintf(byteRateItem, "rate: %dHz", (int)w.ByteRate);
   sprintf(sampleSizeItem, "ssize: %dbits", w.BitsPerSample);
   SelectOne(showItems, header, 4);
 }
@@ -322,31 +321,34 @@ void Record_OnBoard_Audio()
   FIL fil;
   f_mount(&FatFs,"",0);
   FRESULT fr = f_open(&fil,fpath,FA_WRITE|FA_OPEN_EXISTING);
-
-  LCDClear();
-  sprintf(fpath,"%s\nalready exists.",fpath);
-  LCDPrint(fpath);
-  Delay(30);
-  LCDGoHome();
-  LCDPrint("Will you:       \n># Stop >* Write");
-
-  while(buttonpress == 0);
-  if(key != '*')
+  if(fr != 0)
   {
-    f_mount(0, "", 0);
-    return;
-  }
-  buttonpress = 0;
+    LCDClear();
+    sprintf(fpath,"%s\nalready exists.",fpath);
+    LCDPrint(fpath);
+    Delay(30);
+    LCDGoHome();
+    LCDPrint("Will you:       \n># Stop >* Write");
 
-  f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
-  
+    while(buttonpress == 0);
+    if(key != '*')
+    {
+      f_mount(0, "", 0);
+      return;
+    }
+    buttonpress = 0;
+
+    f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
+  }
+
+
   TextEntry(fpath, "Pick a Frequency\n");
   uint32_t frequency = atoi(fpath);
 /*
 Add spliff header decoding here.
 
 */
-  
+
   record_onboard_audio_no_DMA(&fil,frequency);
   f_close(&fil);
   f_mount(0, "", 0);
@@ -535,7 +537,6 @@ void PC_Mode()
           char argument[100]; // File name or volume
           strcpy(argument,&READ_SERIAL[2]);
           char func = READ_SERIAL[1];
-          WriteText(func);
 
           switch (func)
           {
@@ -666,7 +667,7 @@ void PC_Mode()
 
           for(i=0;i<len;i++)
           {
-            sprintf(output,"%sd|",allDirs[i],len);
+            sprintf(output,"%sd|",allDirs[i]);
             WriteText(output);
           }
           SDFreeFilenames(allDirs);
@@ -790,11 +791,13 @@ uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
     File functions
 */
 
-void f_delete(filepath){
+void f_delete(char* filepath)
+{
   FIL fil;        /* File object */
   char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
   FATFS *fs;
+}
 
 void U2() {
   char newname[32];
@@ -843,7 +846,7 @@ void A2()
   NewFree(buffer);
 }
 
-int f_copy(filepath){
+int f_copy(char* filepath){
   WriteText("Starting the copy");
   FIL fsrc, fdst;    /* File objects */
   UINT br, bw;         /* File read/write count */
@@ -855,7 +858,7 @@ int f_copy(filepath){
   fe = f_open(&fsrc, filepath, FA_READ);
   if (fe) return (int)fe;
   int len = strlen(filepath);
-  filepath[strlen-3] = '\0';
+  filepath[len-3] = '\0';
   strcat(filepath,".copy");
   fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
   if (fe) return (int)fe;
@@ -874,7 +877,7 @@ int f_copy(filepath){
   f_close(&fdst);
   //Unmount the file system
   f_mount(0, "", 0);
-  WriteText("File wrote");perlinwarp
+  WriteText("File wrote");
   return 0;
 }
 
@@ -903,23 +906,6 @@ void A1()
     LCDPrint(output);
     buttonpress = 0;
   }
-  I2S_DeInit(LPC_I2S);
-  NewFree(buffer);
-}
-
-void A2()
-{
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
-  LCDGoHome();
-  TLV320_Start_I2S_Polling_Passthrough();
-  int_Handler_Enable =1;
-  char result[16];
-  TextEntry(result, "Pick a Frequency\n");
-  uint32_t frequency = atoi(result);
-  LCDPrint("**PLAYING SINE**\n******WAVE******");
-  I2S_Create_Sine(frequency);
-  while(!buttonpress);
-  int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
   NewFree(buffer);
 }
