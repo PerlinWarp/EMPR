@@ -703,8 +703,21 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 	return 0xFFFFFFFF;	/* An error occurred at the disk I/O layer */
 }
 
+DWORD get_fat_fast (FATFS *fs, DWORD clst)
+{
+	UINT wc, bc;
+	BYTE *p;
+
+	if (clst < 2 || clst >= fs->n_fatent)	/* Chack range */
+		return 1;
 
 
+	if (move_window(fs, fs->fatbase + (clst / (SS(fs) / 4))));
+		p = &fs->win[clst * 4 % SS(fs)];
+		return LD_DWORD(p) & 0x0FFFFFFF;
+
+	return 0xFFFFFFFF;	/* An error occurred at the disk I/O layer */
+}
 
 /*----------------------------------------------------------------------*/
 /*									*/
@@ -2228,7 +2241,6 @@ FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 
 	*br = 0;	/* Initialize byte counter */
 
-#if !_FAST_F_READ
 
 	res = validate(fp->fs, fp->id);					/* Check validity of the object */
 	if (res != FR_OK) LEAVE_FF(fp->fs, res);
@@ -2236,7 +2248,6 @@ FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 		LEAVE_FF(fp->fs, FR_INT_ERR);
 	if (!(fp->flag & FA_READ)) 						/* Check access mode */
 		LEAVE_FF(fp->fs, FR_DENIED);
-#endif
 	remain = fp->fsize - fp->fptr;
 	if (btr > remain) btr = (UINT)remain;			/* Truncate btr by remaining bytes */
 
@@ -2300,6 +2311,80 @@ FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
+
+FRESULT f_read_fast (FIL *fp, void *buff, UINT btr, UINT *br)
+{
+	FRESULT res;
+	DWORD clst, sect, remain;
+	UINT rcnt, cc;
+	BYTE csect, *rbuff = buff;
+
+
+	*br = 0;	/* Initialize byte counter */
+	remain = fp->fsize - fp->fptr;
+	if (btr > remain) btr = (UINT)remain;			/* Truncate btr by remaining bytes */
+
+	for ( ;  btr;									/* Repeat until all data transferred */
+		rbuff += rcnt, fp->fptr += rcnt, *br += rcnt, btr -= rcnt) {
+		if ((fp->fptr % SS(fp->fs)) == 0) {			/* On the sector boundary? */
+			csect = (BYTE)(fp->fptr / SS(fp->fs) & (fp->fs->csize - 1));	/* Sector offset in the cluster */
+			if (!csect) {							/* On the cluster boundary? */
+				clst = (fp->fptr == 0) ?			/* On the top of the file? */
+					fp->org_clust : get_fat_fast(fp->fs, fp->curr_clust);
+				if (clst <= 1) ABORT(fp->fs, FR_INT_ERR);
+				if (clst == 0xFFFFFFFF) ABORT(fp->fs, FR_DISK_ERR);
+				fp->curr_clust = clst;				/* Update current cluster */
+			}
+			sect = clust2sect(fp->fs, fp->curr_clust);	/* Get current sector */
+			if (!sect) ABORT(fp->fs, FR_INT_ERR);
+			sect += csect;
+			cc = btr / SS(fp->fs);					/* When remaining bytes >= sector size, */
+			if (cc) {								/* Read maximum contiguous sectors directly */
+				if (csect + cc > fp->fs->csize)		/* Clip at cluster boundary */
+					cc = fp->fs->csize - csect;
+				if (disk_read_fast(fp->fs->drv, rbuff, sect, (BYTE)cc) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+#if !_FS_READONLY && _FS_MINIMIZE <= 2				/* Replace one of the read sectors with cached data if it contains a dirty sector */
+#if _FS_TINY
+				if (fp->fs->wflag && fp->fs->winsect - sect < cc)
+					mem_cpy(rbuff + ((fp->fs->winsect - sect) * SS(fp->fs)), fp->fs->win, SS(fp->fs));
+#else
+				if ((fp->flag & FA__DIRTY) && fp->dsect - sect < cc)
+					mem_cpy(rbuff + ((fp->dsect - sect) * SS(fp->fs)), fp->buf, SS(fp->fs));
+#endif
+#endif
+				rcnt = SS(fp->fs) * cc;				/* Number of bytes transferred */
+				continue;
+			}
+#if !_FS_TINY
+#if !_FS_READONLY
+			if (fp->flag & FA__DIRTY) {				/* Write sector I/O buffer if needed */
+				if (disk_write(fp->fs->drv, fp->buf, fp->dsect, 1) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+				fp->flag &= ~FA__DIRTY;
+			}
+#endif
+			if (fp->dsect != sect) {				/* Fill sector buffer with file data */
+				if (disk_read_fast(fp->fs->drv, fp->buf, sect, 1) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+			}
+#endif
+			fp->dsect = sect;
+		}
+		rcnt = SS(fp->fs) - (fp->fptr % SS(fp->fs));	/* Get partial sector data from sector buffer */
+		if (rcnt > btr) rcnt = btr;
+#if _FS_TINY
+		if (move_window(fp->fs, fp->dsect))			/* Move sector window */
+			ABORT(fp->fs, FR_DISK_ERR);
+		mem_cpy(rbuff, &fp->fs->win[fp->fptr % SS(fp->fs)], rcnt);	/* Pick partial sector */
+#else
+		mem_cpy(rbuff, &fp->buf[fp->fptr % SS(fp->fs)], rcnt);	/* Pick partial sector */
+#endif
+	}
+
+	LEAVE_FF(fp->fs, FR_OK);
+}
+
 #if !_FS_READONLY
 /*----------------------------------------------------------------------*/
 /*									*/

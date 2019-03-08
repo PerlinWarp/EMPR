@@ -45,7 +45,7 @@ int SD_Test(void) {
   WriteText("Buffer Initialised\n");
 
   while (!fr){
-      fr = f_read(&fil, buffer, 0x20, &y);
+      fr = f_read_fast(&fil, buffer, 0x20, &y);
       //n = sprintf(buffer,"%s\n\r", line);
       write_usb_serial_blocking(buffer,y);
   }

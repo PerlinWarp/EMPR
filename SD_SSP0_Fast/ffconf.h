@@ -9,7 +9,7 @@
 #ifndef _FFCONF
 #define _FFCONF 8255	/* Revision ID */
 
-#define _FAST_F_READ 1
+//#define _FAST_F_READ 1
 /*---------------------------------------------------------------------------/
 / Function and Buffer Configurations
 /----------------------------------------------------------------------------*/
