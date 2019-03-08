@@ -281,12 +281,20 @@ class TestingScreen(PlaceWindow):
             d = self.frame.ser.read_until('|')
             print(d)
 
+    def test(self):
+        print("Starting test")
+        self.frame.ser.write(b"FCcopyme.txt|")
+        print("FCdeleteme.wav|")
+        if self.frame.ser.in_waiting > 0:
+            d = self.frame.ser.read_until('|')
+            print(d)
+
     def deleting(self):
         print("Starting deleting test")
         self.frame.ser.write(b"FDdelete.wav|")
         print("FDdelete.wav|")
         if self.frame.ser.in_waiting > 0:
-            d = self.frame.ser.read_until('|')
+            d = self.frame.ser.read_until(b'|')
             print(d)
 
     def A4(self):

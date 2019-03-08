@@ -555,11 +555,11 @@ void PC_Mode()
               3. Use a loop to copy the files over
               5. Close both files.
               */
+              WriteText("Starting copying");
               LCDClear();
               LCDPrint("Starting copying");
               int error;
               char line[100]; /* Line buffer */
-              WriteText("Starting Copying");
               error = f_copy(argument);
               sprintf(line, "Exited with Error Code: %d\n\r",error);
               WriteText(line);
@@ -567,7 +567,7 @@ void PC_Mode()
                 LCDClear();
                 strcat(argument, "\n was made.");
                 LCDPrint(argument);
-                WriteText("Copied");
+                WriteText("Copied|");
               }
             break;
 
@@ -800,13 +800,18 @@ void f_delete(char* filepath)
 }
 
 int f_copy(char* filepath){
-  WriteText("Starting the copy");
+  WriteText("Starting copying |");
   FIL fsrc, fdst;    /* File objects */
   UINT br, bw;         /* File read/write count */
   FRESULT fe;     /* FatFs return code */
 
-  f_mount(&fs, "", 0);
+  LCDClear();
+  LCDPrint("Mounting");
+  fe = f_mount(&fs, "", 0);
+  if (fe) return (int)fe;
 
+  LCDClear();
+  LCDPrint("Opening 1");
   /* Open a text file */
   fe = f_open(&fsrc, filepath, FA_READ);
   if (fe) return (int)fe;
@@ -815,25 +820,33 @@ int f_copy(char* filepath){
   filepath[len-3] = '\0';
   strcat(filepath,".copy");
 */
+  LCDClear();
+  LCDPrint("Opening 2");
   filepath = "garb.txt";
   fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
   if (fe) return (int)fe;
+  LCDClear();
+  LCDPrint("Opened 2");
 
   /* Copy source to destination */
+  LCDClear();
+  LCDPrint("Started copying"); //Crashes here
   for (;;) {
       fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
       if (fe || br == 0) break; /* error or eof */
       fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
       if (fe || bw < br) break; /* error or disk full */
   }
-
+  LCDPrint("Done copying");
 
   /* Close the file */
   f_close(&fsrc);
   f_close(&fdst);
   //Unmount the file system
   f_mount(0, "", 0);
-  WriteText("File wrote");
+  LCDClear();
+  LCDPrint("File wrote");
+  WriteText("File wrote|");
   return 0;
 }
 
