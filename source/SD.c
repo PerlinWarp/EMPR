@@ -6,7 +6,6 @@ void SDPrintFresult(FRESULT fr) {
   char buff[32];
   switch (fr) {
     case FR_OK:
-    WriteText("OK\n\r");
     break;
     case FR_DISK_ERR:
     WriteText("FR_DISK_ERR\n\r");
