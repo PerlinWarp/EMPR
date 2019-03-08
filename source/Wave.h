@@ -20,6 +20,7 @@ char* head_buffer;
 #define LITTLE_ENDIAN -1
 
 #define WAVE_DEBUG 0
+#define SPLIFF_SIZE 32
 
 typedef struct {
   FIL* file;
@@ -40,9 +41,24 @@ typedef struct {
   char Endian;
 }WAVE_HEADER;
 
+
+typedef struct {
+  char Format[5];//should be "SPLIFF"
+  char HeaderID; //H for header start
+  uint32_t Header_Size; //always 32 bytes
+  uint32_t Sample_Rate; //sample rate in hz
+  uint32_t Byte_Rate; //will be 32*sample rate
+  uint16_t Audio_Format;//0 if 32 bit unsigned data, 1 if 16 bit signed stereo.
+  uint32_t Data_Size; //Size of data in bytes
+  uint16_t Data_Start;//Where data starts -> always 32th bit
+}SPLIFF_HEADER;
+
 WAVE_HEADER Wav_Init(FIL* file );
 void Wav_Read_Buffer(char* buffer, uint32_t buf_Size);
 WAVE_HEADER Wav_Read_Buffered_Header(char* head_buffer);
 
+SPLIFF_HEADER SPLIFF_DECODE(FIL* file);
+void SPLIFF_WRITE(FIL* file, SPLIFF_HEADER* s);
+SPLIFF_HEADER CREATE_SPLIFF_HEADER(uint32_t Sample_Rate,uint32_t Data_Size);
 
 #endif

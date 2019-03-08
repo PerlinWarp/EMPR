@@ -62,6 +62,30 @@ class functionalButton(hoverButton):
 
     def _on_Click(self):
         self.function()
+class switchButton(functionalButton):
+    def __init__(self,parent,root,buttonName,function,**options):
+        functionalButton.__init__(self,parent,root,buttonName,function,**options)
+        self.switchImage = PhotoImage(file ="resources/"+buttonName+"_select.gif")
+        self.switchImagePressed = PhotoImage(file ="resources/"+buttonName+"_select_pressed.gif")
+        self.switchImageHover = PhotoImage(file ="resources/"+buttonName+"_select_hover.gif")
+        self.selected = False
+
+    def _on_Click(self):
+        self.selected = not self.selected
+        self.hoverPath,self.switchImageHover = self.switchImageHover,self.hoverPath
+        self.switchImagePressed,self.imagePathPressed = self.imagePathPressed,self.switchImagePressed
+        self.imagePath,self.switchImage = self.switchImage,self.imagePath
+        self.config(image = self.imagePath)
+        self.function()
+class switchableButton(switchButton):
+    def _on_Click(self):
+        self.function()
+    def switch_images(self):
+        self.selected = not self.selected
+        self.hoverPath,self.switchImageHover = self.switchImageHover,self.hoverPath
+        self.switchImagePressed,self.imagePathPressed = self.imagePathPressed,self.switchImagePressed
+        self.imagePath,self.switchImage = self.switchImage,self.imagePath
+
 class startButton(hoverButton):
     def __init__(self,parent,root,buttonName,menu=None,**options):
         hoverButton.__init__(self,parent,root,buttonName,menu=None,**options)

@@ -47,3 +47,58 @@ WAVE_HEADER Wav_Init(FIL* file )
   NewFree(head_buffer);
   return w;
 }
+
+
+/*
+"What is spliff?":
+    Spliff is a 32 bit raw file with simplified wave header (everythings big endian), so big endian other than the  
+
+*/
+
+SPLIFF_HEADER CREATE_SPLIFF_HEADER(uint32_t Sample_Rate,uint32_t Data_Size)
+{
+  SPLIFF_HEADER s;
+  s.Format        = "SPLIFF";
+  s.Header_ID     = 'H';
+  s.Header_Size   = 32;
+  s.Sample_Rate   = Sample_Rate;
+  s.Byte_Rate     = Sample_Rate*32;
+  s.Audio_Format  = 0;
+  s.Data_Size     = Data_Size;
+  s.Data_Start    = 32;
+  return s;
+}
+
+
+void SPLIFF_WRITE(FIL* file, SPLIFF_HEADER* s)
+{
+  UINT size;
+  f_write(file,s->Format,5,&size);
+  f_write(file,s->Header_ID,1,&size);
+  f_write(file,s->Header_Size,4,&size);
+  f_write(file,s->Sample_Rate,4,&size);
+  f_write(file,s->Byte_Rate,4,&size);
+  f_write(file,s->Audio_Format,2,&size);
+  f_write(file,s->Data_Size,4,&size);
+  f_write(file,s->Data_Start,2,&size);
+}
+
+SPLIFF_HEADER SPLIFF_DECODE(FIL* file)
+{
+  SPLIFF_HEADER s;
+  head_buffer = (char*)NewMalloc(SPLIFF_SIZE);
+
+  UINT size;
+  f_read(file,head_buffer,SPLIFF_SIZE, &size);
+  if(size < SPLIFF_SIZE)return w;
+  s.Format        = &head_buffer[0];
+  if(!strncmp(w.Format,"SPLIFF",5))return s;
+  s.Header_ID     = &head_buffer[5];
+  s.Header_Size   = &head_buffer[6];
+  s.Sample_Rate   = &head_buffer[10];
+  s.Byte_Rate     = &head_buffer[14];
+  s.Audio_Format  = &head_buffer[18];
+  s.Data_Size     = &head_buffer[20];
+  s.Data_Start    = &head_buffer[24];
+  NewFree(head_buffer);
+}

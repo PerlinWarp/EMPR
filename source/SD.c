@@ -269,6 +269,7 @@ uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
   return nRead;
 }
 
+
 uint32_t SDGetFileSize(char *path) {
   sd_init();
   FIL fil;

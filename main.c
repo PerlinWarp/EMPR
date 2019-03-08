@@ -201,7 +201,7 @@ void FileInfo() {
 }
 
 // Stores full path to new file in SELECTED_FILE
-uint8_t NewFileSelection(char* newpath) {
+uint8_t NewFileSelection() {
 	char** directoryNames = SDMallocFilenames();
     int directoryCount = SDGetDirectories("/", directoryNames);
     // SDFreeFilenames(directoryNames);
@@ -209,6 +209,7 @@ uint8_t NewFileSelection(char* newpath) {
     WriteText("oi\n\r");
     uint8_t tmp;
     if (dir == 100) {
+      SDFreeFilenames(directoryNames);
       return 0;
     } else {
     	WriteText("Selected Directory: ");
@@ -217,10 +218,12 @@ uint8_t NewFileSelection(char* newpath) {
     	char newfilename[16];
     	TextEntry(newfilename, "Name? (# ends)\n");
     	tmp = sprintf(SELECTED_FILE, "%s/%s", directoryNames[dir], newfilename);
+      SDFreeFilenames(directoryNames);
       SDCleanPath(SELECTED_FILE);
       return tmp;
 
     }
+
 }
 // Stores full path to selected file in SELECTED_FILE
 void FileSelection() {
@@ -303,14 +306,51 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
+  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
   FIL fil;
   f_mount(&FatFs,"",0);
   f_open(&fil,fpath,FA_READ);
-  init_onboard_audio(&fil,48000);
+  init_onboard_audio_no_DMA(&fil,48000);
   f_close(&fil);
+  f_mount(0, "", 0);
 }
 
+void Record_OnBoard_Audio()
+{
+  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
+
+  FIL fil;
+  f_mount(&FatFs,"",0);
+  FRESULT fr = f_open(&fil,fpath,FA_WRITE|FA_OPEN_EXISTING);
+
+  LCDClear();
+  sprintf(fpath,"%s\nalready exists.",fpath);
+  LCDPrint(fpath);
+  Delay(30);
+  LCDGoHome();
+  LCDPrint("Will you:       \n># Stop >* Write");
+
+  while(buttonpress == 0);
+  if(key != '*')
+  {
+    f_mount(0, "", 0);
+    return;
+  }
+  buttonpress = 0;
+
+  f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
+  
+  TextEntry(fpath, "Pick a Frequency\n");
+  uint32_t frequency = atoi(fpath);
+/*
+Add spliff header decoding here.
+
+*/
+  
+  record_onboard_audio_no_DMA(&fil,frequency);
+  f_close(&fil);
+  f_mount(0, "", 0);
+}
 
 void Play(char* directory)
 {
@@ -507,12 +547,12 @@ void PC_Mode()
             break;
 
             case 'C':
-              /* 
+              /*
               Copy the file in fileName.
               1. Open the source
               2. Create the destination
               3. Use a loop to copy the files over
-              5. Close both files. 
+              5. Close both files.
               */
               LCDClear();
               LCDPrint("Starting copying");
@@ -550,6 +590,20 @@ void PC_Mode()
 
             case 'R':
               // Reversing playback of the audio
+              Reverse_Wav(argument);
+
+            break;
+            case 'N':
+              switch(READ_SERIAL[2])
+              {
+                case 'd'://new folder
+
+                break;
+                case 'f'://new file
+
+                break;
+              }
+            //New file and folder creation
               LCDClear();
               LCDPrint(argument);
             break;
@@ -650,8 +704,10 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   IRQInit();
   LCDInit();
   LCDClear();
-  Menu();
+  // U2();
   initMalloc();
+  // I2S_PassThroughLoop();
+  Menu();
 
 
   return 0;
@@ -740,21 +796,51 @@ void f_delete(filepath){
   FRESULT fr;     /* FatFs return code */
   FATFS *fs;
 
-  fs = malloc(sizeof(FATFS));
-  fr = f_mount(fs, "", 0);
+void U2() {
+  char newname[32];
+  NewFileSelection();
+  WriteText(SELECTED_FILE);
+  LCDClear();
+  LCDPrint("Recording...\n(# ends)");
+  uint32_t iobuff[32];
+  UINT written = 0;
 
-  if (fr)
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
+
+  sd_init();
+  FIL fil;
+  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_WRITE | FA_CREATE_ALWAYS));
+  while(key != '#')
   {
-    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
-    return (int)fr;
+    I2S_Polling_Read(iobuff,32);
+    SDPrintFresult(f_write(&fil, iobuff, 32, &written));
+    if (written < 32) {
+      WriteText("kekerino");
+    }
   }
+  WriteText("done writing\n\r");
+  f_close(&fil);
+  sd_deinit();
 
-  /* Open a text file */
-  fr = f_unlink(filepath);
+  I2S_DeInit(LPC_I2S);
+}
 
-  //Unmount the file system
-  f_mount(0, "", 0);
-  free(fs); 
+void A2()
+{
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  LCDGoHome();
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  char result[16];
+  TextEntry(result, "Pick a Frequency\n");
+  uint32_t frequency = atoi(result);
+  LCDPrint("**PLAYING SINE**\n******WAVE******");
+  I2S_Create_Sine(frequency);
+  while(!buttonpress);
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
 }
 
 int f_copy(filepath){
@@ -806,8 +892,11 @@ void A1()
   while(key != '#')
   {
     while(!buttonpress);
+
     I2S_Polling_Read(BufferOut,1);
+    WriteText("about to read\n\r");
     sprintf(output,"  Just Read In  \n   0x%04X   ",(signed int)BufferOut[0]);//print the left channel as a signed integer
+    WriteText(output);
     LCDGoHome();
     LCDPrint(output);
     buttonpress = 0;
@@ -914,4 +1003,47 @@ uint8_t TextEntry(char* result, char* header) {
 	}
 
 	return i;
+}
+
+
+// relies on 16bit samplesize (swaps 2-byte chunks around)
+#define WAV_H_SIZE 44
+void Reverse_Wav(char* src) {
+  char dst[32];
+  sprintf(dst, "/inv%s", src + 1);
+
+  sd_init();
+  FIL fsrc, fdst;
+  f_open(&fsrc, src, FA_READ);
+  f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
+
+  char fbuff[256], tmp[2];
+  uint32_t countread, dummy;
+  f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
+  f_write(&fdst, fbuff, WAV_H_SIZE, &dummy);
+
+  char pbuff[32];
+
+  uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0;
+  for (i = fsize / 256; i > 0; i--) {
+    f_lseek(&fsrc, WAV_H_SIZE + i * 256);
+    f_read(&fsrc, fbuff, 256, &countread);
+    for (j = 0; j < countread / 2 - 1; j ++) {
+      tmp[0] = fbuff[j];
+      tmp[1] = fbuff[j + 1];
+      fbuff[j] = fbuff[countread - j - 2];
+      fbuff[j + 1] = fbuff[countread - j - 1];
+      fbuff[countread - j - 2] = tmp[0];
+      fbuff[countread - j - 1] = tmp[1];
+    };
+    f_write(&fdst, fbuff, countread, &dummy);
+  }
+
+  f_close(&fsrc);
+  f_close(&fdst);
+
+  f_unlink(src);
+  f_rename(dst, src);
+
+  sd_deinit();
 }
