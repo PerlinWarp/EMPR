@@ -768,9 +768,7 @@ int f_copy(filepath){
   /* Open a text file */
   fe = f_open(&fsrc, filepath, FA_READ);
   if (fe) return (int)fe;
-  int len = strlen(filepath);
-  filepath[strlen-3] = '\0';
-  strcat(filepath,".copy");
+  filepath = "garb.txt";
   fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
   if (fe) return (int)fe;
 
@@ -788,7 +786,7 @@ int f_copy(filepath){
   f_close(&fdst);
   //Unmount the file system
   f_mount(0, "", 0);
-  WriteText("File wrote");perlinwarp
+  WriteText("File wrote");
   return 0;
 }
 
