@@ -562,11 +562,11 @@ void PC_Mode()
               3. Use a loop to copy the files over
               5. Close both files.
               */
+              WriteText("Starting copying");
               LCDClear();
               LCDPrint("Starting copying");
               int error;
               char line[100]; /* Line buffer */
-              WriteText("Starting Copying");
               error = f_copy(argument);
               sprintf(line, "Exited with Error Code: %d\n\r",error);
               WriteText(line);
@@ -574,7 +574,7 @@ void PC_Mode()
                 LCDClear();
                 strcat(argument, "\n was made.");
                 LCDPrint(argument);
-                WriteText("Copied");
+                WriteText("Copied|");
               }
             break;
 
@@ -650,6 +650,10 @@ void PC_Mode()
               // Reversing playback of the audio
               LCDClear();
               LCDPrint("Testing mode");
+              break;
+
+              case 'S':
+              stream();
               break;
             }
           break;
@@ -807,61 +811,19 @@ void f_delete(char* filepath)
   FATFS *fs;
 }
 
-void U2() {
-  char newname[32];
-  NewFileSelection();
-  WriteText(SELECTED_FILE);
-  LCDClear();
-  LCDPrint("Recording...\n(# ends)");
-  uint32_t iobuff[32];
-  UINT written = 0;
-
-  TLV320_Start_I2S_Polling_Passthrough();
-  I2S_Polling_Init(48000,I2S_MODE_POLLING);
-
-  sd_init();
-  FIL fil;
-  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_WRITE | FA_CREATE_ALWAYS));
-  while(key != '#')
-  {
-    I2S_Polling_Read(iobuff,32);
-    SDPrintFresult(f_write(&fil, iobuff, 32, &written));
-    if (written < 32) {
-      WriteText("kekerino");
-    }
-  }
-  WriteText("done writing\n\r");
-  f_close(&fil);
-  sd_deinit();
-
-  I2S_DeInit(LPC_I2S);
-}
-
-void A2()
-{
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
-  LCDGoHome();
-  TLV320_Start_I2S_Polling_Passthrough();
-  int_Handler_Enable =1;
-  char result[16];
-  TextEntry(result, "Pick a Frequency\n");
-  uint32_t frequency = atoi(result);
-  LCDPrint("**PLAYING SINE**\n******WAVE******");
-  I2S_Create_Sine(frequency);
-  while(!buttonpress);
-  int_Handler_Enable =0;
-  I2S_DeInit(LPC_I2S);
-  NewFree(buffer);
-}
-
 int f_copy(char* filepath){
-  WriteText("Starting the copy");
+  WriteText("Starting copying |");
   FIL fsrc, fdst;    /* File objects */
   UINT br, bw;         /* File read/write count */
   FRESULT fe;     /* FatFs return code */
 
-  f_mount(&fs, "", 0);
+  LCDClear();
+  LCDPrint("Mounting");
+  fe = f_mount(&fs, "", 0);
+  if (fe) return (int)fe;
 
+  LCDClear();
+  LCDPrint("Opening 1");
   /* Open a text file */
   fe = f_open(&fsrc, filepath, FA_READ);
   if (fe) return (int)fe;
@@ -870,25 +832,33 @@ int f_copy(char* filepath){
   filepath[len-3] = '\0';
   strcat(filepath,".copy");
 */
+  LCDClear();
+  LCDPrint("Opening 2");
   filepath = "garb.txt";
   fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
   if (fe) return (int)fe;
+  LCDClear();
+  LCDPrint("Opened 2");
 
   /* Copy source to destination */
+  LCDClear();
+  LCDPrint("Started copying"); //Crashes here
   for (;;) {
       fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
       if (fe || br == 0) break; /* error or eof */
       fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
       if (fe || bw < br) break; /* error or disk full */
   }
-
+  LCDPrint("Done copying");
 
   /* Close the file */
   f_close(&fsrc);
   f_close(&fdst);
   //Unmount the file system
   f_mount(0, "", 0);
-  WriteText("File wrote");
+  LCDClear();
+  LCDPrint("File wrote");
+  WriteText("File wrote|");
   return 0;
 }
 
@@ -917,6 +887,24 @@ void A1()
     LCDPrint(output);
     buttonpress = 0;
   }
+  I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
+}
+
+
+void A2()
+{
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  LCDGoHome();
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  char result[16];
+  TextEntry(result, "Pick a Frequency\n");
+  uint32_t frequency = atoi(result);
+  LCDPrint("**PLAYING SINE**\n******WAVE******");
+  I2S_Create_Sine(frequency);
+  while(!buttonpress);
+  int_Handler_Enable =0;
   I2S_DeInit(LPC_I2S);
   NewFree(buffer);
 }
@@ -974,6 +962,81 @@ void A4()
   free(fs);
   write_usb_serial_blocking("EndOfFile",9);
   return 0;
+}
+
+void stream(){
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  FATFS *fs;
+
+  fs = malloc(sizeof(FATFS));
+  fr = f_mount(fs, "", 0);
+
+  if (fr)
+  {
+    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+    return (int)fr;
+  }
+
+  /* Open a text file */
+  fr = f_open(&fil, "a.wav", FA_READ);
+
+  if (fr)
+  {
+    sprintf(line, "Exited with Error Code: %d\n\r",fr);
+    WriteText(line);
+    return (int)fr;
+  }
+  f_lseek(&fil,44);
+
+  /* Read every line and display it */
+  uint y;
+  char buffer [0x20];
+
+  while (!fr){
+      fr = f_read(&fil,buffer,0x20, &y);
+      //n = sprintf(buffer,"%s\n\r", line);
+      write_usb_serial_blocking(buffer,y);
+  }
+
+  /* Close the file */
+  f_close(&fil);
+
+  //Unmount the file system
+  f_mount(0, "", 0);
+  free(fs);
+  write_usb_serial_blocking("EndOfFile",9);
+}
+
+void U2() {
+  char newname[32];
+  NewFileSelection();
+  WriteText(SELECTED_FILE);
+  LCDClear();
+  LCDPrint("Recording...\n(# ends)");
+  uint32_t iobuff[32];
+  UINT written = 0;
+
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
+
+  sd_init();
+  FIL fil;
+  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_WRITE | FA_CREATE_ALWAYS));
+  while(key != '#')
+  {
+    I2S_Polling_Read(iobuff,32);
+    SDPrintFresult(f_write(&fil, iobuff, 32, &written));
+    if (written < 32) {
+      WriteText("kekerino");
+    }
+  }
+  WriteText("done writing\n\r");
+  f_close(&fil);
+  sd_deinit();
+
+  I2S_DeInit(LPC_I2S);
 }
 
 
