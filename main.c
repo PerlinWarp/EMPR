@@ -718,8 +718,44 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   initMalloc();
 
 
+  PINSEL_CFG_Type PinCfg;
+  PinCfg.Funcnum     = 2;
+  PinCfg.Portnum     = 0; 
+  PinCfg.Pinmode     = 0;
+  PinCfg.OpenDrain = 0;
+  // Apply config
+  PinCfg.Pinnum      = 26;
+  PINSEL_ConfigPin(&PinCfg);
 
+  // Initialise DAC
+  DAC_Init(LPC_DAC);
+
+  int i, j;
+  FIL fil;
+
+
+
+  f_open(&fil, "sine.wav", FA_READ);
+  f_lseek(&fil, 44);
+
+  char pbuff[32];
+
+  char abuff[4096];
+  int countread;
+  f_read_fast(&fil, abuff, 4096, &countread);
+  while(1) {
+    for (i= 0; i < 4096; i++) {
+      DAC_UpdateValue(LPC_DAC, (uint32_t)abuff[i]);
+      for(j = 0; j < 100; j++);
+    }
+    i = 0;
+  };
+  
+  
   Menu();
+
+
+
 
 
   return 0;
