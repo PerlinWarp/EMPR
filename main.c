@@ -857,9 +857,12 @@ int f_copy(char* filepath){
   /* Open a text file */
   fe = f_open(&fsrc, filepath, FA_READ);
   if (fe) return (int)fe;
+/*
   int len = strlen(filepath);
   filepath[len-3] = '\0';
   strcat(filepath,".copy");
+*/
+  filepath = "garb.txt";
   fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
   if (fe) return (int)fe;
 
