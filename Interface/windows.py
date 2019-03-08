@@ -5,6 +5,17 @@ from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
 
+def scale(value):
+    '''
+    Scales the byte between 0 and 100. 
+    Input, value between +/- 1/2 * 2^16
+    '''
+    value = abs(value) / 2**15 # Scale between +/-0.5
+    value = int(value*200) 
+    print("Height = ", value)
+    return value
+
+
 class WindowManager(Frame):
     def __init__(self,ser,master = None,width=800,height=600):
         self.width = width
@@ -115,12 +126,13 @@ class MainMenu(PlaceWindow):
         self.animate_duck()
 
 class PlayScreen(PlaceWindow):
-    # Non interface functions
+        # Non interface functions
     def pause(self):
         print("play")
 
     def playSong(self):
-        print("pause")
+        print("play")
+        
 
     # Interface functionsswitch
     def redraw_Canvas(self):
@@ -318,11 +330,15 @@ class TestingScreen(PlaceWindow):
     def stream(self):
         print("Starting streaming")
         self.frame.ser.write(b"AS|")
-        if(self.frame.ser.in_waiting > 0):
+        eof = False
+        #while(True):
+        while(self.frame.ser.in_waiting > 0):
             d = self.frame.ser.read(2)
+            val = int.from_bytes(d,"little",signed=True)
             print("Data:", d)
-            print("Type:", type(d))
-            print("Hex:  ",str(int.from_bytes(d,"little",signed=True)))
+            print("Int:  ",str(int.from_bytes(d,"little",signed=True)))
+            self.widgets["canvas"].delete("all")
+            self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
         print("Reached the end of the file")
 
         #The b opens the file in binary mode to write hex directly.
@@ -333,11 +349,16 @@ class TestingScreen(PlaceWindow):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
         self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A4)
         self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.stream)
+        self.canvas_height = 243
+        self.canvas_width = 300
+        self.widgets["canvas"] = Canvas(self.frame,background ="black",width = self.canvas_width,height = self.canvas_height,highlightthickness=0)
+        self.widgets["canvas"].create_rectangle(10,10,100,100, fill="red")
 
     def show_All(self):
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["okButton"].place(x=700,y=100)
         self.widgets["test"].place(x=700,y=125)
+        self.widgets["canvas"].place(x=274 ,y=140)
         PlaceWindow.show_All(self)
 
 
