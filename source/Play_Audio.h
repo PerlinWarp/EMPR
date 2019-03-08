@@ -16,6 +16,12 @@
 volatile int buttonpress;
 
 
-
+void init_onboard_audio_no_DMA(FIL* fil,uint32_t Frequency);
 void init_onboard_audio(FIL* fil,uint32_t Frequency);
+void record_onboard_audio_no_DMA(FIL* fil, uint32_t Frequency);
+
+void onboard_record();
+void onboard_dma_irq();
+void onboard();
+
 #endif

@@ -310,10 +310,21 @@ void Play_OnBoard_Audio()
   FIL fil;
   f_mount(&FatFs,"",0);
   f_open(&fil,fpath,FA_READ);
-  init_onboard_audio(&fil,48000);
+  init_onboard_audio_no_DMA(&fil,48000);
   f_close(&fil);
+  f_mount(0, "", 0);
 }
 
+void Record_OnBoard_Audio()
+{
+  char fpath[20] = "/DUMMY/NGGYU32k.RAW";
+  FIL fil;
+  f_mount(&FatFs,"",0);
+  f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
+  record_onboard_audio_no_DMA(&fil,48000);
+  f_close(&fil);
+  f_mount(0, "", 0);
+}
 
 void Play(char* directory)
 {

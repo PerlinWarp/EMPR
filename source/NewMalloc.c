@@ -10,7 +10,7 @@ int length =0;
 void* assignAddress(void* address,unsigned long size)
 {
   Used[length].Address = address;
-  Used[length].EndAddress = address + size;
+  Used[length].EndAddress = address + size;//address of free memory or next NewMalloc[tm]
   length ++;
   insertionSort();
   return address;
@@ -26,7 +26,7 @@ void* NewMalloc(unsigned long size)
   {
     for(i =1; i<length;i++)
     {
-      if(Used[i].Address - Used[i-1].EndAddress > size)
+      if(Used[i].Address - Used[i-1].EndAddress => size)
       {
         if(length<END)
         {
