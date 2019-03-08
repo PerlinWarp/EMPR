@@ -799,58 +799,7 @@ void f_delete(char* filepath)
   FATFS *fs;
 }
 
-void U2() {
-  char newname[32];
-  NewFileSelection();
-  WriteText(SELECTED_FILE);
-  LCDClear();
-  LCDPrint("Recording...\n(# ends)");
-  uint32_t iobuff[32];
-  UINT written = 0;
-
-  TLV320_Start_I2S_Polling_Passthrough();
-  I2S_Polling_Init(48000,I2S_MODE_POLLING);
-
-  sd_init();
-  FIL fil;
-  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_WRITE | FA_CREATE_ALWAYS));
-  while(key != '#')
-  {
-    I2S_Polling_Read(iobuff,32);
-    SDPrintFresult(f_write(&fil, iobuff, 32, &written));
-    if (written < 32) {
-      WriteText("kekerino");
-    }
-  }
-  WriteText("done writing\n\r");
-  f_close(&fil);
-  sd_deinit();
-
-  I2S_DeInit(LPC_I2S);
-}
-
-<<<<<<< HEAD
-int f_copy(filepath){
-=======
-void A2()
-{
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
-  LCDGoHome();
-  TLV320_Start_I2S_Polling_Passthrough();
-  int_Handler_Enable =1;
-  char result[16];
-  TextEntry(result, "Pick a Frequency\n");
-  uint32_t frequency = atoi(result);
-  LCDPrint("**PLAYING SINE**\n******WAVE******");
-  I2S_Create_Sine(frequency);
-  while(!buttonpress);
-  int_Handler_Enable =0;
-  I2S_DeInit(LPC_I2S);
-  NewFree(buffer);
-}
-
 int f_copy(char* filepath){
->>>>>>> 74475f668cc7a5bf817e59ca480793bcca4cdb47
   WriteText("Starting the copy");
   FIL fsrc, fdst;    /* File objects */
   UINT br, bw;         /* File read/write count */
@@ -917,6 +866,24 @@ void A1()
   NewFree(buffer);
 }
 
+
+void A2()
+{
+  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  LCDGoHome();
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  char result[16];
+  TextEntry(result, "Pick a Frequency\n");
+  uint32_t frequency = atoi(result);
+  LCDPrint("**PLAYING SINE**\n******WAVE******");
+  I2S_Create_Sine(frequency);
+  while(!buttonpress);
+  int_Handler_Enable =0;
+  I2S_DeInit(LPC_I2S);
+  NewFree(buffer);
+}
+
 void A3()
 {
   LCDGoHome();
@@ -970,6 +937,36 @@ void A4()
   free(fs);
   write_usb_serial_blocking("EndOfFile",9);
   return 0;
+}
+
+void U2() {
+  char newname[32];
+  NewFileSelection();
+  WriteText(SELECTED_FILE);
+  LCDClear();
+  LCDPrint("Recording...\n(# ends)");
+  uint32_t iobuff[32];
+  UINT written = 0;
+
+  TLV320_Start_I2S_Polling_Passthrough();
+  I2S_Polling_Init(48000,I2S_MODE_POLLING);
+
+  sd_init();
+  FIL fil;
+  SDPrintFresult(f_open(&fil, SELECTED_FILE, FA_WRITE | FA_CREATE_ALWAYS));
+  while(key != '#')
+  {
+    I2S_Polling_Read(iobuff,32);
+    SDPrintFresult(f_write(&fil, iobuff, 32, &written));
+    if (written < 32) {
+      WriteText("kekerino");
+    }
+  }
+  WriteText("done writing\n\r");
+  f_close(&fil);
+  sd_deinit();
+
+  I2S_DeInit(LPC_I2S);
 }
 
 
