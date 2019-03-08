@@ -19,6 +19,8 @@ void InitializeGPDMA(uint32_t* Source,GPDMA_LLI_Type* DMA_Struct,GPDMA_Channel_C
   GPDMA_Cfg->SrcConn = 0;
   GPDMA_Cfg->DstConn = GPDMA_CONN_DAC; //Point give data to the DAC converter memory address
   GPDMA_Cfg->DMALLI = (uint32_t)DMA_Struct;//Maybe try changing this back
+  GPDMA_Setup(GPDMA_Cfg);
+
 }
 
 void InitializeDAC()
@@ -44,8 +46,6 @@ void DAC_StartSend(uint32_t Frequency,uint32_t NumSamples)
 
   DAC_SetDMATimeOut(LPC_DAC,25000000/(Frequency*NumSamples));//Set the time between connections
   DAC_ConfigDAConverterControl(LPC_DAC,&DAC_Conv);
-  NVIC_SetPriority(DMA_IRQn, 0x01);
-  NVIC_EnableIRQ (DMA_IRQn); //Enable DMA interrupts
   GPDMA_ChannelCmd(1,ENABLE);//Enable GPDMA on channel specified
 }
 

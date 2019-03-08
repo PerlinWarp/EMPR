@@ -58,7 +58,7 @@ WAVE_HEADER Wav_Init(FIL* file )
 SPLIFF_HEADER CREATE_SPLIFF_HEADER(uint32_t Sample_Rate,uint32_t Data_Size)
 {
   SPLIFF_HEADER s;
-  s.Format        = "SPLIFF";
+  strcpy(s.Format,"SPLIF");
   s.Header_ID     = 'H';
   s.Header_Size   = 32;
   s.Sample_Rate   = Sample_Rate;
@@ -69,11 +69,21 @@ SPLIFF_HEADER CREATE_SPLIFF_HEADER(uint32_t Sample_Rate,uint32_t Data_Size)
   return s;
 }
 
+UINT UPDATE_SPLIFF_SIZE(FIL* file,uint32_t Data_Size)
+{
+  UINT size;
+  f_lseek(file,20);
+  f_write(file,&Data_Size,4,&size);
+  return size;
+}
+
 
 void SPLIFF_WRITE(FIL* file, SPLIFF_HEADER* s)
 {
   UINT size;
-  f_write(file,&s->Format,5,&size);
+  FRESULT fr;
+  f_lseek(file,0);
+  fr = f_write(file,s->Format,5,&size);
   f_write(file,&s->Header_ID,1,&size);
   f_write(file,&s->Header_Size,4,&size);
   f_write(file,&s->Sample_Rate,4,&size);
@@ -91,7 +101,7 @@ SPLIFF_HEADER SPLIFF_DECODE(FIL* file)
   UINT size;
   f_read(file,head_buffer,SPLIFF_SIZE, &size);
   if(size < SPLIFF_SIZE)return s;
-  s.Format        = &head_buffer[0];
+  strncpy(s.Format,&head_buffer[0],5);
   if(!strncmp(s.Format,"SPLIFF",5))return s;
   s.Header_ID     = *&head_buffer[5];
   s.Header_Size   = *&head_buffer[6];

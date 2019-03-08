@@ -19,6 +19,9 @@ void EINT3_IRQHandler(void)
     buttonpress  = 1;
     prevKey = key;
     if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
+    NVIC_DisableIRQ(TIMER1_IRQn);
+    timerDone = 1;
+    breakout = 1;
   }
   else if (key == ' ')
   {
@@ -305,27 +308,31 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
+  FileSelection();
   FIL fil;
   f_mount(&FatFs,"",0);
-  f_open(&fil,fpath,FA_READ);
-  init_onboard_audio_no_DMA(&fil,48000);
+  f_open(&fil,SELECTED_FILE,FA_READ);
+
+  SPLIFF_HEADER s = SPLIFF_DECODE(&fil);
+  sprintf(SELECTED_FILE,"SRate: %lu\n\r",s.Sample_Rate);
+  WriteText(SELECTED_FILE);
+  init_onboard_audio_no_DMA(&fil,1000);
   f_close(&fil);
   f_mount(0, "", 0);
 }
 
 void Record_OnBoard_Audio()
 {
-  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
-
+  NewFileSelection();
+  sprintf(SELECTED_FILE,"%s.slf",SELECTED_FILE);
   FIL fil;
   f_mount(&FatFs,"",0);
-  FRESULT fr = f_open(&fil,fpath,FA_WRITE|FA_OPEN_EXISTING);
+  FRESULT fr = f_open(&fil,SELECTED_FILE,FA_WRITE|FA_CREATE_NEW);
   if(fr != 0)
   {
     LCDClear();
-    sprintf(fpath,"%s\nalready exists.",fpath);
-    LCDPrint(fpath);
+    sprintf(SELECTED_FILE,"%s\nalready exists.",SELECTED_FILE);
+    LCDPrint(SELECTED_FILE);
     Delay(30);
     LCDGoHome();
     LCDPrint("Will you:       \n># Stop >* Write");
@@ -338,18 +345,18 @@ void Record_OnBoard_Audio()
     }
     buttonpress = 0;
 
-    f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
+    f_open(&fil,SELECTED_FILE,FA_WRITE|FA_OPEN_ALWAYS);
   }
 
+  TextEntry(SELECTED_FILE, "Pick a Frequency\n");
+  uint32_t frequency = atoi(SELECTED_FILE);
+  SPLIFF_HEADER s = CREATE_SPLIFF_HEADER(frequency,2);
+  SPLIFF_WRITE(&fil,&s);
 
-  TextEntry(fpath, "Pick a Frequency\n");
-  uint32_t frequency = atoi(fpath);
-/*
-Add spliff header decoding here.
+  f_lseek(&fil,10000);//preallocate memory for fast write operations
+  uint32_t counter = record_onboard_audio_no_DMA(&fil,frequency);
+  UPDATE_SPLIFF_SIZE(&fil,counter);
 
-*/
-
-  record_onboard_audio_no_DMA(&fil,frequency);
   f_close(&fil);
   f_mount(0, "", 0);
 }
@@ -643,6 +650,10 @@ void PC_Mode()
               LCDClear();
               LCDPrint("Testing mode");
               break;
+
+              case 'S':
+              stream();
+              break;
             }
           break;
 
@@ -704,9 +715,10 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   IRQInit();
   LCDInit();
   LCDClear();
-  // U2();
   initMalloc();
-  // I2S_PassThroughLoop();
+
+
+
   Menu();
 
 
@@ -958,6 +970,51 @@ void A4()
   free(fs);
   write_usb_serial_blocking("EndOfFile",9);
   return 0;
+}
+
+void stream(){
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  FATFS *fs;
+
+  fs = malloc(sizeof(FATFS));
+  fr = f_mount(fs, "", 0);
+
+  if (fr)
+  {
+    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+    return (int)fr;
+  }
+
+  /* Open a text file */
+  fr = f_open(&fil, "a.wav", FA_READ);
+
+  if (fr)
+  {
+    sprintf(line, "Exited with Error Code: %d\n\r",fr);
+    WriteText(line);
+    return (int)fr;
+  }
+  f_lseek(&fil,44);
+
+  /* Read every line and display it */
+  uint y;
+  char buffer [0x20];
+
+  while (!fr){
+      fr = f_read(&fil,buffer,0x20, &y);
+      //n = sprintf(buffer,"%s\n\r", line);
+      write_usb_serial_blocking(buffer,y);
+  }
+
+  /* Close the file */
+  f_close(&fil);
+
+  //Unmount the file system
+  f_mount(0, "", 0);
+  free(fs);
+  write_usb_serial_blocking("EndOfFile",9);
 }
 
 void U2() {

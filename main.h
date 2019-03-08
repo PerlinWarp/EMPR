@@ -75,16 +75,18 @@ void UART_Mode();
 void temp();
 void FatRead();
 void PC_Mode();
-void Play_OnBoard_Audio();
 void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
 void FileInfo();
-char SELECTED_FILE[32];
+char SELECTED_FILE[40];
 
 extern int f_copy(char* filepath);
 extern void f_delete(char* filepath);
 extern void Reverse_Wav(char* src);
+
+void Record_OnBoard_Audio();
+void Play_OnBoard_Audio();
 
 
 void A1();
