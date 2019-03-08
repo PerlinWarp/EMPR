@@ -37,7 +37,7 @@
 
 
 //#include "config.h" //Hopefully this fixes things
-#define CONFIG_SPI_CLOCK 1000000 //From config.h
+#define CONFIG_SPI_CLOCK 2000000 //From config.h
 	
 #define CS_PORT_NUM 		0
 #define CS_PIN_NUM 			16

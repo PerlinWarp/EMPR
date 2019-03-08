@@ -672,6 +672,7 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 	if (clst < 2 || clst >= fs->n_fatent)	/* Chack range */
 		return 1;
 
+#if !_FAST_F_READ
 	switch (fs->fs_type) {
 	case FS_FAT12 :
 		bc = (UINT)clst; bc += bc / 2;
@@ -691,6 +692,13 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 		p = &fs->win[clst * 4 % SS(fs)];
 		return LD_DWORD(p) & 0x0FFFFFFF;
 	}
+#endif
+#if _FAST_F_READ
+	//For FAT32 Only!
+	if (move_window(fs, fs->fatbase + (clst / (SS(fs) / 4))));
+		p = &fs->win[clst * 4 % SS(fs)];
+		return LD_DWORD(p) & 0x0FFFFFFF;
+#endif
 
 	return 0xFFFFFFFF;	/* An error occurred at the disk I/O layer */
 }
@@ -2220,12 +2228,15 @@ FRESULT f_read (FIL *fp, void *buff, UINT btr, UINT *br)
 
 	*br = 0;	/* Initialize byte counter */
 
+#if !_FAST_F_READ
+
 	res = validate(fp->fs, fp->id);					/* Check validity of the object */
 	if (res != FR_OK) LEAVE_FF(fp->fs, res);
 	if (fp->flag & FA__ERROR)						/* Check abort flag */
 		LEAVE_FF(fp->fs, FR_INT_ERR);
 	if (!(fp->flag & FA_READ)) 						/* Check access mode */
 		LEAVE_FF(fp->fs, FR_DENIED);
+#endif
 	remain = fp->fsize - fp->fptr;
 	if (btr > remain) btr = (UINT)remain;			/* Truncate btr by remaining bytes */
 

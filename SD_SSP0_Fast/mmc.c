@@ -387,10 +387,12 @@ DSTATUS disk_status (BYTE drv)
 
 DRESULT disk_read (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
 {
+#if _FAST_F_READ
 	if (drv || !count) 
 		return RES_PARERR;
 	if (Stat & STA_NOINIT) 
 		return RES_NOTRDY;
+#endif
 
 	if (!(CardType & CT_BLOCK)) 
 		sector *= 512;				/* Convert to byte address if needed */

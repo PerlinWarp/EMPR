@@ -5,12 +5,12 @@
 #ifndef _INTEGER
 #define _INTEGER
 
-//#ifdef _WIN32	/* FatFs development platform */
+#ifdef _WIN32	/* FatFs development platform */
 
 //#include "windows.h"
 //#include "tchar.h"
 
-//#else			/* Embedded platform */
+#else			/* Embedded platform */
 
 /* These types must be 16-bit, 32-bit or larger integer */
 typedef int				INT;
