@@ -82,6 +82,10 @@ void FileSelection();
 void FileInfo();
 char SELECTED_FILE[32];
 
+extern int f_copy(char* filepath);
+extern void f_delete(char* filepath);
+extern void Reverse_Wav(char* src);
+
 
 void A1();
 void A2();
