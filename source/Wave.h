@@ -43,7 +43,7 @@ typedef struct {
 
 
 typedef struct {
-  char* Format;//should be "SPLIFF"
+  char Format[6];//should be "SPLIFF"
   char Header_ID; //H for header start
   uint32_t Header_Size; //always 32 bytes
   uint32_t Sample_Rate; //sample rate in hz
@@ -60,5 +60,6 @@ WAVE_HEADER Wav_Read_Buffered_Header(char* head_buffer);
 SPLIFF_HEADER SPLIFF_DECODE(FIL* file);
 void SPLIFF_WRITE(FIL* file, SPLIFF_HEADER* s);
 SPLIFF_HEADER CREATE_SPLIFF_HEADER(uint32_t Sample_Rate,uint32_t Data_Size);
+UINT UPDATE_SPLIFF_SIZE(FIL* file,uint32_t Data_Size);
 
 #endif
