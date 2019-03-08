@@ -6,7 +6,6 @@ void SDPrintFresult(FRESULT fr) {
   char buff[32];
   switch (fr) {
     case FR_OK:
-    WriteText("OK\n\r");
     break;
     case FR_DISK_ERR:
     WriteText("FR_DISK_ERR\n\r");
@@ -91,7 +90,7 @@ void sd_deinit() {
     f_mount(0, "", 0);
 }
 
-#define MAX_FILE_COUNT 12
+#define MAX_FILE_COUNT 30
 
 char** SDMallocFilenames() {
     char** filenames = (char**)calloc(MAX_FILE_COUNT,sizeof(char*)); // max 128 filenames for now
@@ -182,6 +181,7 @@ uint8_t SDGetFiles(char* path, char** result) {
     ff_DIR dir;
     FRESULT res = f_opendir(&dir, path);
     #if SD_DEBUG == 1
+    char buff[64];
     WriteText("Reading Files: ");
     SDPrintFresult(res);
     #endif

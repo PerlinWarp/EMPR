@@ -17,7 +17,7 @@
   2. Altered source versions must be plainly marked as such, and must not be
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
-  
+
   Daniel L. Marks profdc9@gmail.com
 
 */
@@ -37,8 +37,8 @@
 
 
 //#include "config.h" //Hopefully this fixes things
-#define CONFIG_SPI_CLOCK 1000000 //From config.h
-	
+#define CONFIG_SPI_CLOCK 40000000 //From config.h
+
 #define CS_PORT_NUM 		0
 #define CS_PIN_NUM 			16
 #define MOSI_PIN_NUM 		18
@@ -74,7 +74,7 @@ void spiInit(void)
 	PINSEL_CFG_Type PinCfg;
 
 	SSP_CFG_Type SSP_ConfigStruct;
-	
+
 	// Have we got the SDCARD CS code setup??, slit out so we can
 	// use the SPI bus for other things
 	// if(!kernel_event(KERNEL_SYS_STATE_BIT,SYSTEM_STATE_SDSPI_UP,NULL)){
@@ -111,12 +111,12 @@ void spiInit(void)
 		PinCfg.Pinnum = MOSI_PIN_NUM;		// MOSI
 		PINSEL_ConfigPin(&PinCfg);
 
-		
+
 
 		SSP_ConfigStructInit(&SSP_ConfigStruct);	// initialize SSP configuration structure to default
 		SSP_ConfigStruct.ClockRate = CONFIG_SPI_CLOCK;	// Set the bus speed to what we want
 		SSP_Init(LPC_SSP, &SSP_ConfigStruct);		// Initialize SSP peripheral with parameter given in structure above
-	
+
 		SSP_Cmd(LPC_SSP, ENABLE);			// Enable SSP peripheral
 		//kernel_event(KERNEL_SET_SYS_STATE,SYSTEM_STATE_SPI_UP,NULL);
 	}
@@ -157,7 +157,7 @@ short  SPIRead(unsigned char  * ptrBuffer, short  ui_Len)
 		while (!(LPC_SSP->SR & SSP_SR_TNF));
 		LPC_SSP->DR = 0xFF;
 		while (!(LPC_SSP->SR & SSP_SR_RNE));
-	
+
 		*ptrBuffer = LPC_SSP->DR;
 		ptrBuffer++;
 	}
@@ -173,19 +173,19 @@ short  SPIRead(unsigned char  * ptrBuffer, short  ui_Len)
 void spiMMCChipSelect (char select)
 {
 	if (select) {
-		LPC_SSP->CPSR = SPI_MMC_SPEED;	
+		LPC_SSP->CPSR = SPI_MMC_SPEED;
 		CS_Set(0);
 	} else {
 		CS_Set(1);
 		while (!(LPC_SSP->SR & SSP_SR_TNF));
-		
+
 		LPC_SSP->DR = 0xff;
 		//
 		// Wait until TX fifo and TX shift buffer are empty
 		//
-		
+
 		while (LPC_SSP->SR & SSP_SR_BSY);
-		
+
 		while (!(LPC_SSP->SR & SSP_SR_RNE));
 		do {
 			select = LPC_SSP->DR;

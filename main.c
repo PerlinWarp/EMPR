@@ -19,6 +19,9 @@ void EINT3_IRQHandler(void)
     buttonpress  = 1;
     prevKey = key;
     if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
+    NVIC_DisableIRQ(TIMER1_IRQn);
+    timerDone = 1;
+    breakout = 1;
   }
   else if (key == ' ')
   {
@@ -305,27 +308,31 @@ void Play_Audio()
 
 void Play_OnBoard_Audio()
 {
-  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
+  FileSelection();
   FIL fil;
   f_mount(&FatFs,"",0);
-  f_open(&fil,fpath,FA_READ);
-  init_onboard_audio_no_DMA(&fil,48000);
+  f_open(&fil,SELECTED_FILE,FA_READ);
+
+  SPLIFF_HEADER s = SPLIFF_DECODE(&fil);
+  sprintf(SELECTED_FILE,"SRate: %lu\n\r",s.Sample_Rate);
+  WriteText(SELECTED_FILE);
+  init_onboard_audio_no_DMA(&fil,1000);
   f_close(&fil);
   f_mount(0, "", 0);
 }
 
 void Record_OnBoard_Audio()
 {
-  char fpath[100] = "/DUMMY/NGGYU32k.RAW";
-
+  NewFileSelection();
+  sprintf(SELECTED_FILE,"%s.slf",SELECTED_FILE);
   FIL fil;
   f_mount(&FatFs,"",0);
-  FRESULT fr = f_open(&fil,fpath,FA_WRITE|FA_OPEN_EXISTING);
+  FRESULT fr = f_open(&fil,SELECTED_FILE,FA_WRITE|FA_CREATE_NEW);
   if(fr != 0)
   {
     LCDClear();
-    sprintf(fpath,"%s\nalready exists.",fpath);
-    LCDPrint(fpath);
+    sprintf(SELECTED_FILE,"%s\nalready exists.",SELECTED_FILE);
+    LCDPrint(SELECTED_FILE);
     Delay(30);
     LCDGoHome();
     LCDPrint("Will you:       \n># Stop >* Write");
@@ -338,18 +345,18 @@ void Record_OnBoard_Audio()
     }
     buttonpress = 0;
 
-    f_open(&fil,fpath,FA_WRITE|FA_OPEN_ALWAYS);
+    f_open(&fil,SELECTED_FILE,FA_WRITE|FA_OPEN_ALWAYS);
   }
 
+  TextEntry(SELECTED_FILE, "Pick a Frequency\n");
+  uint32_t frequency = atoi(SELECTED_FILE);
+  SPLIFF_HEADER s = CREATE_SPLIFF_HEADER(frequency,2);
+  SPLIFF_WRITE(&fil,&s);
 
-  TextEntry(fpath, "Pick a Frequency\n");
-  uint32_t frequency = atoi(fpath);
-/*
-Add spliff header decoding here.
+  f_lseek(&fil,10000);//preallocate memory for fast write operations
+  uint32_t counter = record_onboard_audio_no_DMA(&fil,frequency);
+  UPDATE_SPLIFF_SIZE(&fil,counter);
 
-*/
-
-  record_onboard_audio_no_DMA(&fil,frequency);
   f_close(&fil);
   f_mount(0, "", 0);
 }
@@ -555,12 +562,11 @@ void PC_Mode()
               3. Use a loop to copy the files over
               5. Close both files.
               */
-              WriteText("Starting copying");
               LCDClear();
               LCDPrint("Starting copying");
               int error;
               char line[100]; /* Line buffer */
-              error = f_copy(argument);
+              f_copy(argument);
               sprintf(line, "Exited with Error Code: %d\n\r",error);
               WriteText(line);
               if(error){ //fr/error = 0 = F OK
@@ -709,9 +715,10 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   IRQInit();
   LCDInit();
   LCDClear();
-  // U2();
   initMalloc();
-  // I2S_PassThroughLoop();
+
+
+
   Menu();
 
 
@@ -803,53 +810,62 @@ void f_delete(char* filepath)
   FATFS *fs;
 }
 
-int f_copy(char* filepath){
+int f_copy(char* filepath) {
   WriteText("Starting copying |");
   FIL fsrc, fdst;    /* File objects */
   UINT br, bw;         /* File read/write count */
-  FRESULT fe;     /* FatFs return code */
+  char copybuff[256];
+  // LCDClear();
+  // LCDPrint("Mounting");
+  SDPrintFresult(f_mount(&fs, "", 0));
+  
 
-  LCDClear();
-  LCDPrint("Mounting");
-  fe = f_mount(&fs, "", 0);
-  if (fe) return (int)fe;
-
-  LCDClear();
-  LCDPrint("Opening 1");
+  // LCDClear();
+  // LCDPrint("Opening 1");
   /* Open a text file */
-  fe = f_open(&fsrc, filepath, FA_READ);
-  if (fe) return (int)fe;
+  SDPrintFresult(f_open(&fsrc, filepath, FA_READ));
+
 /*
   int len = strlen(filepath);
   filepath[len-3] = '\0';
   strcat(filepath,".copy");
 */
-  LCDClear();
-  LCDPrint("Opening 2");
-  filepath = "garb.txt";
-  fe = f_open(&fdst, filepath, FA_WRITE | FA_CREATE_ALWAYS);
-  if (fe) return (int)fe;
-  LCDClear();
-  LCDPrint("Opened 2");
+  // LCDClear();
+  // LCDPrint("Opening 2");
+  char newname[32];
+  strcpy(newname, filepath);
+  int l = strlen(filepath) - 1;
+  while(l >= 0 && filepath[l] != '.') l--;
+  if(l == -1) sprintf(newname, "%s.cp", filepath);
+  else {
+    newname[l + 1] = 'c';
+    newname[l + 2] = 'p';
+    newname[l + 3] = '\0';
+  }
+  
+  WriteText(newname);
+  SDPrintFresult(f_open(&fdst, newname, FA_WRITE | FA_CREATE_ALWAYS));
+  // LCDClear();
+  // LCDPrint("Opened 2");
 
   /* Copy source to destination */
-  LCDClear();
-  LCDPrint("Started copying"); //Crashes here
-  for (;;) {
-      fe = f_read(&fsrc, buffer, sizeof buffer, &br);  /* Read a chunk of source file */
-      if (fe || br == 0) break; /* error or eof */
-      fe = f_write(&fdst, buffer, br, &bw);            /* Write it to the destination file */
-      if (fe || bw < br) break; /* error or disk full */
+  // LCDClear();
+  // LCDPrint("Started copying"); 
+  WriteText("kek");
+  br = 256;
+  while (br == 256) {
+      f_read(&fsrc, copybuff, 256, &br);  /* Read a chunk of source file */
+      f_write(&fdst, copybuff, br, &bw);            /* Write it to the destination file */
   }
-  LCDPrint("Done copying");
+
+  // LCDPrint("Done copying");
 
   /* Close the file */
   f_close(&fsrc);
   f_close(&fdst);
   //Unmount the file system
   f_mount(0, "", 0);
-  LCDClear();
-  LCDPrint("File wrote");
+
   WriteText("File wrote|");
   return 0;
 }
@@ -1062,33 +1078,60 @@ uint8_t TextEntry(char* result, char* header) {
 
 // relies on 16bit samplesize (swaps 2-byte chunks around)
 #define WAV_H_SIZE 44
+#define REV_BUFF_SIZE 2048
 void Reverse_Wav(char* src) {
+  WriteText("Reversing ");
+  WriteText(src);
+  WriteText("\n\r");
   char dst[32];
   sprintf(dst, "/inv%s", src + 1);
 
+
+
   sd_init();
   FIL fsrc, fdst;
-  f_open(&fsrc, src, FA_READ);
-  f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
 
-  char fbuff[256], tmp[2];
-  uint32_t countread, dummy;
-  f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
-  f_write(&fdst, fbuff, WAV_H_SIZE, &dummy);
+
+  f_open(&fsrc, src, FA_READ);
+  WAVE_HEADER w = Wav_Init(&fsrc);
+  f_lseek(&fsrc, 0);
 
   char pbuff[32];
 
-  uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0;
-  for (i = fsize / 256; i > 0; i--) {
-    f_lseek(&fsrc, WAV_H_SIZE + i * 256);
-    f_read(&fsrc, fbuff, 256, &countread);
+  uint8_t sampleSize = w.BitsPerSample / 8;
+
+  sprintf(pbuff, "%i\n\r", sampleSize);
+  WriteText(pbuff);
+  f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
+
+  // maximum 16 bytes (128 bits) per sample
+  char fbuff[REV_BUFF_SIZE], tmp[16];
+  uint32_t countread, dummy;
+  f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
+  f_write(&fdst, fbuff, countread, &dummy);
+
+
+
+  uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0, k = 0;
+  for (i = fsize / REV_BUFF_SIZE; i > 0; i--) {
+    if( i % 16 == 0) {
+      sprintf(pbuff, "%d\n\r", i);
+      WriteText(pbuff);
+    }
+    f_lseek(&fsrc, WAV_H_SIZE + i * REV_BUFF_SIZE);
+    f_read(&fsrc, fbuff, REV_BUFF_SIZE, &countread);
     for (j = 0; j < countread / 2 - 1; j ++) {
-      tmp[0] = fbuff[j];
-      tmp[1] = fbuff[j + 1];
-      fbuff[j] = fbuff[countread - j - 2];
-      fbuff[j + 1] = fbuff[countread - j - 1];
-      fbuff[countread - j - 2] = tmp[0];
-      fbuff[countread - j - 1] = tmp[1];
+
+      for (k = 0; k < sampleSize; k++) {
+        tmp[k] = fbuff[j + k];
+      }
+      for (k = 0; k < sampleSize; k++) {
+        fbuff[j + k] = fbuff[countread - j - sampleSize + k];
+      }
+      for (k = 0; k < sampleSize; k++) {
+        fbuff[countread - j - sampleSize + k] = tmp[k];
+      }
+
     };
     f_write(&fdst, fbuff, countread, &dummy);
   }
@@ -1096,8 +1139,11 @@ void Reverse_Wav(char* src) {
   f_close(&fsrc);
   f_close(&fdst);
 
-  f_unlink(src);
-  f_rename(dst, src);
+  // f_unlink(src);
+  // f_rename(dst, src);
 
   sd_deinit();
 }
+
+
+
