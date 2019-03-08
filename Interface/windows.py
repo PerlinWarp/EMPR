@@ -27,7 +27,7 @@ class WindowManager(Frame):
             self.menus[screen].show_All()
             self.menus[screen].serConnected = True
             self.currentScreen = screen
-        elif screen == "menu":
+        elif screen == "menu" or screen == "BlueScreen":
             self.menus[self.currentScreen].hide_All()
             self.menus[screen].show_All()
             self.currentScreen = screen 
@@ -174,19 +174,21 @@ class PlayScreen(PlaceWindow):
 
         self.widgets["start"] = startButton(self.frame,self,"winstart")
         self.widgets["cross"] = hoverButton(self.frame,self,"cross",menu="BlueScreen")
-        self.widgets["realplay"] = functionalButton(self.frame,self, "realplay", function = self.pause)
+        self.widgets["realplay"] = switchableButton(self.frame,self, "realplay", function = self.pause)
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.playSong)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
         self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda:None,296,352,"y")
-
+        self.widgets["revereserooney"] = switchButton(self.frame,self,"reverse",function = self.reverse_play_button)
         #Parts of other buttons
         self.widgets["95menu"] = betterLabel(self.frame, "95menu")
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
 
-
+    def reverse_play_button(self):
+        self.widgets["realplay"].switch_images()
+        self.widgets["realplay"].config(image = self.widgets["realplay"].imagePath)
     def adjust_counter(self):
         self.songCounter = self.frame.root.winfo_pointerx() - 190
 
@@ -203,7 +205,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["realstop"].place(x= 147,y = 120)
         self.widgets["realtimer"].place(x=190,y =119)
         self.widgets["realvolume"].place(x=248,y =318)
-
+        self.widgets["revereserooney"].place(x=243,y= 176)
         PlaceWindow.show_All(self)
     def hide_All(self):
         PlaceWindow.hide_All(self)
@@ -568,7 +570,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["fileWindowbg"].place(x=0,y=0)
         self.place_directories(self.workingTree,self.path)
         self.widgets["deleteButton"].place(x=443,y=49)
-        self.widgets["copyButton"].place(x=360,y=49)
+        self.widgets["copyButton"].place(x=266,y=49)
         self.widgets["nanocross"].place(x=596,y=6)
         self.widgets["start"].place(x=1,y =576)
         self.widgets["folderName"].place(x = 115, y = 133)
