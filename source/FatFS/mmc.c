@@ -413,7 +413,28 @@ DRESULT disk_read (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
 	return count ? RES_ERROR : RES_OK;
 }
 
+DRESULT disk_read_fast (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
+{
+	if (!(CardType & CT_BLOCK)) 
+		sector *= 512;				/* Convert to byte address if needed */
 
+	if (count == 1) {				/* Single block read */
+		if ((send_cmd(CMD17, sector) == 0)	/* READ_SINGLE_BLOCK */
+			&& rcvr_datablock(buff, 512))
+			count = 0;
+	} else {					/* Multiple block read */
+		if (send_cmd(CMD18, sector) == 0) {	/* READ_MULTIPLE_BLOCK */
+			do {
+				if (!rcvr_datablock(buff, 512)) break;
+				buff += 512;
+			} while (--count);
+			send_cmd(CMD12, 0);		/* STOP_TRANSMISSION */
+		}
+	}
+	deselect();
+
+	return count ? RES_ERROR : RES_OK;
+}
 
 /*----------------------------------------------------------------------*/
 /*									*/
