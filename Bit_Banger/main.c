@@ -190,7 +190,7 @@ void InitTimer(uint32_t Frequency)
 
 void Play_File()
 {
-  LPC_PINCON->PINSEL0 &=~((3<<(BCLK*2))|(3<<(DIN*2))|(3<<(LCRIN*2)));//setup GPIO Pins 
+  LPC_PINCON->PINSEL0 &=~((3<<(BCLK*2))|(3<<(DIN*2))|(3<<(LRCIN*2)));//setup GPIO Pins 
   LPC_GPIO0->FIODIR |= (1<<BCLK)|(1<<DIN)|(1<<LRCIN);//0 = input, 1 = output
 
   FileSelection();

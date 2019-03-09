@@ -13,6 +13,12 @@
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
 
+#define BUTTON_DOWN '#'
+#define BUTTON_UP '*'
+#define BUTTON_SEL 'A'
+#define BUTTON_SEL_2 'B'
+#define BUTTON_CONFIRM '0'
+#define BUTTON_CANCEL '8'
 
 #define SONG_FREQUENCY 2000
 //Note: Since pinsel1 is used, all pins below must be below 0.16
