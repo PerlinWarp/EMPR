@@ -52,7 +52,7 @@ EXECNAME	= bin/main
 ffcFiles = $(patsubst %.c,%.o,$(wildcard source/FatFS/*.c))
 sourceFiles := $(patsubst %.c,%.o,$(wildcard source/*.c))
 
-OBJ = main.o
+OBJ = main.o 
 # Commands handled by this makefile
 all: 	main
 	@echo "Build finished"
