@@ -20,7 +20,7 @@ int SD_Out(void) {
 
   fs = malloc(sizeof(FATFS));
   fr = f_mount(fs, "", 0);
-  fr = f_open(&fil, "LeviBrown.wav", FA_READ);
+  fr = f_open(&fil, "a.wav", FA_READ);
 
   /* Read every line and display it */
   uint y;
@@ -28,7 +28,7 @@ int SD_Out(void) {
 
   while (!fr){
       fr = f_read(&fil,buffer,0x20, &y);
-      //write_usb_serial_blocking(buffer,y);
+      write_usb_serial_blocking(buffer,y);
       // SEND TO I2S FUNCTION!!!
   }
 
@@ -46,17 +46,17 @@ void Bypass() {
   TLV320_SendData(Data, 14);
 }
 
-void TLV320_Out() {
-  uint8_t Data[] = {};
-  TLV320_SendData(Data, );
-}
+//void TLV320_Out() {
+//  uint8_t Data[] = {};
+//  TLV320_SendData(Data, );
+//}
 
 int main(void) {
   InitSerial();
-  I2CInit();
-  TLV320_Out();
+  //I2CInit();
+  //TLV320_Out();
   WriteText("Enabling PassThrough...\n");
-  
+  SD_Out();
   WriteText("PassThrough Enabled");
   return 0;
 }

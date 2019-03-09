@@ -9,7 +9,7 @@
 #ifndef _FFCONF
 #define _FFCONF 8255	/* Revision ID */
 
-
+//#define _FAST_F_READ 1
 /*---------------------------------------------------------------------------/
 / Function and Buffer Configurations
 /----------------------------------------------------------------------------*/
@@ -20,7 +20,7 @@
 /  data transfer. This reduces memory consumption 512 bytes each file object. */
 
 
-#define _FS_READONLY	0	/* 0:Read/Write or 1:Read only */
+#define _FS_READONLY	1	/* 0:Read/Write or 1:Read only */
 /* Setting _FS_READONLY to 1 defines read only configuration. This removes
 /  writing functions, f_write, f_sync, f_unlink, f_mkdir, f_chmod, f_rename,
 /  f_truncate and useless f_getfree. */
@@ -48,7 +48,7 @@
 /* To enable f_forward function, set _USE_FORWARD to 1 and set _FS_TINY to 1. */
 
 
-#define	_USE_FASTSEEK	0	/* 0:Disable or 1:Enable */
+#define	_USE_FASTSEEK	1	/* 0:Disable or 1:Enable */ //DEFAULT IS/WAS 0
 /* To enable fast seek feature, set _USE_FASTSEEK to 1. */
 
 
@@ -154,7 +154,7 @@
 / System Configurations
 /----------------------------------------------------------------------------*/
 
-#define _WORD_ACCESS	0	/* 0 or 1 */
+#define _WORD_ACCESS	1	/* 0 or 1 */ // DEFAULT IS/WAS 0!!!
 /* Set 0 first and it is always compatible with all platforms. The _WORD_ACCESS
 /  option defines which access method is used to the word data on the FAT volume.
 /
