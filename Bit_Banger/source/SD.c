@@ -117,7 +117,7 @@ uint8_t SDGetDirectories(char *path, char** result) {
 
 uint8_t SDGetFiles(char* path, char** result) {
     sd_init();
-    ff_DIR dir;
+    DIR dir;
     FRESULT res = f_opendir(&dir, path);
     #if SD_DEBUG == 1
     char buff[64];

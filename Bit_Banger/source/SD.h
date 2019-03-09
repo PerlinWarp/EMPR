@@ -2,6 +2,7 @@
 #define SD_H_
 
 #include <string.h>
+#include <stdlib.h>
 #include "FatFS/diskio.h"
 #include "FatFS/ff.h"
 #include <stdio.h>
