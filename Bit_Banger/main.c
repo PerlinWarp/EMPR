@@ -6,6 +6,7 @@ FIL* fil;
 uint8_t breakout;
 volatile int buttonpress;
 volatile char prevKey,key;
+char SELECTED_FILE[40];
 
 void EINT3_IRQHandler(void)
 {
