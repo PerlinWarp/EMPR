@@ -86,7 +86,67 @@ void FileSelection() {
 
   SDFreeFilenames(filenames);
 }
+uint8_t SelectOne(char** items, char* header, uint8_t fileCount) {
+  LCDClear();
+  LCDGoHome();
 
+  uint8_t offset = 0;
+  char line[16];
+  char patline2[7] = ">%15s";
+
+  uint8_t i = 0;
+  // zeros display as the downarrow thingies
+  // so we're replacing them with capital Os
+  // don't worry, nobody will ever know
+  for (i = 0; i < fileCount; i ++) {
+    strreplace(items[i], '0', 'O');
+  }
+
+  while(1) {
+    LCDGoHome();
+    LCDPrint(header);
+    if (fileCount == 0) {
+      LCDPrint("<EMPTY>");
+    } else {
+      sprintf(line, patline2, items[offset]);
+      LCDPrint(line);
+    }
+
+    while(!buttonpress);
+    buttonpress = 0;
+
+    switch (key) {
+        case BUTTON_DOWN:
+          if (offset + 1 < fileCount) {
+            offset += 1;
+
+          } else {
+            offset = 0;
+          }
+          break;
+        case BUTTON_UP:
+          if (offset - 1 >= 0) {
+            offset -= 1;
+          } else {
+            offset = fileCount - 1;
+          }
+          break;
+        case BUTTON_CONFIRM:
+          return offset;
+        case BUTTON_CANCEL:
+          return 100;
+    }
+  }
+}
+void strreplace(char* str, char f, char r) {
+  int i = 0;
+  while (str[i] != '\0') {
+    if (str[i] == f) {
+      str[i] = r;
+    }
+    i ++;
+  }
+}
 /*Test and see if additional complexity could be added to get wave files to play using a byteswap*/
 void TIMER1_IRQHandler(void)
 {
