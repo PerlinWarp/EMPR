@@ -9,7 +9,7 @@
 #ifndef _FFCONF
 #define _FFCONF 8255	/* Revision ID */
 
-
+//#define _FAST_F_READ 1
 /*---------------------------------------------------------------------------/
 / Function and Buffer Configurations
 /----------------------------------------------------------------------------*/
@@ -48,7 +48,7 @@
 /* To enable f_forward function, set _USE_FORWARD to 1 and set _FS_TINY to 1. */
 
 
-#define	_USE_FASTSEEK	1	/* 0:Disable or 1:Enable */
+#define	_USE_FASTSEEK	1	/* 0:Disable or 1:Enable */ //DEFAULT IS/WAS 0
 /* To enable fast seek feature, set _USE_FASTSEEK to 1. */
 
 
@@ -154,7 +154,7 @@
 / System Configurations
 /----------------------------------------------------------------------------*/
 
-#define _WORD_ACCESS	0	/* 0 or 1 */
+#define _WORD_ACCESS	1	/* 0 or 1 */ // DEFAULT IS/WAS 0!!!
 /* Set 0 first and it is always compatible with all platforms. The _WORD_ACCESS
 /  option defines which access method is used to the word data on the FAT volume.
 /
