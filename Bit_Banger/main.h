@@ -1,6 +1,6 @@
 #ifndef MAIN_H_
 #define MAIN_H_
-
+/*
 #include <stdlib.h>
 
 #include "LPC17xx.h"
@@ -16,7 +16,7 @@
 
 #include "source/FatFS/diskio.h"
 #include "source/FatFS/ff.h"
-
+*/
 volatile int buttonpress;
 volatile char prevKey,key;
 
