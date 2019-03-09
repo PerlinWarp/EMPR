@@ -2,10 +2,8 @@
 #define LCDPHW_H_
 
 #include "I2C.h"
-#include "Delay.h"
 #include <string.h>
 #include <stdlib.h>
-#include "SerialIO.h"
 #define LCD_ADDR 0x3B
 
 

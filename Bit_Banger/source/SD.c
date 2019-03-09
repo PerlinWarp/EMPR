@@ -4,6 +4,7 @@ FATFS sd_init(void);
 
 void sd_deinit();
 
+#if SD_DEBUG == 1
 void SDPrintFresult(FRESULT fr) {
     if (fr == FR_OK) {
         WriteText("OK\n\r");
@@ -17,7 +18,7 @@ void SDPrintFresult(FRESULT fr) {
         WriteText(err);
     }
 }
-
+#endif
 // crash while card is mounted corrupts filesystem
 // card is mounted and unmounted for each operation to minimise risk
 FATFS sd_init() {

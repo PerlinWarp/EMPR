@@ -63,7 +63,6 @@ void LCDClear()//NOTE: With character set R, clear command doesn't work. Instead
 	SendData(clrLine, 17);
 	LCDGoHome();
 	LCDEnable();
-	Delay(10);
 }
 
 

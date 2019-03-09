@@ -1,9 +1,11 @@
 #include "main.h"
 
 FATFS FatFs;
-
-
-
+uint16_t audioBuffer[2];
+FIL* fil;
+uint8_t breakout;
+volatile int buttonpress;
+volatile char prevKey,key;
 
 void EINT3_IRQHandler(void)
 {
@@ -14,7 +16,6 @@ void EINT3_IRQHandler(void)
   {
     buttonpress  = 1;
     prevKey = key;
-    timerDone = 1;
     breakout = 1;
   }
   else if (key == ' ')
@@ -41,14 +42,24 @@ void IRQInit()
 }
 
 
-uint16_t audioBuffer[2];
+/*Test and see if additional complexity could be added to get wave files to play using a byteswap*/
 void TIMER1_IRQHandler(void)
-{//Send the left channel
+{
+  //Clear interrupts
+  unsigned int isrMask,x;
+  isrMask = LPC_TIM1->IR;
+  LPC_TIM1->IR = isrMask;
+  //Send the left channel
+  LPC_GPIO0->FIOCLR = LRCIN;
   DO_16_TIMES(SEND_BIT,audioBuffer[0]);
   //Send the right channel
+  LPC_GPIO0->FIOSET = LRCIN;
   DO_16_TIMES(SEND_BIT,audioBuffer[1]);
   
+  f_read(fil,audioBuffer,4,&isrMask);//read full the audioBuffer
+  if(irsMask != 4)NVIC_DisableIRQ(TIMER1_IRQn);
 }
+
 void InitTimer(uint32_t Frequency)
 {
   uint8_t mseconds = (uint8_t)((1/(float)Frequency) * 1000000);
@@ -74,16 +85,38 @@ void InitTimer(uint32_t Frequency)
 
 void Play_File()
 {
-  LPC->PINSEL0 |= 1;//setup GPIO Pins for 
-  InitTimer(48000);
+  LPC_PINCON->PINSEL0 &=~((3<<(BCLK*2))|(3<<(DIN*2))|(3<<(LCRIN*2)));//setup GPIO Pins 
+  LPC_GPIO00->FIODIR |= (1<<BCLK)|(1<<DIN)|(1<<LRCIN);//0 = input, 1 = output
+
+  FileSelection();
+
+  fil = (FIL*)malloc(sizeof(FIL));
+  f_mount(&FatFs,"",0);
+  f_open(&fil,SELECTED_FILE,FA_READ);
+  f_lseek(0);
+
+  LCDGoHome();
+  LCDPrint("**PLAYING FILE**\ndooddodoodoododo");
+
+  buttonpress =  breakout = 0;
+  TLV320_PlayWav();
+
+  InitTimer(SONG_FREQUENCY);
   TIM_Cmd(LPC_TIM1,ENABLE);
   NVIC_EnableIRQ(TIMER1_IRQn);
+
+  while(buttonpress == 0 && breakout == 0);
+
+  TIM_Cmd(LPC_TIM1,DISABLE);
+  buttonpress =  breakout = 0;
+  f_close(&fil);
+  f_mount(0, "", 0);
+  free(fil);
 }
 
 int main()
 {
     SystemInit();
-    InitSerial();
     I2CInit();
     IRQInit();
     LCDInit();
