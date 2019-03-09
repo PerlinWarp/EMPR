@@ -52,4 +52,4 @@ void Send_Data(uint8_t* Data,int length)
 
 void TLV320_PlayWav(){
     uint8_t Data[8] = {0x1E,0x00,0x12,0x01,0x08,0x10,0x0A,0x00};
-    TLV320_SendData(Data,8);}
+    Send_Data(Data,8);}

@@ -20,9 +20,6 @@ void indemalloc(char** arr, uint8_t idx, uint8_t len) {
 void sd_init(void) {
     FRESULT fr;
     fr = f_mount(&fs, "", 0);
-    #if SD_DEBUG == 1
-    SDPrintFresult(fr);
-    #endif
 }
 
 void sd_deinit() {
@@ -119,11 +116,7 @@ uint8_t SDGetFiles(char* path, char** result) {
     sd_init();
     DIR dir;
     FRESULT res = f_opendir(&dir, path);
-    #if SD_DEBUG == 1
-    char buff[64];
 
-    SDPrintFresult(res);
-    #endif
     int i = 0;
     FILINFO fno;
     if (res == FR_OK) {
@@ -194,11 +187,10 @@ uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
 
   FIL fil;
 
-
-  SDPrintFresult(f_open(&fil, path, FA_READ));
+  f_open(&fil, path, FA_READ);
 
   UINT nRead = 0;
-  SDPrintFresult(f_read(&fil, result, n, &nRead));
+  f_read(&fil, result, n, &nRead);
 
   f_close(&fil);
   sd_deinit();
@@ -209,7 +201,7 @@ uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
 uint32_t SDGetFileSize(char *path) {
   sd_init();
   FIL fil;
-  SDPrintFresult(f_open(&fil, path, FA_READ));
+  f_open(&fil, path, FA_READ);
   DWORD fsize = f_size(&fil);
   f_close(&fil);
   sd_deinit();
