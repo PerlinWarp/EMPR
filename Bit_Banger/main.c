@@ -40,7 +40,51 @@ void IRQInit()
   NVIC_EnableIRQ(EINT3_IRQn);
   __enable_irq();
 }
+void FileSelection() {
+  char path[32] = "/", header[16];
+  char **filenames = SDMallocFilenames();
+  uint8_t fileCount, chosenIndex;
+  while(1) {
+    fileCount = SDGetFiles(path, filenames);
 
+    sprintf(header, "%s:\n", path);
+
+    chosenIndex = SelectOne(filenames, header, fileCount);
+
+    if (chosenIndex == 100) { // move up a directory
+      int lastIdx = strlen(path) - 1;
+      while (path[lastIdx] != '/') {
+        path[lastIdx] = 0x00;
+        lastIdx -= 1;
+      }
+      if(lastIdx > 0) {
+        path[lastIdx] = 0x00; // elmchan does not like trailing slash
+        continue;
+      } else {
+        break;
+      }
+    }
+
+   if(filenames[chosenIndex][0] == 'd') {
+      int curlen = strlen(path);
+      sprintf(path + curlen, "/%s", filenames[chosenIndex] + 2);
+      SDCleanPath(path);
+   } else {
+    SELECTED_FILE[0] = '/';
+    sprintf(SELECTED_FILE, "/%s/%s", path, filenames[chosenIndex] + 2);
+    SDCleanPath(SELECTED_FILE);
+
+    break;
+   }
+  }
+
+  if (chosenIndex == 100) {
+    SELECTED_FILE[0] = '\0';
+    // WriteText("selection cancelled");
+  }
+
+  SDFreeFilenames(filenames);
+}
 
 /*Test and see if additional complexity could be added to get wave files to play using a byteswap*/
 void TIMER1_IRQHandler(void)
@@ -57,7 +101,7 @@ void TIMER1_IRQHandler(void)
   DO_16_TIMES(SEND_BIT,audioBuffer[1]);
   
   f_read(fil,audioBuffer,4,&isrMask);//read full the audioBuffer
-  if(irsMask != 4)NVIC_DisableIRQ(TIMER1_IRQn);
+  if(isrMask != 4)NVIC_DisableIRQ(TIMER1_IRQn);
 }
 
 void InitTimer(uint32_t Frequency)
@@ -86,14 +130,14 @@ void InitTimer(uint32_t Frequency)
 void Play_File()
 {
   LPC_PINCON->PINSEL0 &=~((3<<(BCLK*2))|(3<<(DIN*2))|(3<<(LCRIN*2)));//setup GPIO Pins 
-  LPC_GPIO00->FIODIR |= (1<<BCLK)|(1<<DIN)|(1<<LRCIN);//0 = input, 1 = output
+  LPC_GPIO0->FIODIR |= (1<<BCLK)|(1<<DIN)|(1<<LRCIN);//0 = input, 1 = output
 
   FileSelection();
 
   fil = (FIL*)malloc(sizeof(FIL));
   f_mount(&FatFs,"",0);
-  f_open(&fil,SELECTED_FILE,FA_READ);
-  f_lseek(0);
+  f_open(fil,SELECTED_FILE,FA_READ);
+  f_lseek(fil,0);
 
   LCDGoHome();
   LCDPrint("**PLAYING FILE**\ndooddodoodoododo");
@@ -109,7 +153,7 @@ void Play_File()
 
   TIM_Cmd(LPC_TIM1,DISABLE);
   buttonpress =  breakout = 0;
-  f_close(&fil);
+  f_close(fil);
   f_mount(0, "", 0);
   free(fil);
 }

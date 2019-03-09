@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "LPC17xx.h"
-
+#include "lpc17xx_timer.h"
 #include "source/LCD.h"
 #include "source/I2C.h"
 #include "source/KeyAccess.h"
@@ -31,6 +31,7 @@
 void IRQInit();
 void Play_File();
 void InitTimer(uint32_t Frequency);
+void FileSelection();
 
 
 #endif
