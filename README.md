@@ -3,6 +3,61 @@
 ***University of York, Computer Science BEng/MEng Stage 2 EMPR (Embedded Systems Project)***
 #### Members are Idris Al-Ghabra, Peter Walkington, Lackshan Rama and Brian Camacho
 
+
+##Demo Information
+### A1:  Audio Recording from flash memory
+DEMO: A1 function + I2S interrupt passthrough
+
+### A2:  Audio Playback to flash memory
+DEMO: A2 function +MiniProject3 Sinewave (on separate board)+ I2S interrupt passthrough
+
+### A3: Record to SD Card
+Record a sinewave to sd (make sure signal is below 8 bit and use OPAMP attenuation) And open in audacity
+
+### A4: Playback on demand
+Either - Demonstrate GPDMA wierd sounding playback, I2S machine gun noises, or get bit banging working
+
+### U1: Map above to buttons 1,2,3,4 
+
+### U2: Record with specified name
+Demonstrated with A3 
+
+### U3: Play back from a specified file
+Demonstrated with A4
+
+### U4: View file information
+Make sure a suitable wave file is on the SD Card, and run function to read header data from it.
+
+### D1: PC List mode
+Open browse menu
+# TODO: DISPLAY NUMBER OF BYTES AND PLAYING TIME ON PC!!!
+# TODO: MAKE FILE SELECTION START PLAYBACK OF SONG ON MBED!!!
+### D2: PC Data Visualizer
+Open file on PC with menu 
+
+
+### D3: PC File Manager
+Play files, copy files, run volume and reverse functions, delete functions
+# TODO: FINISH IMPLEMENTATION OF THESE FUNCTIONS!!!
+
+# Individual projects:
+All need doing. Make sure that when you do these you implement them in a separate branch, so that you don't mess up the master before demoing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Useful Docs
 [EMPR Lectures](https://vle.york.ac.uk/webapps/blackboard/content/listContent.jsp?course_id=_88743_1&content_id=_2848340_1&mode=reset)
 

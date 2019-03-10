@@ -303,7 +303,7 @@ void Play_Audio()
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
-  I2S_DeInit(LPC_I2S);
+  I2S_DeInit(LPC_I2S); 
 }
 
 void Play_OnBoard_Audio()
@@ -717,7 +717,7 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   LCDClear();
   initMalloc();
 
-
+  Play_OnBoard_Audio();
 
   Menu();
 
