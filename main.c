@@ -1076,15 +1076,12 @@ uint8_t TextEntry(char* result, char* header) {
 }
 
 
-// relies on 16bit samplesize (swaps 2-byte chunks around)
 #define WAV_H_SIZE 44
-#define REV_BUFF_SIZE 2048
+#define WAV_BUFF_SIZE 2048
+
+// relies on 16bit samplesize (swaps 2-byte chunks around)
 void Reverse_Wav(char* src) {
-  WriteText("Reversing ");
-  WriteText(src);
-  WriteText("\n\r");
-  char dst[32];
-  sprintf(dst, "/inv%s", src + 1);
+  char dst[32] = "/revtmp";
 
 
 
@@ -1100,26 +1097,18 @@ void Reverse_Wav(char* src) {
 
   uint8_t sampleSize = w.BitsPerSample / 8;
 
-  sprintf(pbuff, "%i\n\r", sampleSize);
-  WriteText(pbuff);
   f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
 
   // maximum 16 bytes (128 bits) per sample
-  char fbuff[REV_BUFF_SIZE], tmp[16];
+  char fbuff[WAV_BUFF_SIZE], tmp[16];
   uint32_t countread, dummy;
   f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
   f_write(&fdst, fbuff, countread, &dummy);
 
-
-
   uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0, k = 0;
-  for (i = fsize / REV_BUFF_SIZE; i > 0; i--) {
-    if( i % 16 == 0) {
-      sprintf(pbuff, "%d\n\r", i);
-      WriteText(pbuff);
-    }
-    f_lseek(&fsrc, WAV_H_SIZE + i * REV_BUFF_SIZE);
-    f_read(&fsrc, fbuff, REV_BUFF_SIZE, &countread);
+  for (i = fsize / WAV_BUFF_SIZE; i > 0; i--) {
+    f_lseek(&fsrc, WAV_H_SIZE + i * WAV_BUFF_SIZE);
+    f_read(&fsrc, fbuff, WAV_BUFF_SIZE, &countread);
     for (j = 0; j < countread / 2 - 1; j ++) {
 
       for (k = 0; k < sampleSize; k++) {
@@ -1139,10 +1128,61 @@ void Reverse_Wav(char* src) {
   f_close(&fsrc);
   f_close(&fdst);
 
-  // f_unlink(src);
-  // f_rename(dst, src);
+   f_unlink(src);
+   f_rename(dst, src);
 
   sd_deinit();
+}
+
+// src is file to adjust, diff is amount to adjust - 1.15 means +15%, 0.85 is -15% etc
+void Volume_Adjust_Wav(char *src, float diff) {
+    char dst[32] = "/voltmp";
+
+    sd_init();
+    FIL fsrc, fdst;
+
+
+    f_open(&fsrc, src, FA_READ);
+    WAVE_HEADER w = Wav_Init(&fsrc);
+    f_lseek(&fsrc, 0);
+
+    char pbuff[32];
+
+    uint8_t sampleSize = w.BitsPerSample / 8;
+
+    sprintf(pbuff, "%i\n\r", sampleSize);
+    WriteText(pbuff);
+    f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
+
+    // maximum 16 bytes (128 bits) per sample
+    char fbuff[WAV_BUFF_SIZE];
+    uint16_t tmp;
+    uint32_t countread, dummy;
+    f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
+    f_write(&fdst, fbuff, countread, &dummy);
+
+    uint32_t fsize = (uint32_t)f_size(&fsrc) - WAV_H_SIZE, i = 0, j = 0, k = 0;
+    for (i = 0 ; i < fsize / WAV_BUFF_SIZE; i++) {
+        f_lseek(&fsrc, WAV_H_SIZE + i * WAV_BUFF_SIZE);
+        f_read(&fsrc, fbuff, WAV_BUFF_SIZE, &countread);
+        for (j = 0; j < countread - 1; j += 2) {
+            tmp = 0;
+            tmp |= fbuff[j];
+            tmp |= fbuff[j + 1] << 8;
+            tmp = (uint16_t)((float)tmp * diff);
+            fbuff[j] = (char) 0x00FF & tmp;
+            fbuff[j + 1] = (char) tmp >> 8;
+        };
+        f_write(&fdst, fbuff, countread, &dummy);
+    }
+
+    f_close(&fsrc);
+    f_close(&fdst);
+
+     f_unlink(src);
+     f_rename(dst, src);
+
+    sd_deinit();
 }
 
 
