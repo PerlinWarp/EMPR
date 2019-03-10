@@ -1,7 +1,7 @@
 #ifndef GSINE_H_
 #define GSINE_H_
 //The number of samples within the sine wave
-#define PRECISION 16
+#define PRECISION 256
 #define MAXVOLTS 2.5
 #define PI 3.1415926535897932384626433832
 

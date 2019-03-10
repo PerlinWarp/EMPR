@@ -4,10 +4,11 @@ volatile uint8_t SampleDone,InputDone,bufferIndex;
 uint32_t Freq;
 uint32_t writeIndex;
 uint16_t* buffers[2],i;
-
+uint32_t buf[PRECISION];
+UINT count = 0;
 static void (*TIMER1_Handler_Funcs[])(void) = {&timer_Done,&onboard,&onboard_record};
 uint8_t TIMER1_IRQ_Index;
-
+FIL* fil;
 void TIMER1_IRQHandler(void)
 {
   TIMER1_Handler_Funcs[TIMER1_IRQ_Index]();
@@ -40,15 +41,15 @@ void timer_Done(){
 }
 void onboard()
 {
- if(InputDone == 0)
+ if(InputDone == 0 && buttonpress == 0)
  {
-  DAC_UpdateValue(LPC_DAC,((uint32_t)*(buffers[bufferIndex][writeIndex]) & 0x0000FFFF));
-  for(i=0;i<1000;i++);
+  DAC_UpdateValue(LPC_DAC,(*(buf+writeIndex)>>24));
   writeIndex++;
-  if(writeIndex == PRECISION)
+  if(writeIndex == PRECISION*4)
   {
     f_read(fil,buf,PRECISION*4,&count);
-    if(count != PRECISION*4)InputDone ==1;
+    if(count != PRECISION*4)InputDone =1;
+    writeIndex = 0;
   }
  }
  else
@@ -63,42 +64,28 @@ little endian
 
 */
 //Onboard is unsigned, mono, so data needs to be converted
-void init_onboard_audio_no_DMA(FIL* fil,uint32_t Frequency)
+void init_onboard_audio_no_DMA(FIL* file,uint32_t Frequency)
 {//NOTE: Pin Is PIN 18 on the header board --CHECK PINOUTS!!!
-  UINT count = 0;
+  
   Freq = Frequency;
-
-  uint32_t buf[PRECISION];//(uint16_t*)malloc(sizeof(uint16_t)*PRECISION);
-  GPDMA_LLI_Type LLI_Struct;
-  GPDMA_Channel_CFG_Type CCFG_Struct;
+  fil = file;
+  //(uint16_t*)malloc(sizeof(uint16_t)*PRECISION);
 
   InitializeDAC();
 
   LCDGoHome();
   LCDPrint(" Playing buffer \n****************");
 
-  f_lseek(fil,44);//Seek to start of raw data
+  f_lseek(fil,0);//Seek to start of raw data
   f_read(fil,buf,PRECISION*4,&count);
 
-  InitializeGPDMA(buf,&LLI_Struct,&CCFG_Struct,PRECISION);
   buttonpress = 0;
-  TIMER1_IRQ_Index = 0;
-  timerDone = 0;
-  InitTimer(Freq/PRECISION);
+  TIMER1_IRQ_Index = 1;
+  InputDone = 0;
+  InitTimer(Freq);
   TIM_Cmd(LPC_TIM1,ENABLE);
   NVIC_EnableIRQ(TIMER1_IRQn);
-  DAC_StartSend(Frequency,PRECISION);
-  while(buttonpress == 0)
-  {
-    while(timerDone == 5);
-
-    DAC_StartSend(Frequency,PRECISION*2);
-    timerDone = 0;
-    TIM_Cmd(LPC_TIM1,ENABLE);
-    NVIC_EnableIRQ(TIMER1_IRQn);
-  }
-  TIM_Cmd(LPC_TIM1,DISABLE);
-  NVIC_DisableIRQ(TIMER1_IRQn);
+  while(InputDone == 0 && buttonpress == 0);
 }
 
 uint32_t record_onboard_audio_no_DMA(FIL* fil, uint32_t Frequency)
