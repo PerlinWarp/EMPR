@@ -40,20 +40,21 @@ void timer_Done(){
 }
 void onboard()
 {
- if(writeIndex < PRECISION * 2)
+ if(InputDone == 0)
  {
-  DAC_UpdateValue(LPC_DAC,((uint32_t)*(buffers[bufferIndex] + writeIndex) & 0x000000FF));
+  DAC_UpdateValue(LPC_DAC,((uint32_t)*(buffers[bufferIndex][writeIndex]) & 0x0000FFFF));
   for(i=0;i<1000;i++);
   writeIndex++;
+  if(writeIndex == PRECISION)
+  {
+    f_read(fil,buf,PRECISION*4,&count);
+    if(count != PRECISION*4)InputDone ==1;
+  }
  }
- else if(InputDone == 1)
+ else
  {
-      InputDone = writeIndex = 0;
-      bufferIndex = 1 - bufferIndex;
- }
- else{
-   TIM_Cmd(LPC_TIM1,DISABLE);//disable timer while write finishes
-   NVIC_DisableIRQ(TIMER1_IRQn);
+    TIM_Cmd(LPC_TIM1,DISABLE);//disable timer while write finishes
+    NVIC_DisableIRQ(TIMER1_IRQn);
  }
 }
 /*
@@ -90,8 +91,7 @@ void init_onboard_audio_no_DMA(FIL* fil,uint32_t Frequency)
   while(buttonpress == 0)
   {
     while(timerDone == 5);
-    f_read(fil,buf,PRECISION*4,&count);
-    if(count != PRECISION*4)break;
+
     DAC_StartSend(Frequency,PRECISION*2);
     timerDone = 0;
     TIM_Cmd(LPC_TIM1,ENABLE);
