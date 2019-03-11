@@ -955,6 +955,7 @@ void A3()
 
   
   f_close(&fil);
+  f_mount(0, "", 0);
   WriteText("done writing");
   sd_deinit();
 }
@@ -965,20 +966,22 @@ void A4()
   FIL fil;
   UINT y;
   uint16_t BUF[READ_SIZE];
+  
   /* Open a wave file, and transfer first data to buffer */
   f_mount(&FatFs, "", 0);
   f_open(&fil, SELECTED_FILE, FA_READ);
-  f_read_fast(&fil,BUF,sizeof(BUF), &y);
-  if(y != sizeof(BUF))return;
-  f_close(&fil);
-  f_mount(0, "", 0);
+  fileptr = &fil;
+  f_read_fast(&fil,BUF,READ_SIZE*2, &y);
+  if(y != READ_SIZE*2)return;
   TLV320_Start_I2S_Polling_Passthrough();
   int_Handler_Enable =1;
   LCDGoHome();
   LCDPrint(" PLAYING SAMPLE \n***1234567890***");
   I2S_Play_Sample(BUF);
   buttonpress = 0;
-  while(!buttonpress);
+  while(!buttonpress && breakout2 == 0);
+  f_close(&fil);
+  f_mount(0, "", 0);
   I2S_DeInit(LPC_I2S);
 }
 
