@@ -480,6 +480,33 @@ DRESULT disk_write (BYTE drv, const BYTE *buff, DWORD sector, BYTE count)
 
 	return count ? RES_ERROR : RES_OK;
 }
+
+DRESULT disk_write_fast (BYTE drv, const BYTE *buff, DWORD sector, BYTE count)
+{
+	if (!(CardType & CT_BLOCK)) 
+		sector *= 512;				/* Convert to byte address if needed */
+
+	if (count == 1) {				/* Single block write */
+		if ((send_cmd(CMD24, sector) == 0)	/* WRITE_BLOCK */
+			&& xmit_datablock(buff, 0xFE))
+			count = 0;
+	} else {					/* Multiple block write */
+		if (CardType & CT_SDC) 
+			send_cmd(ACMD23, count);
+		if (send_cmd(CMD25, sector) == 0) {	/* WRITE_MULTIPLE_BLOCK */
+			do {
+				if (!xmit_datablock(buff, 0xFC)) 
+					break;
+				buff += 512;
+			} while (--count);
+			if (!xmit_datablock(0, 0xFD))	/* STOP_TRAN token */
+				count = 1;
+		}
+	}
+	deselect();
+
+	return count ? RES_ERROR : RES_OK;
+}
 #endif /* _READONLY */
 
 

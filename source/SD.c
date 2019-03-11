@@ -270,7 +270,11 @@ uint8_t SDReadBytes(char* path, BYTE* result, uint8_t n) {
 uint32_t SDGetFileSize(char *path) {
   sd_init();
   FIL fil;
-  SDPrintFresult(f_open(&fil, path, FA_READ));
+  #if SD_DEBUG == 1
+    SDPrintFresult(f_open(&fil, path, FA_READ));
+  #else
+    f_open(&fil, path, FA_READ);
+  #endif
   DWORD fsize = f_size(&fil);
   f_close(&fil);
   sd_deinit();

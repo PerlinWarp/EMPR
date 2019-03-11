@@ -1,7 +1,7 @@
 #ifndef GSINE_H_
 #define GSINE_H_
 //The number of samples within the sine wave
-#define PRECISION 16
+#define PRECISION 256
 #define MAXVOLTS 2.5
 #define PI 3.1415926535897932384626433832
 
@@ -15,6 +15,8 @@
 #include "Wave.h"
 #include "lpc17xx_adc.h"
 #include "LCD.h"
+#include "Timer.h"
+#include "PWM.h"
 volatile int buttonpress;
 volatile int breakout;
 uint8_t timerDone;

@@ -12,7 +12,7 @@
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
-#define MENUTEXTNUM 7
+#define MENUTEXTNUM 8
 #define BUTTON_DOWN '#'
 #define BUTTON_UP '*'
 #define BUTTON_SEL 'A'
@@ -36,6 +36,7 @@
 #include "source/Delay.h"
 #include "source/TLV320.h"
 #include "source/i2s.h"
+#include "source/SineWave.h"
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
@@ -54,9 +55,10 @@ int SelMenuItem;
 uint8_t int_Handler_Enable=0,int_Handler_Index =0;
 
 
-char* MenuText[MENUTEXTNUM] = {"0-A1.Rec Audio ","1-A2.Play Audio ",
-                     "2-A3.Save to SD  ", "3-A4.Browse SD  ",
-                     "4-U2.IPod Mode  ","5-N1.PassThrough"," "};
+char* MenuText[MENUTEXTNUM] = {"0-A1.Rec Audio ","1-A2.Play Audio",
+                     "2-A3.Save to SD", "3-A4.Browse SD",
+                     "4-U4.View Info ","5-N1.PassThru  ",
+                     "6-D1 PC-Mode   "," "};
 FATFS FatFs;
 
 int settings[20];
@@ -73,6 +75,7 @@ void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
 void UART_Mode();
 void temp();
+uint32_t GetWaveInfo(char* fpath,uint32_t fSize);
 void FatRead();
 void PC_Mode();
 void Play(char* directory);
@@ -87,7 +90,7 @@ extern void Reverse_Wav(char* src);
 
 void Record_OnBoard_Audio();
 void Play_OnBoard_Audio();
-
+void Volume_Adjust_Wav(char *src, float diff);
 
 void A1();
 void A2();
@@ -97,13 +100,14 @@ void A4();
 void (*menuFuncs[])(void) = {
 	&A1,
 	&A2,
-	&I2S_PassThroughLoop,
+	&A3,
 	&A4,
+  &FileInfo,
 	&I2S_PassThroughInterrupt,
 	&PC_Mode,
 	&FatRead,
 	&PassThroughLoop,
-	&FileInfo,
+
 	&UART_Mode};
 
 void (*int_Handler_Funcs[])(void) = {&I2S_PassThroughInt_Handler};
