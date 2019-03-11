@@ -5,8 +5,6 @@ from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
 
-sem = False
-
 def scale(value):
     '''
     Scales the byte between 0 and 100.
@@ -201,9 +199,9 @@ class PlayScreen(PlaceWindow):
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
     def reverse_play_button(self):
-        ##Send reverse command 
+        ##Send reverse command
         self.frame.ser.write(b"FRa.wav|")
-        
+
         self.widgets["realplay"].switch_images()
         self.widgets["realplay"].config(image = self.widgets["realplay"].imagePath)
     def adjust_counter(self):
@@ -315,10 +313,10 @@ class TestingScreen(PlaceWindow):
             d = self.frame.ser.read_until(b'|')
             print(d)
 
-    def A4(self):
+    def AS(self):
         file = bytes([])
-        print("Starting A4")
-        self.frame.ser.write(b"A4|")
+        print("Starting AS")
+        self.frame.ser.write(b"AS|")
         while(self.frame.ser.in_waiting > 0):
             d = self.frame.ser.read_until('EndOfFile')
             file += d
@@ -338,7 +336,7 @@ class TestingScreen(PlaceWindow):
         self.frame.ser.write(b"AS|")
         eof = False
         d = self.frame.ser.read(2)
-        while (True and sem == True):
+        while (True):
         #while(self.frame.ser.in_waiting > 0 and not str(d) == b''):
             d = self.frame.ser.read(2)
             val = int.from_bytes(d,"little",signed=True)
@@ -347,7 +345,6 @@ class TestingScreen(PlaceWindow):
 
             self.widgets["canvas"].delete("all")
             self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
-            sem = False
         print("Reached the end of the file")
 
         #The b opens the file in binary mode to write hex directly.
@@ -357,8 +354,8 @@ class TestingScreen(PlaceWindow):
 
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
-        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A4)
-        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.stream)
+        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.AS)
+        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.AS)
         self.canvas_height = 243
         self.canvas_width = 300
         self.widgets["canvas"] = Canvas(self.frame,background ="black",width = self.canvas_width,height = self.canvas_height,highlightthickness=0)

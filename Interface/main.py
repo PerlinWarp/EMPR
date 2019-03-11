@@ -25,6 +25,5 @@ if __name__ == "__main__":
         ser = dummy_ser()
     app = WindowManager(ser,root)
     while True:
-        if(sem == False):
-            root.update_idletasks()
-            root.update()
+       root.update_idletasks()
+       root.update()
