@@ -2498,6 +2498,102 @@ FRESULT f_write (FIL *fp, const void *buff, UINT btw, UINT *bw)
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
+
+FRESULT f_write_fast (FIL *fp, const void *buff, UINT btw, UINT *bw)
+{
+	FRESULT res;
+	DWORD clst, sect;
+	UINT wcnt, cc;
+	const BYTE *wbuff = buff;
+	BYTE csect;
+
+
+	*bw = 0;	/* Initialize byte counter */
+
+	if (fp->fsize + btw < fp->fsize) btw = 0;		/* File size cannot reach 4GB */
+
+	for ( ;  btw;									/* Repeat until all data transferred */
+		wbuff += wcnt, fp->fptr += wcnt, *bw += wcnt, btw -= wcnt) {
+		if ((fp->fptr % SS(fp->fs)) == 0) {			/* On the sector boundary? */
+			csect = (BYTE)(fp->fptr / SS(fp->fs) & (fp->fs->csize - 1));	/* Sector offset in the cluster */
+			if (!csect) {							/* On the cluster boundary? */
+				if (fp->fptr == 0) {				/* On the top of the file? */
+					clst = fp->org_clust;			/* Follow from the origin */
+					if (clst == 0)					/* When there is no cluster chain, */
+						fp->org_clust = clst = create_chain(fp->fs, 0);	/* Create a new cluster chain */
+				} else {							/* Middle or end of the file */
+					clst = create_chain(fp->fs, fp->curr_clust);			/* Follow or stretch cluster chain */
+				}
+				if (clst == 0) break;				/* Could not allocate a new cluster (disk full) */
+				if (clst == 1) ABORT(fp->fs, FR_INT_ERR);
+				if (clst == 0xFFFFFFFF) ABORT(fp->fs, FR_DISK_ERR);
+				fp->curr_clust = clst;				/* Update current cluster */
+			}
+#if _FS_TINY
+			if (fp->fs->winsect == fp->dsect && move_window(fp->fs, 0))	/* Write back data buffer prior to following direct transfer */
+				ABORT(fp->fs, FR_DISK_ERR);
+#else
+			if (fp->flag & FA__DIRTY) {		/* Write back data buffer prior to following direct transfer */
+				if (disk_write_fast(fp->fs->drv, fp->buf, fp->dsect, 1) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+				fp->flag &= ~FA__DIRTY;
+			}
+#endif
+			sect = clust2sect(fp->fs, fp->curr_clust);	/* Get current sector */
+			if (!sect) ABORT(fp->fs, FR_INT_ERR);
+			sect += csect;
+			cc = btw / SS(fp->fs);					/* When remaining bytes >= sector size, */
+			if (cc) {								/* Write maximum contiguous sectors directly */
+				if (csect + cc > fp->fs->csize)		/* Clip at cluster boundary */
+					cc = fp->fs->csize - csect;
+				if (disk_write_fast(fp->fs->drv, wbuff, sect, (BYTE)cc) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+#if _FS_TINY
+				if (fp->fs->winsect - sect < cc) {	/* Refill sector cache if it gets dirty by the direct write */
+					mem_cpy(fp->fs->win, wbuff + ((fp->fs->winsect - sect) * SS(fp->fs)), SS(fp->fs));
+					fp->fs->wflag = 0;
+				}
+#else
+				if (fp->dsect - sect < cc) {		/* Refill sector cache if it gets dirty by the direct write */
+					mem_cpy(fp->buf, wbuff + ((fp->dsect - sect) * SS(fp->fs)), SS(fp->fs));
+					fp->flag &= ~FA__DIRTY;
+				}
+#endif
+				wcnt = SS(fp->fs) * cc;				/* Number of bytes transferred */
+				continue;
+			}
+#if _FS_TINY
+			if (fp->fptr >= fp->fsize) {			/* Avoid silly buffer filling at growing edge */
+				if (move_window(fp->fs, 0)) ABORT(fp->fs, FR_DISK_ERR);
+				fp->fs->winsect = sect;
+			}
+#else
+			if (fp->dsect != sect) {				/* Fill sector buffer with file data */
+				if (fp->fptr < fp->fsize &&
+					disk_read_fast(fp->fs->drv, fp->buf, sect, 1) != RES_OK)
+						ABORT(fp->fs, FR_DISK_ERR);
+			}
+#endif
+			fp->dsect = sect;
+		}
+		wcnt = SS(fp->fs) - (fp->fptr % SS(fp->fs));/* Put partial sector into file I/O buffer */
+		if (wcnt > btw) wcnt = btw;
+#if _FS_TINY
+		if (move_window(fp->fs, fp->dsect))			/* Move sector window */
+			ABORT(fp->fs, FR_DISK_ERR);
+		mem_cpy(&fp->fs->win[fp->fptr % SS(fp->fs)], wbuff, wcnt);	/* Fit partial sector */
+		fp->fs->wflag = 1;
+#else
+		mem_cpy(&fp->buf[fp->fptr % SS(fp->fs)], wbuff, wcnt);	/* Fit partial sector */
+		fp->flag |= FA__DIRTY;
+#endif
+	}
+
+	if (fp->fptr > fp->fsize) fp->fsize = fp->fptr;	/* Update file size if needed */
+	fp->flag |= FA__WRITTEN;						/* Set file change flag */
+
+	LEAVE_FF(fp->fs, FR_OK);
+}
 /*----------------------------------------------------------------------*/
 /*									*/
 /* Synchronize the File Object                                          */
