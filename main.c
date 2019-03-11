@@ -305,7 +305,7 @@ void Play_Audio()
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
-  I2S_DeInit(LPC_I2S); 
+  I2S_DeInit(LPC_I2S);
 }
 
 void Play_OnBoard_Audio()
@@ -474,7 +474,15 @@ void FatRead()
     f_mount(0, "", 0);
 }
 
-
+uint32_t GetWaveInfo(char* fpath,uint32_t fSize)
+{
+  FIL fil;
+  f_mount(&FatFs, "", 0);
+  f_open(&fil,fpath, FA_READ);
+  WAVE_HEADER w = Wav_Init(&fil);
+  f_close(&fil);
+  return fSize/w.ByteRate;
+}
 void PC_Mode()
 {
   LCDGoHome();
@@ -494,7 +502,7 @@ void PC_Mode()
   uint8_t finished =0,playing=0;
   while(!finished)//Wait for next input
   {
-
+                  // f_open(&f);
     if(serialCommandIndex>0){//If there are instructions to process
       char output[50];
       sprintf(output,"COMMAND RECEIVED\n%s",READ_SERIAL);
@@ -550,6 +558,31 @@ void PC_Mode()
 
           switch (func)
           {
+            case 'I':;
+              uint32_t fSize = SDGetFileSize(argument);
+              char out[50];
+              switch(argument[strlen(argument) - 1])
+              {
+                case 'w':;//if raw
+                case 'W':
+                  sprintf(out,"%lu,%lu|",fSize,fSize/(2*1000));//song length followed by time in seconds
+                  break;
+                case 'V':;
+                case 'v':;//TODO
+                    uint32_t sTime = GetWaveInfo(argument,fSize);
+                    sprintf(out,"%lu,%lu|",fSize,sTime);
+                  // Wave_Init();
+                  // sprintf(fSize,"%lu,%d|",fSize,fSize/(2*1000));//song length followed by time in seconds
+                  break;
+                default:
+                  sprintf(out,"%lu,n/a|",fSize);
+                  break;
+              }
+              WriteText(out);
+              sprintf(out,"%s\nSelected         ",argument);
+              LCDGoHome();
+              LCDPrint(out);
+              break;
             case 'P':
               LCDClear();
               LCDPrint(argument);
@@ -819,7 +852,7 @@ int f_copy(char* filepath) {
   // LCDClear();
   // LCDPrint("Mounting");
   SDPrintFresult(f_mount(&fs, "", 0));
-  
+
 
   // LCDClear();
   // LCDPrint("Opening 1");
@@ -843,7 +876,7 @@ int f_copy(char* filepath) {
     newname[l + 2] = 'p';
     newname[l + 3] = '\0';
   }
-  
+
   WriteText(newname);
   SDPrintFresult(f_open(&fdst, newname, FA_WRITE | FA_CREATE_ALWAYS));
   // LCDClear();
@@ -851,7 +884,7 @@ int f_copy(char* filepath) {
 
   /* Copy source to destination */
   // LCDClear();
-  // LCDPrint("Started copying"); 
+  // LCDPrint("Started copying");
   WriteText("kek");
   br = 256;
   while (br == 256) {
@@ -954,7 +987,7 @@ void A3()
   while(breakout2 == 0);
   NVIC_DisableIRQ(I2S_IRQn);
 
-  
+
   f_close(&fil);
   sd_deinit();
 }
@@ -965,7 +998,7 @@ void A4()
   FIL fil;
   UINT y;
   uint16_t BUF[READ_SIZE];
-  
+
   /* Open a wave file, and transfer first data to buffer */
   f_mount(&FatFs, "", 0);
   f_open(&fil, SELECTED_FILE, FA_READ);
@@ -1194,6 +1227,3 @@ void Volume_Adjust_Wav(char *src, float diff) {
 
     sd_deinit();
 }
-
-
-

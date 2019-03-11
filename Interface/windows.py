@@ -9,11 +9,11 @@ sem = False
 
 def scale(value):
     '''
-    Scales the byte between 0 and 100. 
+    Scales the byte between 0 and 100.
     Input, value between +/- 1/2 * 2^16
     '''
     value = abs(value) / 2**15 # Scale between +/-0.5
-    value = int(value*200) 
+    value = int(value*200)
     print("Height = ", value)
     return value
 
@@ -43,7 +43,7 @@ class WindowManager(Frame):
         elif screen == "menu" or screen == "BlueScreen":
             self.menus[self.currentScreen].hide_All()
             self.menus[screen].show_All()
-            self.currentScreen = screen 
+            self.currentScreen = screen
         else:
             self.menus[self.currentScreen].hide_All()
             self.menus["load"].show_All()
@@ -134,7 +134,7 @@ class PlayScreen(PlaceWindow):
 
     def playSong(self):
         print("play")
-        
+
 
     # Interface functionsswitch
     def redraw_Canvas(self):
@@ -384,7 +384,7 @@ class loadingScreen(PlaceWindow):
         if self.serConnected == False:
             self.widgets["load_big"].inc_image()
             self.job = self.frame.after(140,self.animate)#repeat every 40 ms
-    
+
     def hide_All(self):
         PlaceWindow.hide_All(self)
         if self.job is not None:
@@ -508,8 +508,13 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["copyButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserCopy",function = self.copy)
         self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
         self.widgets["dirEntry"] = directoryEntry(self.widgets["fileWindow"],self,self.path)
-        self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "#C0C0C0",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
-
+        self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "white",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
+        self.File_Name = StringVar()
+        self.widgets["FileName"] = Label(self.widgets["fileWindow"],background = "white",font =("Arial bold",10),textvariable=self.File_Name,borderwidth = 0)
+        self.Size_Bytes = StringVar()
+        self.widgets["Size_Bytes"] = Label(self.widgets["fileWindow"],background = "white",font =("MS Reference Sans Serif bold",8),textvariable=self.Size_Bytes,borderwidth = 0)
+        self.Song_Length = StringVar()
+        self.widgets["SongLength"] = Label(self.widgets["fileWindow"],background = "white",font =("MS Reference Sans Serif bold",8),textvariable=self.Song_Length,borderwidth = 0)
         self.widgets["rightclickmenu"] = betterLabel(self.frame,"rightclickmenu")
         self.widgets["rightclickmenu2"] = betterLabel(self.frame,"rightclickmenu2")
         self.widgets["rightclickmenu_file"] = betterLabel(self.frame,"rightclickmenu_file")
@@ -536,7 +541,6 @@ class Browse_For_Play(PlaceWindow):
             p = "/"
         else: #if is "C:/xxx/xx etc."
             p = self.path[2:]
-
         print("FD"+ p +self.selectedFile+'|')
         self.frame.ser.write(bytes("FD"+ p +self.selectedFile+'|',"utf-8"))
         self.place_directories(self.workingTree,self.path)
@@ -616,6 +620,9 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["folderName"].place(x = 115, y = 133)
         self.widgets["dirEntry"].place(x = 77,y = 93)
         self.widgets["objects"].place(x=8,y=504)
+        self.widgets["FileName"].place(x = 23,y = 230)
+        self.widgets["Size_Bytes"].place(x = 23,y = 250)
+        self.widgets["SongLength"].place(x = 23, y = 270)
     def hide_All(self):
         self.hidden = True
         PlaceWindow.hide_All(self)
