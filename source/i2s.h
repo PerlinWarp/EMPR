@@ -27,6 +27,7 @@
 FIL* fileptr;
 uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
+uint32_t targetfsize;
 uint16_t* buffer16;
 int16_t* sineBuffer;
 uint8_t breakout2;
