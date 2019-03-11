@@ -691,6 +691,7 @@ void PC_Mode()
               break;
 
               case 'S':
+              LCDClear();
               stream();
               break;
             }
@@ -755,7 +756,7 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   LCDInit();
   LCDClear();
   initMalloc();
-  
+
   Menu();
 
 
@@ -1100,6 +1101,7 @@ void PC_Play(char* fpath)
 }
 
 void stream(){
+  //Sends the whole file to the pc
   FIL fil;        /* File object */
   char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
