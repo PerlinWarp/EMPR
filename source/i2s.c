@@ -1,7 +1,7 @@
 #include "i2s.h"
 
 uint8_t I2S_ihf_Index;
-static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&i2s_wav_play_16_bit,&i2s_playSound};
+static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&i2s_wav_play_16_bit,&i2s_playSound,&i2s_record_1buffer};
 uint32_t buff2[BUFFER_SIZE];
 void I2S_IRQHandler()
 {
@@ -79,6 +79,13 @@ void i2s_wav_play_16_bit()
       }
     }
   // }
+}
+void i2s_record_1buffer() {
+  if(ReadInd == 2048) {
+    return
+  }
+  buffer16[ReadInd++] = (uint16_t)I2S_Receive(LPC_I2S);
+
 }
 /*
 To do this, we are going to create a small read write buffer of

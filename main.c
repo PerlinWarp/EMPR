@@ -919,8 +919,39 @@ void A2()
 
 void A3()
 {
-  LCDGoHome();
-  LCDPrint("A3 Demo \n Recording Audio");
+  LCDClear():
+
+  uint16_t rbuff[2048];
+  uint16_t samples[48];
+  buffer16 = rbuff;
+
+  I2S_MODEConf_Type Clock_Config;
+  I2S_CFG_Type I2S_Config_Struct;
+  LPC_PINCON->PINSEL1|=PINS023_025RX;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
+  I2S_Init(LPC_I2S);
+  ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_MONO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
+  ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_RX_MODE);
+  ReadInd = 0;
+
+  I2S_Start(LPC_I2S);
+  I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
+  NVIC_SetPriority(I2S_IRQn, 0x03);
+  I2S_ihf_Index =3;
+  NVIC_EnableIRQ(I2S_IRQn);
+  WriteText("Recording...")
+  while(ReadInd != 2048);
+  WriteText("recording finished");
+  NVIC_DisableIRQ(I2S_IRQn);
+  FIL fil;
+  uint32_t dummy;
+  sd_init();
+  f_open(&fil, "out.wav", FA_CREATE_ALWAYS);
+  f_write(&fil, buffer16, 2048, &dummy);
+  f_close(&fil);
+  WriteText("done writing");
+  sd_deinit();
 }
 
 void A4()
@@ -1157,6 +1188,7 @@ void Volume_Adjust_Wav(char *src, float diff) {
     // maximum 16 bytes (128 bits) per sample
     char fbuff[WAV_BUFF_SIZE];
     uint16_t tmp;
+    float ftmp, maxUInt16 = 65535.0;
     uint32_t countread, dummy;
     f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
     f_write(&fdst, fbuff, countread, &dummy);
@@ -1169,7 +1201,10 @@ void Volume_Adjust_Wav(char *src, float diff) {
             tmp = 0;
             tmp |= fbuff[j];
             tmp |= fbuff[j + 1] << 8;
-            tmp = (uint16_t)((float)tmp * diff);
+            ftmp = ((float)tmp * diff);
+            if (ftmp > maxUInt16) {
+              tmp = 0xFFFF;
+            }
             fbuff[j] = (char) 0x00FF & tmp;
             fbuff[j + 1] = (char) tmp >> 8;
         };

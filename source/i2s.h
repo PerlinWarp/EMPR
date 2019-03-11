@@ -26,6 +26,7 @@
 FIL* fileptr;
 uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
+uint16_t* buffer16;
 int16_t* sineBuffer;
 
 void I2S_Polling_Init(uint32_t Freq, int i2smode);
