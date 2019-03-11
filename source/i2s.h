@@ -21,13 +21,15 @@
 #define BUFFER_SIZE 256
 #define BASE_FREQUENCY 48000
 #define WAVE_BUFFER_LEN 2
-#define INC_SAMPLE_BUFFER(bufd) (bufd = (bufd+1)&2047)
+#define INC_SAMPLE_BUFFER(bufd) (bufd = (bufd+1)&(READ_SIZE-1))
+#define CHECK_SAMPLE_BUFFER(bufd) ((bufd+1)&(READ_SIZE-1))
 //#define __bit_rev(val) ((val * 0x0802LU & 0x22110LU) | (val * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16
 FIL* fileptr;
 uint32_t ReadInd,WriteInd;//Pointer to a value
 uint32_t* buffer;//Pointer to a list
 uint16_t* buffer16;
 int16_t* sineBuffer;
+uint8_t breakout2;
 uint8_t I2S_ihf_Index,Counter48k;
 void I2S_Polling_Init(uint32_t Freq, int i2smode);
 void I2S_Polling_Read(uint32_t* I2S_Pol_Buffer,uint32_t I2S_Pol_Length);

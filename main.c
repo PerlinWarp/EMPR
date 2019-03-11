@@ -22,6 +22,7 @@ void EINT3_IRQHandler(void)
     if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
     NVIC_DisableIRQ(TIMER1_IRQn);
     timerDone = 1;
+    breakout2 = 1;
     breakout = 1;
   }
   else if (key == ' ')
@@ -940,16 +941,19 @@ void A3()
   I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
   NVIC_SetPriority(I2S_IRQn, 0x03);
   I2S_ihf_Index =3;
-  NVIC_EnableIRQ(I2S_IRQn);
-  WriteText("Recording...");
-  while(ReadInd != READ_SIZE);
-  WriteText("recording finished");
-  NVIC_DisableIRQ(I2S_IRQn);
-  FIL fil;
+    FIL fil;
   UINT dummy;
+  fileptr = &fil;
+  breakout2 =0;
   sd_init();
   f_open(&fil, "out.wav",FA_WRITE|FA_CREATE_ALWAYS);
-  f_write(&fil, buffer16, READ_SIZE, &dummy);
+  NVIC_EnableIRQ(I2S_IRQn);
+  WriteText("Recording...");
+  while(breakout2 == 0);
+  WriteText("recording finished");
+  NVIC_DisableIRQ(I2S_IRQn);
+
+  
   f_close(&fil);
   WriteText("done writing");
   sd_deinit();
@@ -960,7 +964,7 @@ void A4()
   FileSelection();
   FIL fil;
   UINT y;
-  uint16_t BUF[2048];
+  uint16_t BUF[READ_SIZE];
   /* Open a wave file, and transfer first data to buffer */
   f_mount(&FatFs, "", 0);
   f_open(&fil, SELECTED_FILE, FA_READ);

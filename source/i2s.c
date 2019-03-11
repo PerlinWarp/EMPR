@@ -4,22 +4,24 @@
 static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&I2S_Play_Sample_Interrupt,&i2s_playSound,&i2s_record_1buffer};
 
 uint16_t* I2SSAMPLEBUFFER;
-uint16_t sample;
+signed long long sample;
+signed long long diff;
 uint32_t record_sum;
 void I2S_IRQHandler()
 {
   I2S_int_Handler_Funcs[I2S_ihf_Index]();
 }
+char output[100];
 void I2S_Play_Sample_Interrupt()
 {
   if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
   {
     if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
     {
-        sample = buffer[WriteInd] - (((buffer[WriteInd] - buffer[WriteInd+1])*Counter48k)/48);
-        I2S_Send(LPC_I2S,sample);
-        
-        WriteText("so triggered");
+      diff = (signed long long)buffer[WriteInd] - (signed long long)buffer[CHECK_SAMPLE_BUFFER(WriteInd)];
+        sample = buffer[WriteInd] - (diff*(signed long long)Counter48k)/48;
+        I2S_Send(LPC_I2S,(uint32_t)sample);
+      
         if(Counter48k == 47){
           INC_SAMPLE_BUFFER(WriteInd);
           Counter48k = 0;
@@ -125,12 +127,14 @@ void i2s_wav_play_16_bit()
     }
   // }
 }
+UINT dummy;
 void i2s_record_1buffer() {
   if(ReadInd == READ_SIZE) {
-    NVIC_DisableIRQ(I2S_IRQn);
-    return;
+    f_write(fileptr, buffer16, READ_SIZE, &dummy);
+    ReadInd = 0;
+   
   }
-  if(Counter48k == 48)
+  if(Counter48k == 80)
   {
     buffer16[ReadInd++] = I2S_Receive(LPC_I2S)&0x0000FFFF;
     record_sum = Counter48k = 0;
@@ -139,9 +143,9 @@ void i2s_record_1buffer() {
     // record_sum += I2S_Receive(LPC_I2S)&0x0000FFFF;
      Counter48k++;
   }
-  
-  
-
+  if(breakout2!=0){
+    NVIC_DisableIRQ(I2S_IRQn);
+  } 
 }
 /*
 To do this, we are going to create a small read write buffer of
