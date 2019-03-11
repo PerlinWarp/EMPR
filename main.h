@@ -90,7 +90,7 @@ extern void Reverse_Wav(char* src);
 
 void Record_OnBoard_Audio();
 void Play_OnBoard_Audio();
-
+void Volume_Adjust_Wav(char *src, float diff);
 
 void A1();
 void A2();
