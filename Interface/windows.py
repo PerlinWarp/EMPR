@@ -461,7 +461,7 @@ class Browse_For_Play(PlaceWindow):
 
     def outof_dir(self):
         if self.path != "C:":
-            self.hide_directories(self.workingTree,self.path)
+            self.hide_directories(elf.selectedFileself.workingTree,self.path)
             self.path = self.path.rpartition('/')[0]
             self.widgets["folderName"].config(text = self.path.rpartition('/')[2])
             self.workingTree = self.find_directory(self.directoryTree,self.path)#remove the C: as the base is self.directoryTree itself
@@ -531,8 +531,10 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
     def opens(self):
-        self.frame.ser.write(bytes("P:"+self.path +"/" +self.selectedFile+"/"+'|',"utf-8"))
+        self.frame.ser.write(bytes("P"+self.path[2:] +"/" +self.selectedFile+'|',"utf-8"))
+        print("P"+self.path +"/" +self.selectedFile+'|')
         self.frame.switch("play")
+
     def delete(self):#If recursive directory deletion is necessary uncomment lines
         self.hide_directories(self.workingTree,self.path)
         #self.recursiveDelete(self.workingTree[self.selectedFile])
@@ -606,6 +608,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
 
     def show_All(self):
+        self.getDirs()
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
@@ -627,7 +630,6 @@ class Browse_For_Play(PlaceWindow):
         self.hidden = True
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>")
-class Browse_For_Record(Browse_For_Play):
     def getDirs(self):
         self.frame.ser.write(b"B|")#Make this happen in place.
         while(True):
@@ -641,7 +643,8 @@ class Browse_For_Record(Browse_For_Play):
             if path[0] != 'd' and path[0] != 'null)d':
                 self.workingTree = self.add_directories(self.workingTree,path)
         self.init_directories(self.workingTree,self.path)
-
-    def show_All(self):
-        self.getDirs()
-        Browse_For_Play.show_All(self)
+class Browse_For_Record(Browse_For_Play):
+    def opens(self):
+        self.frame.ser.write(bytes("M"+self.path[2:] +"/" +self.selectedFile+'|',"utf-8"))
+        print("M"+self.path[2:] +"/" +self.selectedFile+'|')
+        self.frame.switch("record")

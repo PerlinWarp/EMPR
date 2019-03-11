@@ -17,10 +17,10 @@ Record a sinewave to sd (make sure signal is below 8 bit and use OPAMP attenuati
 ### A4: Playback on demand
 Either - Demonstrate GPDMA wierd sounding playback, I2S machine gun noises, or get bit banging working
 
-### U1: Map above to buttons 1,2,3,4 
+### U1: Map above to buttons 1,2,3,4
 
 ### U2: Record with specified name
-Demonstrated with A3 
+Demonstrated with A3
 
 ### U3: Play back from a specified file
 Demonstrated with A4
@@ -33,7 +33,7 @@ Open browse menu
 # TODO: DISPLAY NUMBER OF BYTES AND PLAYING TIME ON PC!!!
 # TODO: MAKE FILE SELECTION START PLAYBACK OF SONG ON MBED!!!
 ### D2: PC Data Visualizer
-Open file on PC with menu 
+Open file on PC with menu
 
 
 ### D3: PC File Manager
@@ -41,8 +41,7 @@ Play files, copy files, run volume and reverse functions, delete functions
 # TODO: FINISH IMPLEMENTATION OF THESE FUNCTIONS!!!
 
 # Individual projects:
-All need doing. Make sure that when you do these you implement them in a separate branch, so that you don't mess up the master before demoing.
-
+All need doing. Make sure that when you do these you implement them in a separate branch, so that you don't mess up the maste
 
 
 
@@ -145,7 +144,7 @@ Output is to PinNum 26 which is actually physically pin number 18 on the breakou
 
 The PWM pins on the board are 23 - 26.
 
-## SDCard 
+## SDCard
 
 [Lecture](http://www.dejazzer.com/ee379/lecture_notes/lec12_sd_card.pdf)
 The SD card on the embed board is plugged into SSP0, using the pins:

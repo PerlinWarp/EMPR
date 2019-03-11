@@ -512,7 +512,7 @@ void PC_Mode()
       {
         case 'P'://play
           playing =1;
-          Play(&READ_SERIAL[2]);
+          PC_Play(&READ_SERIAL[1]);
           break;
         case 'W'://pause
           playing = 0;
@@ -531,7 +531,7 @@ void PC_Mode()
           finished = 1;
           break;
         case 'M':// Recording - The M is for Microphone
-          A1();
+          PC_Record(&READ_SERIAL[1]);
           break;
 
         case 'F':; //Files - D3 for copying and deleting files.
@@ -1010,6 +1010,64 @@ void A4()
   int_Handler_Enable =1;
   LCDGoHome();
   LCDPrint(" PLAYING SAMPLE \n***1234567890***");
+  I2S_Play_Sample(BUF);
+  buttonpress = 0;
+  while(!buttonpress && breakout2 == 0);
+  f_close(&fil);
+  f_mount(0, "", 0);
+  I2S_DeInit(LPC_I2S);
+}
+void PC_Record(char* fpath)
+{
+  LCDClear();
+  LCDPrint("Rec... (# ends)\n");
+  uint16_t rbuff[READ_SIZE];
+  buffer16 = rbuff;
+
+  I2S_MODEConf_Type Clock_Config;
+  I2S_CFG_Type I2S_Config_Struct;
+  LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
+  LPC_PINCON->PINSEL1|=PINS023_025RX;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
+  I2S_Init(LPC_I2S);
+  ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_MONO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
+  ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_RX_MODE);
+  ReadInd = Counter48k = 0;
+
+  I2S_Start(LPC_I2S);
+  I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
+  NVIC_SetPriority(I2S_IRQn, 0x03);
+  I2S_ihf_Index =3;
+    FIL fil;
+  UINT dummy;
+  fileptr = &fil;
+  breakout2 =0;
+  sd_init();
+  f_open(&fil, fpath, FA_WRITE|FA_CREATE_ALWAYS);
+  NVIC_EnableIRQ(I2S_IRQn);
+  while(breakout2 == 0);
+  NVIC_DisableIRQ(I2S_IRQn);
+
+
+  f_close(&fil);
+  sd_deinit();
+}
+void PC_Play(char* fpath)
+{
+  FIL fil;
+  UINT y;
+  uint16_t BUF[READ_SIZE];
+  /* Open a wave file, and transfer first data to buffer */
+  f_mount(&FatFs, "", 0);
+  f_open(&fil, fpath, FA_READ);
+  fileptr = &fil;
+  f_read_fast(&fil,BUF,READ_SIZE*2, &y);
+  if(y != READ_SIZE*2)return;
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  LCDGoHome();
+  LCDPrint(" PLAYING  SONG \n***1234567890***");
   I2S_Play_Sample(BUF);
   buttonpress = 0;
   while(!buttonpress && breakout2 == 0);

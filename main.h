@@ -82,6 +82,8 @@ void Play(char* directory);
 uint8_t ShowFileSelection(char** filenames, char* header, uint8_t fileCount);
 void FileSelection();
 void FileInfo();
+void PC_Play(char* fpath);
+void PC_Record(char* fpath);
 char SELECTED_FILE[40];
 
 extern int f_copy(char* filepath);
