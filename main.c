@@ -923,6 +923,10 @@ void A3()
 {
   LCDClear();
 
+  NewFileSelection();
+
+  LCDClear();
+  LCDPrint("Rec... (# ends)\n");
   uint16_t rbuff[READ_SIZE];
   buffer16 = rbuff;
 
@@ -946,17 +950,13 @@ void A3()
   fileptr = &fil;
   breakout2 =0;
   sd_init();
-  f_open(&fil, "out.wav",FA_WRITE|FA_CREATE_ALWAYS);
+  f_open(&fil, SELECTED_FILE, FA_WRITE|FA_CREATE_ALWAYS);
   NVIC_EnableIRQ(I2S_IRQn);
-  WriteText("Recording...");
   while(breakout2 == 0);
-  WriteText("recording finished");
   NVIC_DisableIRQ(I2S_IRQn);
 
   
   f_close(&fil);
-  f_mount(0, "", 0);
-  WriteText("done writing");
   sd_deinit();
 }
 
