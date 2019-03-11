@@ -625,6 +625,7 @@ void PC_Mode()
             break;
 
             case 'A':
+              Volume_Adjust_Wav("a.wav",(float)(atoi(argument))/100);
               //Adjust the volume
               // Uses a different format than the others
               LCDClear();
