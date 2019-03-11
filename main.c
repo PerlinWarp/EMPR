@@ -1017,6 +1017,27 @@ void A4()
   f_mount(0, "", 0);
   I2S_DeInit(LPC_I2S);
 }
+void CompressionDemo()
+{
+  uint8_t BUF[256];
+  FIL readFrom,writeTo;
+  UINT dummy;
+  FileSelection();
+  f_mount(&FatFs, "", 0);
+  f_open(&readFrom, SELECTED_FILE, FA_READ);
+  f_open(&writeTo,SELECTED_FILE,FA_WRITE|FA_CREATE_ALWAYS);
+
+  char ot[33];
+  sprintf(ot,"%s\nCompressing.....",SELECTED_FILE);
+  LCDGoHome();
+  LCDPrint(ot);
+
+  f_read(&readFrom,BUF,256, &dummy);
+  f_write(&writeTo,BUF,256,&dummy);
+  f_close(&readFrom);
+  f_close(&writeTo);
+  f_mount(0,"",0);
+}
 void PC_Record(char* fpath)
 {
   LCDClear();
