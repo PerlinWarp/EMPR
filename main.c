@@ -17,6 +17,7 @@ void EINT3_IRQHandler(void)
   if(key != prevKey && key != ' ')
   {
     buttonpress  = 1;
+    leave = 1;
     prevKey = key;
     if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
     NVIC_DisableIRQ(TIMER1_IRQn);
@@ -141,7 +142,7 @@ void I2S_PassThroughLoop()
 }
 void I2S_PassThroughInterrupt()
 {
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  buffer = (uint32_t*)malloc(sizeof(uint32_t)*BUFFER_SIZE);
   LCDClear();
   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
   TLV320_Start_I2S_Polling_Passthrough();
@@ -151,7 +152,7 @@ void I2S_PassThroughInterrupt()
   int_Handler_Enable =0;
   WriteText("Finis");
   I2S_DeInit(LPC_I2S);
-  NewFree(buffer);
+  free(buffer);
   buttonpress = 0;
 }
 
@@ -316,7 +317,7 @@ void Play_OnBoard_Audio()
   SPLIFF_HEADER s = SPLIFF_DECODE(&fil);
   sprintf(SELECTED_FILE,"SRate: %lu\n\r",s.Sample_Rate);
   WriteText(SELECTED_FILE);
-  init_onboard_audio_no_DMA(&fil,1000);
+  init_onboard_audio_no_DMA(&fil,8000);
   f_close(&fil);
   f_mount(0, "", 0);
 }
@@ -717,7 +718,6 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   LCDClear();
   initMalloc();
 
-  Play_OnBoard_Audio();
 
   Menu();
 
@@ -957,7 +957,7 @@ void A4()
   char buffer [0x20];
 
   while (!fr){
-      fr = f_read(&fil,buffer,0x20, &y);
+      fr = f_read_fast(&fil,buffer,0x20, &y);
       //n = sprintf(buffer,"%s\n\r", line);
       write_usb_serial_blocking(buffer,y);
   }

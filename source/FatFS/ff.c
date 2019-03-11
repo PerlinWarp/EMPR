@@ -672,7 +672,6 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 	if (clst < 2 || clst >= fs->n_fatent)	/* Chack range */
 		return 1;
 
-#if !_FAST_F_READ
 	switch (fs->fs_type) {
 	case FS_FAT12 :
 		bc = (UINT)clst; bc += bc / 2;
@@ -692,13 +691,6 @@ DWORD get_fat (FATFS *fs, DWORD clst)
 		p = &fs->win[clst * 4 % SS(fs)];
 		return LD_DWORD(p) & 0x0FFFFFFF;
 	}
-#endif
-#if _FAST_F_READ
-	//For FAT32 Only!
-	if (move_window(fs, fs->fatbase + (clst / (SS(fs) / 4))));
-		p = &fs->win[clst * 4 % SS(fs)];
-		return LD_DWORD(p) & 0x0FFFFFFF;
-#endif
 
 	return 0xFFFFFFFF;	/* An error occurred at the disk I/O layer */
 }

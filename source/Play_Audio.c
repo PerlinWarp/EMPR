@@ -14,6 +14,7 @@ void TIMER1_IRQHandler(void)
   TIMER1_Handler_Funcs[TIMER1_IRQ_Index]();
 }
 char output[60];
+void onboard(){}
 void onboard_record()
 {
 
@@ -34,29 +35,38 @@ void onboard_record()
    NVIC_DisableIRQ(TIMER1_IRQn);
  }
 }
+
 void timer_Done(){
   timerDone = 1;
   TIM_Cmd(LPC_TIM1,DISABLE);//disable timer while write finishes
   NVIC_DisableIRQ(TIMER1_IRQn);
 }
-void onboard()
+uint32_t j;
+void PWM1_IRQHandler()
 {
  if(InputDone == 0 && buttonpress == 0)
  {
-  DAC_UpdateValue(LPC_DAC,(*(buf+writeIndex)>>24));
-  writeIndex++;
-  if(writeIndex == PRECISION*4)
-  {
-    f_read(fil,buf,PRECISION*4,&count);
-    if(count != PRECISION*4)InputDone =1;
-    writeIndex = 0;
-  }
+  DAC_UpdateValue(LPC_DAC,++j);
  }
- else
- {
-    TIM_Cmd(LPC_TIM1,DISABLE);//disable timer while write finishes
-    NVIC_DisableIRQ(TIMER1_IRQn);
- }
+  //DAC_UpdateValue(LPC_DAC,(*(buf+writeIndex)>>24));
+  //uint32_t i;
+  //while(1) {
+  //  for(i = 0xF; i++; i < 0xFFFF){
+  //    DAC_UpdateValue(LPC_DAC, i);
+  //  }
+  //}
+  // writeIndex++;
+  // if(writeIndex == PRECISION*4)
+  // {
+  //   f_read(fil,buf,PRECISION*4,&count);
+  //   if(count != PRECISION*4)InputDone =1;
+  //   writeIndex = 0;
+  // }{
+//  else
+//  {
+//     TIM_Cmd(LPC_TIM1,DISABLE);//disable timer while write finishes
+//     NVIC_DisableIRQ(TIMER1_IRQn);
+//  }
 }
 /*
 Raw files on SD are:
@@ -80,11 +90,14 @@ void init_onboard_audio_no_DMA(FIL* file,uint32_t Frequency)
   f_read(fil,buf,PRECISION*4,&count);
 
   buttonpress = 0;
-  TIMER1_IRQ_Index = 1;
+  // TIMER1_IRQ_Index = 1;
   InputDone = 0;
-  InitTimer(Freq);
-  TIM_Cmd(LPC_TIM1,ENABLE);
-  NVIC_EnableIRQ(TIMER1_IRQn);
+  // InitTimer(Freq);
+  // TIM_Cmd(LPC_TIM1,ENABLE);
+  NVIC_EnableIRQ(PWM1_IRQn);
+  PWM_Pin_Type P26 = {&LPC_PINCON->PINSEL4, (1<<0), &LPC_PWM1->MR1}; 
+  initPWM(P26);
+  initTimer(LPC_TIM0);
   while(InputDone == 0 && buttonpress == 0);
 }
 

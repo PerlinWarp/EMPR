@@ -36,6 +36,7 @@
 #include "source/Delay.h"
 #include "source/TLV320.h"
 #include "source/i2s.h"
+#include "source/SineWave.h"
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"

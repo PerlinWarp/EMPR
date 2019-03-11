@@ -15,6 +15,8 @@
 #include "Wave.h"
 #include "lpc17xx_adc.h"
 #include "LCD.h"
+#include "Timer.h"
+#include "PWM.h"
 volatile int buttonpress;
 volatile int breakout;
 uint8_t timerDone;
