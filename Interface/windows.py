@@ -5,6 +5,8 @@ from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
 
+sem = False
+
 def scale(value):
     '''
     Scales the byte between 0 and 100. 
@@ -332,6 +334,7 @@ class TestingScreen(PlaceWindow):
         self.frame.ser.write(b"AS|")
         eof = False
         d = self.frame.ser.read(2)
+        while (True and sem == True):
         #while(self.frame.ser.in_waiting > 0 and not str(d) == b''):
             d = self.frame.ser.read(2)
             val = int.from_bytes(d,"little",signed=True)
@@ -340,10 +343,12 @@ class TestingScreen(PlaceWindow):
 
             self.widgets["canvas"].delete("all")
             self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
+            sem = False
         print("Reached the end of the file")
 
         #The b opens the file in binary mode to write hex directly.
         print("Done ")
+
 
 
     def init_widgets(self):
