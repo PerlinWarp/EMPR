@@ -291,16 +291,16 @@ class volumeSlider(sliderButton):
 
     def drag(self,event):
         sliderButton.drag(self,event)
-        #Scaling between 0 and 100. 
+        #Scaling between 0 and 100.
         self.volume = round(100 - (self.y - 296)*(100.0/41.0))
-        
+
         ##self.root.frame.ser.write(bytes("FP100|","utf-8"))
     def putdown(self,event):
         sliderButton.putdown(self, event)
         command = "FA"+str(self.volume)+"|"
         print(command)
         self.root.frame.ser.write(bytes(command,'utf-8'))
-        
+
 
 class dragDropFrame(Frame):
     def __init__(self,frame,window,**options):
@@ -535,6 +535,13 @@ class browserButton():#78 by 75, where
             self.image.config(image = self.im_pressed)
             self.text.config(image = self.text_image_sel)
             self.window.selectedFile = self.path
+            if self.window.root.ser == True:
+                self.root.frame.ser.write(bytes('FI'+self.path+'|','utf-8'))
+                print('FI'+self.path+'|')
+                d = self.root.frame.ser.read_until(b'|')
+                self.window.widgets["FileName"].text =
+                self.window.widgets["FileName"].text =
+                self.window.widgets["FileName"].text = 
 
     def _open(self,event):
         if(self.filetype == "folder"):
