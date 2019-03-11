@@ -201,6 +201,9 @@ class PlayScreen(PlaceWindow):
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
     def reverse_play_button(self):
+        ##Send reverse command 
+        self.frame.ser.write(b"FRa.wav|")
+        
         self.widgets["realplay"].switch_images()
         self.widgets["realplay"].config(image = self.widgets["realplay"].imagePath)
     def adjust_counter(self):
