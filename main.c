@@ -752,8 +752,7 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   LCDInit();
   LCDClear();
   initMalloc();
-
-
+  
   Menu();
 
 
@@ -1202,7 +1201,7 @@ uint8_t TextEntry(char* result, char* header) {
 
 
 #define WAV_H_SIZE 44
-#define WAV_BUFF_SIZE 2048
+#define WAV_BUFF_SIZE 512
 
 // relies on 16bit samplesize (swaps 2-byte chunks around)
 void Reverse_Wav(char* src) {
@@ -1235,17 +1234,12 @@ void Reverse_Wav(char* src) {
     f_lseek(&fsrc, WAV_H_SIZE + i * WAV_BUFF_SIZE);
     f_read(&fsrc, fbuff, WAV_BUFF_SIZE, &countread);
     for (j = 0; j < countread / 2 - 1; j ++) {
-
-      for (k = 0; k < sampleSize; k++) {
-        tmp[k] = fbuff[j + k];
-      }
-      for (k = 0; k < sampleSize; k++) {
-        fbuff[j + k] = fbuff[countread - j - sampleSize + k];
-      }
-      for (k = 0; k < sampleSize; k++) {
-        fbuff[countread - j - sampleSize + k] = tmp[k];
-      }
-
+      tmp[0] = fbuff[j];
+      tmp[1] = fbuff[j + 1];
+      fbuff[j] = fbuff[countread - j - 2];
+      fbuff[j + 1] = fbuff[countread - j - 1];
+      fbuff[countread - j - 2] = tmp[0];
+      fbuff[countread - j - 1] = tmp[1];
     };
     f_write(&fdst, fbuff, countread, &dummy);
   }
@@ -1280,27 +1274,26 @@ void Volume_Adjust_Wav(char *src, float diff) {
     f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
 
     // maximum 16 bytes (128 bits) per sample
-    char fbuff[WAV_BUFF_SIZE];
-    uint16_t tmp;
+    uint16_t fbuff[WAV_BUFF_SIZE / 2];
+    int16_t tmp;
     float ftmp, maxUInt16 = 65535.0;
     uint32_t countread, dummy;
     f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
     f_write(&fdst, fbuff, countread, &dummy);
 
-    uint32_t fsize = (uint32_t)f_size(&fsrc) - WAV_H_SIZE, i = 0, j = 0, k = 0;
-    for (i = 0 ; i < fsize / WAV_BUFF_SIZE; i++) {
-        f_lseek(&fsrc, WAV_H_SIZE + i * WAV_BUFF_SIZE);
-        f_read(&fsrc, fbuff, WAV_BUFF_SIZE, &countread);
-        for (j = 0; j < countread - 1; j += 2) {
-            tmp = 0;
-            tmp |= fbuff[j];
-            tmp |= fbuff[j + 1] << 8;
-            ftmp = ((float)tmp * diff);
+    uint32_t fsize = (uint32_t)f_size(&fsrc) - WAV_H_SIZE, i = 0, j = 0;
+    for (i = 0 ; i < fsize / (WAV_BUFF_SIZE / 2); i++) {
+        f_lseek(&fsrc, WAV_H_SIZE + i * (WAV_BUFF_SIZE / 2));
+        f_read(&fsrc, fbuff, WAV_BUFF_SIZE / 2, &countread);
+        for (j = 0; j < countread ; j += 1) {
+            tmp = fbuff[j];
+            ftmp = ((float)tmp) * diff;
             if (ftmp > maxUInt16) {
-              tmp = 0xFFFF;
+              tmp = 0xDFFF;
+            } else {
+              tmp = (int16_t)ftmp;
             }
-            fbuff[j] = (char) 0x00FF & tmp;
-            fbuff[j + 1] = (char) tmp >> 8;
+            fbuff[j] = tmp;
         };
         f_write(&fdst, fbuff, countread, &dummy);
     }
@@ -1308,8 +1301,8 @@ void Volume_Adjust_Wav(char *src, float diff) {
     f_close(&fsrc);
     f_close(&fdst);
 
-     f_unlink(src);
-     f_rename(dst, src);
+    f_unlink(src);
+    f_rename(dst, src);
 
     sd_deinit();
 }
