@@ -130,11 +130,11 @@ class MainMenu(PlaceWindow):
 class PlayScreen(PlaceWindow):
         # Non interface functions
     def pause(self):
-        print("play")
+        print("W|")
         self.frame.ser.write(bytes("W|","utf-8"))
 
     def playSong(self):
-        print("play")
+        print("R|")
         self.frame.ser.write(bytes("R|","utf-8"))
 
     # Interface functionsswitch
