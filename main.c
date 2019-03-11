@@ -1222,8 +1222,8 @@ void Volume_Adjust_Wav(char *src, float diff) {
     f_close(&fsrc);
     f_close(&fdst);
 
-     // f_unlink(src);
-     // f_rename(dst, src);
+    f_unlink(src);
+    f_rename(dst, src);
 
     sd_deinit();
 }
