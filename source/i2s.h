@@ -21,7 +21,7 @@
 #define BUFFER_SIZE 256
 #define BASE_FREQUENCY 48000
 #define WAVE_BUFFER_LEN 2
-
+#define INC_SAMPLE_BUFFER(bufd) (bufd = (bufd+1)&2047)
 //#define __bit_rev(val) ((val * 0x0802LU & 0x22110LU) | (val * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16
 FIL* fileptr;
 uint32_t ReadInd,WriteInd;//Pointer to a value
@@ -36,12 +36,13 @@ void ConfInit(I2S_CFG_Type* I2S_Config_Struct,uint8_t wordwidth,uint8_t mono,uin
 void ClockInit(I2S_MODEConf_Type* I2S_ClkConfig,uint8_t clksource,uint8_t mode4pin,uint8_t mclkout);
 
 
-void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSample,FIL* fil);
+extern void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSample,FIL* fil);
 void I2S_BaseInit();
 void I2S_Create_Sine(uint32_t frequency);
 void i2s_int_Passthrough();
 void i2s_wav_play_16_bit();
 void i2s_playSound();
-
+void I2S_Play_Sample(uint16_t* BUF);
+void I2S_Play_Sample_Interrupt();
 
 #endif

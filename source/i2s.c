@@ -1,13 +1,58 @@
 #include "i2s.h"
 
-uint8_t I2S_ihf_Index;
-static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&i2s_wav_play_16_bit,&i2s_playSound};
-uint32_t buff2[BUFFER_SIZE];
+uint8_t I2S_ihf_Index,Counter48k =0;
+static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&I2S_Play_Sample_Interrupt,&i2s_playSound};
+
+uint16_t* I2SSAMPLEBUFFER;
+uint16_t sample;
+
 void I2S_IRQHandler()
 {
   I2S_int_Handler_Funcs[I2S_ihf_Index]();
 }
+void I2S_Play_Sample_Interrupt()
+{
+  if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
+  {
+    if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
+    {
+        sample = buffer[WriteInd] - (((buffer[WriteInd] - buffer[WriteInd+1])*Counter48k)/48);
+        I2S_Send(LPC_I2S,sample);
+        
 
+        if(Counter48k == 47){
+          INC_SAMPLE_BUFFER(WriteInd);
+          Counter48k = 0;
+        }
+        else{
+          Counter48k++;
+        }  
+    }
+  }
+}
+void I2S_Play_Sample(uint16_t* BUF)
+{
+  I2S_MODEConf_Type Clock_Config;
+  I2S_CFG_Type I2S_Config_Struct;
+  LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
+  LPC_PINCON->PINSEL1|=PINS023_025RX;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
+  I2S_Init(LPC_I2S);
+  ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_MONO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
+  ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
+
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_TX_MODE);//Set frequency for output
+  WriteInd  =0;
+  I2SSAMPLEBUFFER = BUF;
+  LPC_I2S->I2STXRATE = 0x00;
+  LPC_I2S->I2STXBITRATE = 0x00;
+  I2S_SetBitRate(LPC_I2S,0,I2S_TX_MODE);
+  I2S_Start(LPC_I2S);
+  I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
+  NVIC_SetPriority(I2S_IRQn, 0x03);
+  I2S_ihf_Index =1;
+  NVIC_EnableIRQ(I2S_IRQn);
+}
 void i2s_int_Passthrough(){
   if(I2S_GetIRQStatus(LPC_I2S,I2S_RX_MODE))
   {
@@ -109,7 +154,7 @@ void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSampl
   TLV320_Start_I2S_WavPlay();
   I2S_ihf_Index = 1;
    bufs[0] = buffer;
-   bufs[1] = buff2;
+   //bufs[1] = buff2;
   //Read a buffer of audio into the data
   f_lseek(fileptr,44);
   SD_READ(fileptr,bufs[bufidx],BUFFER_SIZE);

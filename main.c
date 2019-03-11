@@ -473,6 +473,7 @@ void FatRead()
     f_mount(0, "", 0);
 }
 
+
 void PC_Mode()
 {
   LCDGoHome();
@@ -925,51 +926,24 @@ void A3()
 
 void A4()
 {
-  LCDClear();
-  LCDPrint("A4 Demo \nPlaying from SD");
-
-  FIL fil;        /* File object */
-  char line[100]; /* Line buffer */
-  FRESULT fr;     /* FatFs return code */
-  FATFS *fs;
-
-  fs = malloc(sizeof(FATFS));
-  fr = f_mount(fs, "", 0);
-
-  if (fr)
-  {
-    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
-    return (int)fr;
-  }
-
-  /* Open a text file */
-  fr = f_open(&fil, "a.wav", FA_READ);
-
-  if (fr)
-  {
-    sprintf(line, "Exited with Error Code: %d\n\r",fr);
-    WriteText(line);
-    return (int)fr;
-  }
-
-  /* Read every line and display it */
-  uint y;
-  char buffer [0x20];
-
-  while (!fr){
-      fr = f_read_fast(&fil,buffer,0x20, &y);
-      //n = sprintf(buffer,"%s\n\r", line);
-      write_usb_serial_blocking(buffer,y);
-  }
-
-  /* Close the file */
+  FileSelection();
+  FIL fil;
+  UINT y;
+  uint16_t BUF[2048];
+  /* Open a wave file, and transfer first data to buffer */
+  f_mount(&FatFs, "", 0);
+  f_open(&fil, SELECTED_FILE, FA_READ);
+  f_read_fast(&fil,BUF,sizeof(BUF), &y);
+  if(y != sizeof(BUF))return;
   f_close(&fil);
-
-  //Unmount the file system
   f_mount(0, "", 0);
-  free(fs);
-  write_usb_serial_blocking("EndOfFile",9);
-  return 0;
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  LCDGoHome();
+  LCDPrint(" PLAYING SAMPLE \n***1234567890***");
+  I2S_Play_Sample(BUF);
+  while(!buttonpress);
+  I2S_DeInit(LPC_I2S);
 }
 
 void stream(){
