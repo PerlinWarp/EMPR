@@ -326,7 +326,7 @@ class TestingScreen(PlaceWindow):
 
         print("Writing to a file")
         #The b opens the file in binary mode to write hex directly.
-        f = open('dataFile.wav','wb')
+        f = open('testing.wav','wb')
         f.write(file)
         f.close()
         print("Done ")
