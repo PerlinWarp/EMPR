@@ -548,6 +548,7 @@ class browserButton():#78 by 75, where
                 else:
                     self.window.Song_Length.set("")
 
+
     def _open(self,event):
         if(self.filetype == "folder"):
             self.frame.window.into_dir(self.path)
