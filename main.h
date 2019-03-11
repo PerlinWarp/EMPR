@@ -98,7 +98,7 @@ void A4();
 void (*menuFuncs[])(void) = {
 	&A1,
 	&A2,
-	&I2S_PassThroughLoop,
+	&A3,
 	&A4,
 	&I2S_PassThroughInterrupt,
 	&PC_Mode,

@@ -1,11 +1,11 @@
 #include "i2s.h"
 
-uint8_t I2S_ihf_Index,Counter48k =0;
-static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&I2S_Play_Sample_Interrupt,&i2s_playSound};
+
+static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&I2S_Play_Sample_Interrupt,&i2s_playSound,&i2s_record_1buffer};
 
 uint16_t* I2SSAMPLEBUFFER;
 uint16_t sample;
-
+uint32_t record_sum;
 void I2S_IRQHandler()
 {
   I2S_int_Handler_Funcs[I2S_ihf_Index]();
@@ -19,7 +19,7 @@ void I2S_Play_Sample_Interrupt()
         sample = buffer[WriteInd] - (((buffer[WriteInd] - buffer[WriteInd+1])*Counter48k)/48);
         I2S_Send(LPC_I2S,sample);
         
-
+        WriteText("so triggered");
         if(Counter48k == 47){
           INC_SAMPLE_BUFFER(WriteInd);
           Counter48k = 0;
@@ -41,7 +41,7 @@ void I2S_Play_Sample(uint16_t* BUF)
   ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
 
   I2S_FreqConfig(LPC_I2S, 48000, I2S_TX_MODE);//Set frequency for output
-  WriteInd  =0;
+  WriteInd = Counter48k = 0;
   I2SSAMPLEBUFFER = BUF;
   LPC_I2S->I2STXRATE = 0x00;
   LPC_I2S->I2STXBITRATE = 0x00;
@@ -124,6 +124,24 @@ void i2s_wav_play_16_bit()
       }
     }
   // }
+}
+void i2s_record_1buffer() {
+  if(ReadInd == READ_SIZE) {
+    NVIC_DisableIRQ(I2S_IRQn);
+    return;
+  }
+  if(Counter48k == 48)
+  {
+    buffer16[ReadInd++] = I2S_Receive(LPC_I2S)&0x0000FFFF;
+    record_sum = Counter48k = 0;
+  }
+  else{
+    // record_sum += I2S_Receive(LPC_I2S)&0x0000FFFF;
+     Counter48k++;
+  }
+  
+  
+
 }
 /*
 To do this, we are going to create a small read write buffer of
