@@ -633,8 +633,10 @@ void PC_Mode()
             break;
 
             case 'R':
+              LCDClear();
               // Reversing playback of the audio
               Reverse_Wav(argument);
+              LCDPrint(argument);
 
             break;
             case 'N':
