@@ -494,6 +494,7 @@ FRESULT f_stat (const TCHAR*, FILINFO*);			/* Get file status */
 
 #if !_FS_READONLY
 FRESULT f_write (FIL*, const void*, UINT, UINT*);		/* Write data to a file */
+FRESULT f_write_fast (FIL*, const void*, UINT, UINT*);		/* Write data to a file really fast */
 FRESULT f_getfree (const TCHAR*, DWORD*, FATFS**);		/* Get number of free clusters on the drive */
 FRESULT f_truncate (FIL*);					/* Truncate file */
 FRESULT f_sync (FIL*);						/* Flush cached data of a writing file */

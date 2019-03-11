@@ -49,7 +49,7 @@
 
 /*----------------------------------------------------------------------*/
 /*									*/
-/* Module Private Functions						*/   
+/* Module Private Functions						*/
 /*									*/
 /*----------------------------------------------------------------------*/
 
@@ -101,7 +101,7 @@ static int wait_ready (UINT wt)
 
 	rcvr_spi();				/* Read a byte (Force enable DO output) */
 	do {
-		if (rcvr_spi() == 0xFF) 
+		if (rcvr_spi() == 0xFF)
 			return 1;		/* Card goes ready */
 						/* This loop takes a time. Insert rot_rdq() here for multitask envilonment. */
 	} while (Timer2);			/* Wait until card goes ready or timeout */
@@ -132,7 +132,7 @@ static void deselect (void)
 /*									*/
 /*----------------------------------------------------------------------*/
 
-static int select (void)	
+static int select (void)
 {
 	CS_LOW();
 	if (!wait_ready(500)) {
@@ -182,7 +182,7 @@ static int rcvr_datablock (BYTE *buff, UINT btr)
 		token = rcvr_spi();
 	} while ((token == 0xFF) && Timer1);
 
-	if(token != 0xFE) 
+	if(token != 0xFE)
 		return 0;				/* If not valid data token, retutn with error */
 
 	do {						/* Receive the data block into buffer */
@@ -212,7 +212,7 @@ static int xmit_datablock (const BYTE *buff, BYTE token)
 	UINT bc = 512;
 
 
-	if (!wait_ready(500)) 
+	if (!wait_ready(500))
 		return 0;
 
 	xmit_spi(token);			/* Xmit data token */
@@ -250,13 +250,13 @@ static BYTE send_cmd (BYTE cmd, DWORD arg)
 	if (cmd & 0x80) {			/* ACMD<n> is the command sequense of CMD55-CMD<n> */
 		cmd &= 0x3F;
 		res = send_cmd(CMD55, 0);
-		if (res > 1) 
+		if (res > 1)
 			return res;
 	}
 
 						/* Select the card and wait for ready */
 	deselect();
-	if (!select()) 
+	if (!select())
 		return 0xFF;
 
 						/* Send command packet */
@@ -266,14 +266,14 @@ static BYTE send_cmd (BYTE cmd, DWORD arg)
 	xmit_spi((BYTE)(arg >> 8));		/* Argument[15..8] */
 	xmit_spi((BYTE)arg);			/* Argument[7..0] */
 	n = 0;					/* CRC */
-	if (cmd == CMD0) 
+	if (cmd == CMD0)
 		n = 0x95;			/* CRC for CMD0(0) */
-	if (cmd == CMD8) 
+	if (cmd == CMD8)
 		n = 0x87;			/* CRC for CMD8(0x1AA) */
 	xmit_spi(n);
 
 						/* Receive command response */
-	if (cmd == CMD12) 
+	if (cmd == CMD12)
 		rcvr_spi();			/* Skip a stuff byte when stop reading */
 	n = 10;					/* Wait for a valid response in timeout of 10 attempts */
 	do
@@ -307,16 +307,16 @@ DSTATUS disk_initialize (BYTE drv)
 	printf("In disk_initialize\n");
 #endif
 
-	if (drv) 
+	if (drv)
 		return STA_NOINIT;			/* Supports only single drive */
-	if (Stat & STA_NODISK) 
+	if (Stat & STA_NODISK)
 		return Stat;				/* No card in the socket */
 
 	power_on();					/* Force socket power on */
 
 	FCLK_SLOW();
 
-	for (n = 10; n; n--) 
+	for (n = 10; n; n--)
 		rcvr_spi();				/* 80 dummy clocks */
 
 	ty = 0;
@@ -324,7 +324,7 @@ DSTATUS disk_initialize (BYTE drv)
 	if (send_cmd(CMD0, 0) == 1) {			/* Enter Idle state */
 		Timer1 = 1000;				/* Initialization timeout of 1000 msec */
 		if (send_cmd(CMD8, 0x1AA) == 1) {	/* SDC Ver2+ */
-			for (n = 0; n < 4; n++) 
+			for (n = 0; n < 4; n++)
 				ocr[n] = rcvr_spi();	/* Get trailng data of R7 resp */
 			if (ocr[2] == 0x01 && ocr[3] == 0xAA) {			/* The card can work at vdd range of 2.7-3.6V */
 				while (Timer1 && send_cmd(ACMD41, 1UL << 30));	/* ACMD41 with HCS bit */
@@ -368,7 +368,7 @@ DSTATUS disk_initialize (BYTE drv)
 
 DSTATUS disk_status (BYTE drv)
 {
-	if (drv) 
+	if (drv)
 		return STA_NOINIT;	/* Supports only single drive */
 	return Stat;
 }
@@ -387,12 +387,12 @@ DSTATUS disk_status (BYTE drv)
 
 DRESULT disk_read (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
 {
-	if (drv || !count) 
+	if (drv || !count)
 		return RES_PARERR;
-	if (Stat & STA_NOINIT) 
+	if (Stat & STA_NOINIT)
 		return RES_NOTRDY;
 
-	if (!(CardType & CT_BLOCK)) 
+	if (!(CardType & CT_BLOCK))
 		sector *= 512;				/* Convert to byte address if needed */
 
 	if (count == 1) {				/* Single block read */
@@ -415,7 +415,7 @@ DRESULT disk_read (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
 
 DRESULT disk_read_fast (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
 {
-	if (!(CardType & CT_BLOCK)) 
+	if (!(CardType & CT_BLOCK))
 		sector *= 512;				/* Convert to byte address if needed */
 
 	if (count == 1) {				/* Single block read */
@@ -449,14 +449,14 @@ DRESULT disk_read_fast (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
 #if _READONLY == 0
 DRESULT disk_write (BYTE drv, const BYTE *buff, DWORD sector, BYTE count)
 {
-	if (drv || !count) 
+	if (drv || !count)
 		return RES_PARERR;
-	if (Stat & STA_NOINIT) 
+	if (Stat & STA_NOINIT)
 		return RES_NOTRDY;
-	if (Stat & STA_PROTECT) 
+	if (Stat & STA_PROTECT)
 		return RES_WRPRT;
 
-	if (!(CardType & CT_BLOCK)) 
+	if (!(CardType & CT_BLOCK))
 		sector *= 512;				/* Convert to byte address if needed */
 
 	if (count == 1) {				/* Single block write */
@@ -464,11 +464,38 @@ DRESULT disk_write (BYTE drv, const BYTE *buff, DWORD sector, BYTE count)
 			&& xmit_datablock(buff, 0xFE))
 			count = 0;
 	} else {					/* Multiple block write */
-		if (CardType & CT_SDC) 
+		if (CardType & CT_SDC)
 			send_cmd(ACMD23, count);
 		if (send_cmd(CMD25, sector) == 0) {	/* WRITE_MULTIPLE_BLOCK */
 			do {
-				if (!xmit_datablock(buff, 0xFC)) 
+				if (!xmit_datablock(buff, 0xFC))
+					break;
+				buff += 512;
+			} while (--count);
+			if (!xmit_datablock(0, 0xFD))	/* STOP_TRAN token */
+				count = 1;
+		}
+	}
+	deselect();
+
+	return count ? RES_ERROR : RES_OK;
+}
+
+DRESULT disk_write_fast (BYTE drv, const BYTE *buff, DWORD sector, BYTE count)
+{
+	if (!(CardType & CT_BLOCK))
+		sector *= 512;				/* Convert to byte address if needed */
+
+	if (count == 1) {				/* Single block write */
+		if ((send_cmd(CMD24, sector) == 0)	/* WRITE_BLOCK */
+			&& xmit_datablock(buff, 0xFE))
+			count = 0;
+	} else {					/* Multiple block write */
+		if (CardType & CT_SDC)
+			send_cmd(ACMD23, count);
+		if (send_cmd(CMD25, sector) == 0) {	/* WRITE_MULTIPLE_BLOCK */
+			do {
+				if (!xmit_datablock(buff, 0xFC))
 					break;
 				buff += 512;
 			} while (--count);
@@ -500,9 +527,9 @@ DRESULT disk_ioctl (BYTE drv, BYTE ctrl, void *buff)
 	DWORD csize, *dp, st, ed;
 
 
-	if (drv) 
+	if (drv)
 		return RES_PARERR;
-	if (Stat & STA_NOINIT) 
+	if (Stat & STA_NOINIT)
 		return RES_NOTRDY;
 
 	res = RES_ERROR;
@@ -556,17 +583,17 @@ DRESULT disk_ioctl (BYTE drv, BYTE ctrl, void *buff)
 			break;
 
 		case CTRL_ERASE_SECTOR :			/* Erase a block of sectors (used when _USE_ERASE == 1) */
-			if (!(CardType & CT_SDC)) 
+			if (!(CardType & CT_SDC))
 				break;				/* Check if the card is SDC */
-			if (disk_ioctl(drv, MMC_GET_CSD, csd)) 
+			if (disk_ioctl(drv, MMC_GET_CSD, csd))
 				break;				/* Get CSD */
-			if (!(csd[0] >> 6) && !(csd[10] & 0x40)) 
+			if (!(csd[0] >> 6) && !(csd[10] & 0x40))
 				break;				/* Check if sector erase can be applied to the card */
 			dp = buff; st = dp[0]; ed = dp[1];	/* Load sector block */
 			if (!(CardType & CT_BLOCK)) {
 				st *= 512; ed *= 512;
 			}
-			if (send_cmd(CMD32, st) == 0 && send_cmd(CMD33, ed) == 0 && send_cmd(CMD38, 0) == 0 && wait_ready(30000))	
+			if (send_cmd(CMD32, st) == 0 && send_cmd(CMD33, ed) == 0 && send_cmd(CMD38, 0) == 0 && wait_ready(30000))
 				res = RES_OK;			/* Erase sector block */
 			break;
 
@@ -617,10 +644,10 @@ void disk_timerproc (void)
 
 
 	n = Timer1;						/* 1000Hz decrement timer */
-	if (n) 
+	if (n)
 		Timer1 = --n;
 	n = Timer2;
-	if (n) 
+	if (n)
 		Timer2 = --n;
 
 	p = pv;
