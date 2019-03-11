@@ -55,8 +55,8 @@ int SelMenuItem;
 uint8_t int_Handler_Enable=0,int_Handler_Index =0;
 
 
-char* MenuText[MENUTEXTNUM] = {"0-A1.Rec Audio ","1-A2.Play Audio",
-                     "2-A3.Save to SD", "3-A4.Browse SD",
+char* MenuText[MENUTEXTNUM] = {"0-A1.Rec Sample","1-A2.Play Sine ",
+                     "2-A3.Rec to SD ", "3-A4.Play SD   ",
                      "4-U4.View Info ","5-N1.PassThru  ",
                      "6-D1 PC-Mode   "," "};
 FATFS FatFs;
