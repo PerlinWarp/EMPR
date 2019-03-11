@@ -541,7 +541,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
     def opens(self):
         self.frame.ser.write(bytes("P"+self.path[2:] +"/" +self.selectedFile+'|',"utf-8"))
-        print("P"+self.path +"/" +self.selectedFile+'|')
+        print("P"+self.path[2:] +"/" +self.selectedFile+'|')
         self.frame.switch("play")
 
     def delete(self):#If recursive directory deletion is necessary uncomment lines
