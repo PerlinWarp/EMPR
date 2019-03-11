@@ -75,6 +75,7 @@ void I2S_PassThroughLoop();
 void I2S_PassThroughInterrupt();
 void UART_Mode();
 void temp();
+uint32_t GetWaveInfo(char* fpath,uint32_t fSize);
 void FatRead();
 void PC_Mode();
 void Play(char* directory);

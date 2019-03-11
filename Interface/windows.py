@@ -509,9 +509,12 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
         self.widgets["dirEntry"] = directoryEntry(self.widgets["fileWindow"],self,self.path)
         self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "white",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
-        self.widgets["FileName"] = Label(self.widgets["fileWindow"],text = "",background = "white",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
-        self.widgets["Size_Bytes"] = Label(self.widgets["fileWindow"],text = "",background = "white",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
-        self.widgets["SongLength"] = Label(self.widgets["fileWindow"],text = "",background = "white",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
+        self.File_Name = StringVar()
+        self.widgets["FileName"] = Label(self.widgets["fileWindow"],background = "white",font =("Arial bold",10),textvariable=self.File_Name,borderwidth = 0)
+        self.Size_Bytes = StringVar()
+        self.widgets["Size_Bytes"] = Label(self.widgets["fileWindow"],background = "white",font =("MS Reference Sans Serif bold",8),textvariable=self.Size_Bytes,borderwidth = 0)
+        self.Song_Length = StringVar()
+        self.widgets["SongLength"] = Label(self.widgets["fileWindow"],background = "white",font =("MS Reference Sans Serif bold",8),textvariable=self.Song_Length,borderwidth = 0)
         self.widgets["rightclickmenu"] = betterLabel(self.frame,"rightclickmenu")
         self.widgets["rightclickmenu2"] = betterLabel(self.frame,"rightclickmenu2")
         self.widgets["rightclickmenu_file"] = betterLabel(self.frame,"rightclickmenu_file")
@@ -538,7 +541,6 @@ class Browse_For_Play(PlaceWindow):
             p = "/"
         else: #if is "C:/xxx/xx etc."
             p = self.path[2:]
-
         print("FD"+ p +self.selectedFile+'|')
         self.frame.ser.write(bytes("FD"+ p +self.selectedFile+'|',"utf-8"))
         self.place_directories(self.workingTree,self.path)
@@ -618,9 +620,9 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["folderName"].place(x = 115, y = 133)
         self.widgets["dirEntry"].place(x = 77,y = 93)
         self.widgets["objects"].place(x=8,y=504)
-        self.widgets["FileName"].place(x = 23,y = 227)
-        self.widgets["Size_Bytes"].place(x = 23,y = 244)
-        self.widgets["SongLength"].place(x = 23, y = 255)
+        self.widgets["FileName"].place(x = 23,y = 230)
+        self.widgets["Size_Bytes"].place(x = 23,y = 250)
+        self.widgets["SongLength"].place(x = 23, y = 270)
     def hide_All(self):
         self.hidden = True
         PlaceWindow.hide_All(self)

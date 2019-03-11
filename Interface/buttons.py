@@ -487,8 +487,8 @@ class browserButton():#78 by 75, where
         self.relx = kwargs['x']
         self.rely = kwargs['y']
 
-        self.image.bind('<ButtonPress-1>',self._on_pressed,"+")
-        self.text.bind('<ButtonPress-1>',self._on_pressed,"+")
+        self.image.bind('<ButtonPress-1>',self._on_pressed)
+        self.text.bind('<ButtonPress-1>',self._on_pressed)
 
         self.image.bind('<Double-Button-1>',self._open)
         self.text.bind('<Double-Button-1>',self._open)
@@ -535,13 +535,18 @@ class browserButton():#78 by 75, where
             self.image.config(image = self.im_pressed)
             self.text.config(image = self.text_image_sel)
             self.window.selectedFile = self.path
-            if self.window.root.ser == True:
-                self.root.frame.ser.write(bytes('FI'+self.path+'|','utf-8'))
+            if self.window.serConnected == True:
+                self.window.frame.ser.write(bytes('FI'+self.window.path[2:]+"/" +self.path+'|','utf-8'))
                 print('FI'+self.path+'|')
-                d = self.root.frame.ser.read_until(b'|')
-                self.window.widgets["FileName"].text =
-                self.window.widgets["FileName"].text =
-                self.window.widgets["FileName"].text = 
+                d = str(self.window.frame.ser.read_until(b'|'))
+                d = d[:-1].split(",")
+                print(d)
+                self.window.File_Name.set(self.path)
+                self.window.Size_Bytes.set(d[0][2:]+" Bytes")
+                if(d[1][:-1]!= 'n/a'):
+                    self.window.Song_Length.set(d[1][:-1]+" Seconds")
+                else:
+                    self.window.Song_Length.set("")
 
     def _open(self,event):
         if(self.filetype == "folder"):
