@@ -131,10 +131,11 @@ class PlayScreen(PlaceWindow):
         # Non interface functions
     def pause(self):
         print("play")
+        self.frame.ser.write(bytes("W|","utf-8"))
 
     def playSong(self):
         print("play")
-
+        self.frame.ser.write(bytes("R|","utf-8"))
 
     # Interface functionsswitch
     def redraw_Canvas(self):
@@ -199,7 +200,6 @@ class PlayScreen(PlaceWindow):
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
-
     def reverse_play_button(self):
         self.widgets["realplay"].switch_images()
         self.widgets["realplay"].config(image = self.widgets["realplay"].imagePath)
