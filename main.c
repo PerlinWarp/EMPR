@@ -17,10 +17,12 @@ void EINT3_IRQHandler(void)
   if(key != prevKey && key != ' ')
   {
     buttonpress  = 1;
+    leave = 1;
     prevKey = key;
     if(int_Handler_Enable)int_Handler_Funcs[int_Handler_Index]();
     NVIC_DisableIRQ(TIMER1_IRQn);
     timerDone = 1;
+    breakout2 = 1;
     breakout = 1;
   }
   else if (key == ' ')
@@ -141,7 +143,7 @@ void I2S_PassThroughLoop()
 }
 void I2S_PassThroughInterrupt()
 {
-  buffer = (uint32_t*)NewMalloc(sizeof(uint32_t)*BUFFER_SIZE);
+  buffer = (uint32_t*)malloc(sizeof(uint32_t)*BUFFER_SIZE);
   LCDClear();
   LCDPrint("I2S Passthrough\n.Interrupt Mode.");
   TLV320_Start_I2S_Polling_Passthrough();
@@ -151,7 +153,7 @@ void I2S_PassThroughInterrupt()
   int_Handler_Enable =0;
   WriteText("Finis");
   I2S_DeInit(LPC_I2S);
-  NewFree(buffer);
+  free(buffer);
   buttonpress = 0;
 }
 
@@ -303,7 +305,7 @@ void Play_Audio()
   int_Handler_Enable =1;
   while(!buttonpress);//loop until a buttonpress is received - TODO: set serial to change this value for pc play/pause
   int_Handler_Enable =0;
-  I2S_DeInit(LPC_I2S);
+  I2S_DeInit(LPC_I2S); 
 }
 
 void Play_OnBoard_Audio()
@@ -316,7 +318,7 @@ void Play_OnBoard_Audio()
   SPLIFF_HEADER s = SPLIFF_DECODE(&fil);
   sprintf(SELECTED_FILE,"SRate: %lu\n\r",s.Sample_Rate);
   WriteText(SELECTED_FILE);
-  init_onboard_audio_no_DMA(&fil,1000);
+  init_onboard_audio_no_DMA(&fil,8000);
   f_close(&fil);
   f_mount(0, "", 0);
 }
@@ -471,6 +473,7 @@ void FatRead()
     //Unmount the file system
     f_mount(0, "", 0);
 }
+
 
 void PC_Mode()
 {
@@ -718,7 +721,6 @@ int main() {//CURRENTLY PIN 28 IS BEING USED FOR EINT3
   initMalloc();
 
 
-
   Menu();
 
 
@@ -919,57 +921,68 @@ void A2()
 
 void A3()
 {
-  LCDGoHome();
-  LCDPrint("A3 Demo \n Recording Audio");
+  LCDClear();
+
+  uint16_t rbuff[READ_SIZE];
+  buffer16 = rbuff;
+
+  I2S_MODEConf_Type Clock_Config;
+  I2S_CFG_Type I2S_Config_Struct;
+  LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
+  LPC_PINCON->PINSEL1|=PINS023_025RX;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
+  I2S_Init(LPC_I2S);
+  ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_MONO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
+  ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_RX_MODE);
+  ReadInd = Counter48k = 0;
+
+  I2S_Start(LPC_I2S);
+  I2S_IRQConfig(LPC_I2S,I2S_RX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_RX_MODE,ENABLE);
+  NVIC_SetPriority(I2S_IRQn, 0x03);
+  I2S_ihf_Index =3;
+    FIL fil;
+  UINT dummy;
+  fileptr = &fil;
+  breakout2 =0;
+  sd_init();
+  f_open(&fil, "out.wav",FA_WRITE|FA_CREATE_ALWAYS);
+  NVIC_EnableIRQ(I2S_IRQn);
+  WriteText("Recording...");
+  while(breakout2 == 0);
+  WriteText("recording finished");
+  NVIC_DisableIRQ(I2S_IRQn);
+
+  
+  f_close(&fil);
+  f_mount(0, "", 0);
+  WriteText("done writing");
+  sd_deinit();
 }
 
 void A4()
 {
-  LCDClear();
-  LCDPrint("A4 Demo \nPlaying from SD");
-
-  FIL fil;        /* File object */
-  char line[100]; /* Line buffer */
-  FRESULT fr;     /* FatFs return code */
-  FATFS *fs;
-
-  fs = malloc(sizeof(FATFS));
-  fr = f_mount(fs, "", 0);
-
-  if (fr)
-  {
-    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
-    return (int)fr;
-  }
-
-  /* Open a text file */
-  fr = f_open(&fil, "a.wav", FA_READ);
-
-  if (fr)
-  {
-    sprintf(line, "Exited with Error Code: %d\n\r",fr);
-    WriteText(line);
-    return (int)fr;
-  }
-
-  /* Read every line and display it */
-  uint y;
-  char buffer [0x20];
-
-  while (!fr){
-      fr = f_read(&fil,buffer,0x20, &y);
-      //n = sprintf(buffer,"%s\n\r", line);
-      write_usb_serial_blocking(buffer,y);
-  }
-
-  /* Close the file */
+  FileSelection();
+  FIL fil;
+  UINT y;
+  uint16_t BUF[READ_SIZE];
+  
+  /* Open a wave file, and transfer first data to buffer */
+  f_mount(&FatFs, "", 0);
+  f_open(&fil, SELECTED_FILE, FA_READ);
+  fileptr = &fil;
+  f_read_fast(&fil,BUF,READ_SIZE*2, &y);
+  if(y != READ_SIZE*2)return;
+  TLV320_Start_I2S_Polling_Passthrough();
+  int_Handler_Enable =1;
+  LCDGoHome();
+  LCDPrint(" PLAYING SAMPLE \n***1234567890***");
+  I2S_Play_Sample(BUF);
+  buttonpress = 0;
+  while(!buttonpress && breakout2 == 0);
   f_close(&fil);
-
-  //Unmount the file system
   f_mount(0, "", 0);
-  free(fs);
-  write_usb_serial_blocking("EndOfFile",9);
-  return 0;
+  I2S_DeInit(LPC_I2S);
 }
 
 void stream(){
@@ -1076,15 +1089,12 @@ uint8_t TextEntry(char* result, char* header) {
 }
 
 
-// relies on 16bit samplesize (swaps 2-byte chunks around)
 #define WAV_H_SIZE 44
-#define REV_BUFF_SIZE 2048
+#define WAV_BUFF_SIZE 2048
+
+// relies on 16bit samplesize (swaps 2-byte chunks around)
 void Reverse_Wav(char* src) {
-  WriteText("Reversing ");
-  WriteText(src);
-  WriteText("\n\r");
-  char dst[32];
-  sprintf(dst, "/inv%s", src + 1);
+  char dst[32] = "/revtmp";
 
 
 
@@ -1100,26 +1110,18 @@ void Reverse_Wav(char* src) {
 
   uint8_t sampleSize = w.BitsPerSample / 8;
 
-  sprintf(pbuff, "%i\n\r", sampleSize);
-  WriteText(pbuff);
   f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
 
   // maximum 16 bytes (128 bits) per sample
-  char fbuff[REV_BUFF_SIZE], tmp[16];
+  char fbuff[WAV_BUFF_SIZE], tmp[16];
   uint32_t countread, dummy;
   f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
   f_write(&fdst, fbuff, countread, &dummy);
 
-
-
   uint32_t fsize = (uint32_t)f_size(&fsrc) - 43, i = 0, j = 0, k = 0;
-  for (i = fsize / REV_BUFF_SIZE; i > 0; i--) {
-    if( i % 16 == 0) {
-      sprintf(pbuff, "%d\n\r", i);
-      WriteText(pbuff);
-    }
-    f_lseek(&fsrc, WAV_H_SIZE + i * REV_BUFF_SIZE);
-    f_read(&fsrc, fbuff, REV_BUFF_SIZE, &countread);
+  for (i = fsize / WAV_BUFF_SIZE; i > 0; i--) {
+    f_lseek(&fsrc, WAV_H_SIZE + i * WAV_BUFF_SIZE);
+    f_read(&fsrc, fbuff, WAV_BUFF_SIZE, &countread);
     for (j = 0; j < countread / 2 - 1; j ++) {
 
       for (k = 0; k < sampleSize; k++) {
@@ -1139,10 +1141,65 @@ void Reverse_Wav(char* src) {
   f_close(&fsrc);
   f_close(&fdst);
 
-  // f_unlink(src);
-  // f_rename(dst, src);
+   f_unlink(src);
+   f_rename(dst, src);
 
   sd_deinit();
+}
+
+// src is file to adjust, diff is amount to adjust - 1.15 means +15%, 0.85 is -15% etc
+void Volume_Adjust_Wav(char *src, float diff) {
+    char dst[32] = "/voltmp";
+
+    sd_init();
+    FIL fsrc, fdst;
+
+
+    f_open(&fsrc, src, FA_READ);
+    WAVE_HEADER w = Wav_Init(&fsrc);
+    f_lseek(&fsrc, 0);
+
+    char pbuff[32];
+
+    uint8_t sampleSize = w.BitsPerSample / 8;
+
+    sprintf(pbuff, "%i\n\r", sampleSize);
+    WriteText(pbuff);
+    f_open(&fdst, dst, FA_WRITE | FA_CREATE_ALWAYS);
+
+    // maximum 16 bytes (128 bits) per sample
+    char fbuff[WAV_BUFF_SIZE];
+    uint16_t tmp;
+    float ftmp, maxUInt16 = 65535.0;
+    uint32_t countread, dummy;
+    f_read(&fsrc, fbuff, WAV_H_SIZE, &countread);
+    f_write(&fdst, fbuff, countread, &dummy);
+
+    uint32_t fsize = (uint32_t)f_size(&fsrc) - WAV_H_SIZE, i = 0, j = 0, k = 0;
+    for (i = 0 ; i < fsize / WAV_BUFF_SIZE; i++) {
+        f_lseek(&fsrc, WAV_H_SIZE + i * WAV_BUFF_SIZE);
+        f_read(&fsrc, fbuff, WAV_BUFF_SIZE, &countread);
+        for (j = 0; j < countread - 1; j += 2) {
+            tmp = 0;
+            tmp |= fbuff[j];
+            tmp |= fbuff[j + 1] << 8;
+            ftmp = ((float)tmp * diff);
+            if (ftmp > maxUInt16) {
+              tmp = 0xFFFF;
+            }
+            fbuff[j] = (char) 0x00FF & tmp;
+            fbuff[j + 1] = (char) tmp >> 8;
+        };
+        f_write(&fdst, fbuff, countread, &dummy);
+    }
+
+    f_close(&fsrc);
+    f_close(&fdst);
+
+     f_unlink(src);
+     f_rename(dst, src);
+
+    sd_deinit();
 }
 
 

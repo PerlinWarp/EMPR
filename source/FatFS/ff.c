@@ -14,7 +14,7 @@
 //   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
 // * Redistributions of source code must retain the above copyright notice.
 //
-/*									
+/*
 / Feb 26,'06 R0.00  Prototype.
 /
 / Apr 29,'06 R0.01  First stable version.
@@ -567,7 +567,7 @@ static void clear_lock (FATFS *fs)
 /* PCC Sept 2015							*/
 /*									*/
 /*----------------------------------------------------------------------*/
-static FRESULT move_window (FATFS *fs, DWORD sector)					
+static FRESULT move_window (FATFS *fs, DWORD sector)
 {
 	DWORD wsect;
 
@@ -816,7 +816,7 @@ static FRESULT remove_chain (FATFS *fs, DWORD clst)
 #if _USE_ERASE
 			if (ecl + 1 == nxt) {	/* Next cluster is contiguous */
 				ecl = nxt;
-			} else {				/* End of contiguous clusters */ 
+			} else {				/* End of contiguous clusters */
 				resion[0] = clust2sect(fs, scl);					/* Start sector */
 				resion[1] = clust2sect(fs, ecl) + fs->csize - 1;	/* End sector */
 				disk_ioctl(fs->drv, CTRL_ERASE_SECTOR, resion);		/* Erase the block */
@@ -1728,7 +1728,7 @@ static void get_fileinfo (ff_DIR *dj, FILINFO *fno)
 #if _USE_LFN
 	if (fno->lfname && fno->lfsize) {
 		tp = fno->lfname;
-		
+
 
 		i = 0;
 		if (dj->sect && dj->lfn_idx != 0xFFFF) {/* Get LFN if available */
@@ -1739,14 +1739,14 @@ static void get_fileinfo (ff_DIR *dj, FILINFO *fno)
 				if (!w) { i = 0; break; }		/* Could not convert, no LFN */
 				if (_DF1S && w >= 0x100)		/* Put 1st byte if it is a DBC (always false on SBCS cfg) */
 					tp[i++] = (TCHAR)(w >> 8);
-					
+
 #endif
 				if (i >= fno->lfsize - 1) { i = 0; break; }	/* Buffer overflow, no LFN */
-				
+
 //				tp[i++] = (TCHAR)w;
 			}
 		}
-			
+
 //		tp[i] = 0;	/* Terminate the LFN str by a \0 */
 	}
 #endif
@@ -1832,9 +1832,9 @@ static FRESULT follow_path (ff_DIR *dj, const TCHAR *path)
 /*----------------------------------------------------------------------*/
 
 static
-BYTE check_fs (	
-	FATFS *fs,	
-	DWORD sect	
+BYTE check_fs (
+	FATFS *fs,
+	DWORD sect
 )
 {
 	if (disk_read(fs->drv, fs->win, sect, 1) != RES_OK)	/* Load boot record */
@@ -2133,7 +2133,7 @@ FRESULT f_open (FIL *fp, const TCHAR *path, BYTE mode)
 		DWORD dw, cl;
 
 		dw = 0;
-		
+
 		if (res != FR_OK) {					/* No file, create new */
 			if (res == FR_NO_FILE)			/* There is no file to open, create a new entry */
 #if _FS_SHARE
@@ -2498,6 +2498,102 @@ FRESULT f_write (FIL *fp, const void *buff, UINT btw, UINT *bw)
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
+
+FRESULT f_write_fast (FIL *fp, const void *buff, UINT btw, UINT *bw)
+{
+	FRESULT res;
+	DWORD clst, sect;
+	UINT wcnt, cc;
+	const BYTE *wbuff = buff;
+	BYTE csect;
+
+
+	*bw = 0;	/* Initialize byte counter */
+
+	if (fp->fsize + btw < fp->fsize) btw = 0;		/* File size cannot reach 4GB */
+
+	for ( ;  btw;									/* Repeat until all data transferred */
+		wbuff += wcnt, fp->fptr += wcnt, *bw += wcnt, btw -= wcnt) {
+		if ((fp->fptr % SS(fp->fs)) == 0) {			/* On the sector boundary? */
+			csect = (BYTE)(fp->fptr / SS(fp->fs) & (fp->fs->csize - 1));	/* Sector offset in the cluster */
+			if (!csect) {							/* On the cluster boundary? */
+				if (fp->fptr == 0) {				/* On the top of the file? */
+					clst = fp->org_clust;			/* Follow from the origin */
+					if (clst == 0)					/* When there is no cluster chain, */
+						fp->org_clust = clst = create_chain(fp->fs, 0);	/* Create a new cluster chain */
+				} else {							/* Middle or end of the file */
+					clst = create_chain(fp->fs, fp->curr_clust);			/* Follow or stretch cluster chain */
+				}
+				if (clst == 0) break;				/* Could not allocate a new cluster (disk full) */
+				if (clst == 1) ABORT(fp->fs, FR_INT_ERR);
+				if (clst == 0xFFFFFFFF) ABORT(fp->fs, FR_DISK_ERR);
+				fp->curr_clust = clst;				/* Update current cluster */
+			}
+#if _FS_TINY
+			if (fp->fs->winsect == fp->dsect && move_window(fp->fs, 0))	/* Write back data buffer prior to following direct transfer */
+				ABORT(fp->fs, FR_DISK_ERR);
+#else
+			if (fp->flag & FA__DIRTY) {		/* Write back data buffer prior to following direct transfer */
+				if (disk_write_fast(fp->fs->drv, fp->buf, fp->dsect, 1) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+				fp->flag &= ~FA__DIRTY;
+			}
+#endif
+			sect = clust2sect(fp->fs, fp->curr_clust);	/* Get current sector */
+			if (!sect) ABORT(fp->fs, FR_INT_ERR);
+			sect += csect;
+			cc = btw / SS(fp->fs);					/* When remaining bytes >= sector size, */
+			if (cc) {								/* Write maximum contiguous sectors directly */
+				if (csect + cc > fp->fs->csize)		/* Clip at cluster boundary */
+					cc = fp->fs->csize - csect;
+				if (disk_write_fast(fp->fs->drv, wbuff, sect, (BYTE)cc) != RES_OK)
+					ABORT(fp->fs, FR_DISK_ERR);
+#if _FS_TINY
+				if (fp->fs->winsect - sect < cc) {	/* Refill sector cache if it gets dirty by the direct write */
+					mem_cpy(fp->fs->win, wbuff + ((fp->fs->winsect - sect) * SS(fp->fs)), SS(fp->fs));
+					fp->fs->wflag = 0;
+				}
+#else
+				if (fp->dsect - sect < cc) {		/* Refill sector cache if it gets dirty by the direct write */
+					mem_cpy(fp->buf, wbuff + ((fp->dsect - sect) * SS(fp->fs)), SS(fp->fs));
+					fp->flag &= ~FA__DIRTY;
+				}
+#endif
+				wcnt = SS(fp->fs) * cc;				/* Number of bytes transferred */
+				continue;
+			}
+#if _FS_TINY
+			if (fp->fptr >= fp->fsize) {			/* Avoid silly buffer filling at growing edge */
+				if (move_window(fp->fs, 0)) ABORT(fp->fs, FR_DISK_ERR);
+				fp->fs->winsect = sect;
+			}
+#else
+			if (fp->dsect != sect) {				/* Fill sector buffer with file data */
+				if (fp->fptr < fp->fsize &&
+					disk_read_fast(fp->fs->drv, fp->buf, sect, 1) != RES_OK)
+						ABORT(fp->fs, FR_DISK_ERR);
+			}
+#endif
+			fp->dsect = sect;
+		}
+		wcnt = SS(fp->fs) - (fp->fptr % SS(fp->fs));/* Put partial sector into file I/O buffer */
+		if (wcnt > btw) wcnt = btw;
+#if _FS_TINY
+		if (move_window(fp->fs, fp->dsect))			/* Move sector window */
+			ABORT(fp->fs, FR_DISK_ERR);
+		mem_cpy(&fp->fs->win[fp->fptr % SS(fp->fs)], wbuff, wcnt);	/* Fit partial sector */
+		fp->fs->wflag = 1;
+#else
+		mem_cpy(&fp->buf[fp->fptr % SS(fp->fs)], wbuff, wcnt);	/* Fit partial sector */
+		fp->flag |= FA__DIRTY;
+#endif
+	}
+
+	if (fp->fptr > fp->fsize) fp->fsize = fp->fptr;	/* Update file size if needed */
+	fp->flag |= FA__WRITTEN;						/* Set file change flag */
+
+	LEAVE_FF(fp->fs, FR_OK);
+}
 /*----------------------------------------------------------------------*/
 /*									*/
 /* Synchronize the File Object                                          */
@@ -2570,7 +2666,7 @@ FRESULT f_close (FIL *fp)
 #if _FS_REENTRANT
 		res = validate(fp->fs, fp->id);
 		if (res == FR_OK) {
-			res = dec_lock(fp->lockid);	
+			res = dec_lock(fp->lockid);
 			unlock_fs(fp->fs, FR_OK);
 		}
 #else
@@ -2675,7 +2771,7 @@ FRESULT f_getcwd (TCHAR *path, UINT sz_path)
 				res = dir_read(&dj);
 				if (res != FR_OK) break;
 				if (ccl == LD_CLUST(dj.dir)) break;	/* Found the entry */
-				res = dir_next(&dj, 0);	
+				res = dir_next(&dj, 0);
 			} while (res == FR_OK);
 			if (res == FR_NO_FILE) res = FR_INT_ERR;/* It cannot be 'not found'. */
 			if (res != FR_OK) break;
@@ -3016,7 +3112,7 @@ FRESULT f_getfree (const TCHAR *path, DWORD *nclst, FATFS **fatfs)
 
 	/* Get drive number */
 	res = chk_mounted(&path, fatfs, 0);
-	
+
 	if (res == FR_OK) {
 		/* If free_clust is valid, return it without full cluster scan */
 		if ((*fatfs)->free_clust <= (*fatfs)->n_fatent - 2) {
@@ -3060,9 +3156,9 @@ FRESULT f_getfree (const TCHAR *path, DWORD *nclst, FATFS **fatfs)
 			*nclst = n;
 		}
 	}
-	
+
 	LEAVE_FF(*fatfs, res);
-	
+
 }
 
 /*----------------------------------------------------------------------*/
@@ -3499,10 +3595,10 @@ FRESULT f_mkfs (BYTE drv, BYTE sfd, UINT au)
 
 
 	/* Check mounted drive and clear work area */
-	if (drv >= _VOLUMES) 
+	if (drv >= _VOLUMES)
 		return FR_INVALID_DRIVE;
 	fs = FatFs[drv];
-	if (!fs) 
+	if (!fs)
 		return FR_NOT_ENABLED;
 	fs->fs_type = 0;
 	drv = LD2PD(drv);
@@ -3901,7 +3997,7 @@ int f_printf (FIL* fil, const TCHAR* str, ...)
 			res++;
 		}
 		do {
-			cc = f_putc(s[--i], fil); 
+			cc = f_putc(s[--i], fil);
 			res++;
 		} while (i && cc != EOF);
 		if (cc != EOF) cc = 0;

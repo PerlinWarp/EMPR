@@ -36,6 +36,7 @@
 #include "source/Delay.h"
 #include "source/TLV320.h"
 #include "source/i2s.h"
+#include "source/SineWave.h"
 #include "source/SD.h"
 #include "source/interrupt_handlers.h"
 #include "source/Wave.h"
@@ -97,7 +98,7 @@ void A4();
 void (*menuFuncs[])(void) = {
 	&A1,
 	&A2,
-	&I2S_PassThroughLoop,
+	&A3,
 	&A4,
 	&I2S_PassThroughInterrupt,
 	&PC_Mode,
