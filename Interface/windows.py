@@ -28,13 +28,12 @@ class WindowManager(Frame):
         self.width = self.winfo_width()
         self.height = self.winfo_height()
         #Change this to menu or play to switch between the windows
-        self.currentScreen = "play"
+        self.currentScreen = "menu"
         #Defining all the windows for the menu buttons
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browsePlay":Browse_For_Play(self),"browseRecord":Browse_For_Record(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
-        if self.menus[self.currentScreen].serConnected == True:
-
+        if self.menus[self.currentScreen].serConnected == True or screen == "TestingScreen":
             self.menus[self.currentScreen].hide_All()
             self.menus[screen].show_All()
             self.menus[screen].serConnected = True
@@ -319,6 +318,33 @@ class TestingScreen(PlaceWindow):
     See main.c switchstatement for more details
     '''
 
+    def visualise(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import wave
+        import sys
+        from tkinter import filedialog
+        fname = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("wave files","*.wav"),("all files","*.*")))
+        spf = wave.open(fname,'r')
+
+        #Extract Raw Audio from Wav File
+        signal = spf.readframes(-1)
+        signal = np.fromstring(signal, 'Int16')
+        fs = spf.getframerate()
+
+        #If Stereo
+        if spf.getnchannels() == 2:
+            print('Just mono files')
+            sys.exit(0)
+
+
+        Time=np.linspace(0, len(signal)/fs, num=len(signal))
+
+        plt.figure(1)
+        plt.title('Mono Wav Visualised...')
+        plt.plot(Time,signal)
+        plt.show()
+
     def test(self):
         print("Starting test")
         self.frame.ser.write(b"FCcopyme.txt|")
@@ -387,6 +413,7 @@ class TestingScreen(PlaceWindow):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
         self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.AS)
         self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.AS)
+        self.widgets["dislayGraph"] = functionalButton(self.frame,self,"graphbutton", function = self.visualise)
         self.canvas_height = 243
         self.canvas_width = 300
         self.widgets["canvas"] = Canvas(self.frame,background ="black",width = self.canvas_width,height = self.canvas_height,highlightthickness=0)
@@ -397,6 +424,7 @@ class TestingScreen(PlaceWindow):
         self.widgets["okButton"].place(x=700,y=100)
         self.widgets["test"].place(x=700,y=125)
         self.widgets["canvas"].place(x=274 ,y=140)
+        self.widgets["dislayGraph"].place(x=700,y=272)
         PlaceWindow.show_All(self)
 
 
