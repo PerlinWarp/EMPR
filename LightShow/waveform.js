@@ -30,7 +30,6 @@ function plot(){
   var waveform = fft.waveform();
   noFill();
   beginShape();
-  vertex(0,height);
   stroke(255,0,0); // waveform is red
   strokeWeight(1);
   for (var i = 0; i< waveform.length; i++){
@@ -38,7 +37,6 @@ function plot(){
     var y = map( waveform[i], -1, 1, 0, height);
     vertex(x,y);
   }
-  vertex(width,height)
   endShape();
 }
 
