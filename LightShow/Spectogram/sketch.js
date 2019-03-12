@@ -29,7 +29,7 @@ function setup() {
 
 function draw() {
   touchStarted();  //Fixing the permissions issue on chrome
-  var h = height/divisions;
+  var w = width/divisions;
   var spectrum = fft.analyze();
   var newBuffer = [];
 
@@ -39,27 +39,27 @@ function draw() {
 
 
   // copy before clearing the background
-  copy(cnv,0,0,width,height,0,speed,width,height);
-  background(0, 0, 0, 5);
+  copy(cnv,0,0,width,height,-speed,0,width,height);
+  background(0, 0, 0, 0);
 
   // draw shape
   beginShape();
 
     // one at the far corner
-    vertex(0, h);
+    vertex(w, 0);
 
     for (var i = 0; i < len; i++) {
       var amp = spectrum[i];
       var vol = source.getLevel();
       var col = map(vol, 0, 1, 0, 255);
       stroke(col);
-      var x = map(i, 0, len-1, 0, width);
-      var y = map(amp, 0, 255, 0, h);
+      var x = map(amp, 0, 1, w, 0);
+      var y = map(i, 0, len-1, 0, height);
       vertex(x, y);
     }
 
     // one last point at the end
-    vertex(width, h);
+    vertex(width, height);
 
   endShape();
 }
