@@ -1,5 +1,5 @@
 let mic;
-var button;
+var button, micOn;
 
 var volHistory = [];
 
@@ -9,13 +9,19 @@ function setup() {
   //Microphone setup
   mic = new p5.AudioIn();
   mic.start();
+  micOn = true;
+
+  button = createButton('toggle');
+  button.mousePressed(toggleMic);
 }
 
 function draw() {
 	background(0);
-	var vol = mic.getLevel();
-	console.log(vol);
-	volHistory.push(vol);
+	if(micOn){
+		var vol = mic.getLevel();
+		console.log(vol);
+		volHistory.push(vol);
+	}
 
 	stroke(255);
 	noFill();
@@ -28,7 +34,18 @@ function draw() {
 	endShape();
 
 	if (volHistory.length > width){
+		//Remove one element from the start of the array
 		volHistory.splice(0,1);
+	}
+}
+
+function toggleMic(){
+	if (micOn){
+		mic.stop();
+		micOn = false;
+	}else{
+		mic.start();
+		micOn = true;
 	}
 
 }
