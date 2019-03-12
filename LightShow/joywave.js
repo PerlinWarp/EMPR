@@ -11,9 +11,8 @@ var source, fft;
 // height of fft == height/divisions
 var divisions = 5;
 var cnv;
-var speed = 15;
+var speed = 10;
 var bins = 256;
-var octaveBands;
 
 function setup() {
   background(0);
@@ -34,14 +33,13 @@ function draw() {
   var spectrum = fft.analyze();
   var newBuffer = [];
 
-  octaveBands = fft.getOctaveBands(10)
-  var scaledSpectrum = fft.logAverages(octaveBands);
+  var scaledSpectrum = spectrum;
   var len = scaledSpectrum.length;
 
-  background(0, 0, 0, 1);
+ 
   // copy before clearing the background
   copy(cnv,0,0,width,height,0,speed,width,height);
-
+  background(0, 0, 0, 1);
 
   // draw shape
   beginShape();
