@@ -1169,7 +1169,7 @@ void fileTransfer(){
   }
 
   /* Open a text file */
-  fr = f_open(&fil, "a.wav", FA_READ);
+  fr = f_open(&fil, "sampleMono.wav", FA_READ);
 
   if (fr)
   {
