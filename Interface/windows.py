@@ -337,7 +337,6 @@ class TestingScreen(PlaceWindow):
             print('Just mono files')
             sys.exit(0)
 
-
         Time=np.linspace(0, len(signal)/fs, num=len(signal))
 
         plt.figure(1)
@@ -360,7 +359,6 @@ class TestingScreen(PlaceWindow):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             print(d)
-
 
     def deleting(self):
         print("Starting deleting test")
@@ -407,7 +405,24 @@ class TestingScreen(PlaceWindow):
         #The b opens the file in binary mode to write hex directly.
         print("Done ")
 
+    def fileTransfer(self):
+        print("Starting streaming")
+        self.frame.ser.write(b"AF|")
+        eof = False
+        d = self.frame.ser.read(2)
+        while (True):
+        #while(self.frame.ser.in_waiting > 0 and not str(d) == b''):
+            d = self.frame.ser.read(2)
+            val = int.from_bytes(d,"little",signed=True)
+            print("Data:", d)
+            print("Int:  ",str(int.from_bytes(d,"little",signed=True)))
 
+            self.widgets["canvas"].delete("all")
+            self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
+        print("Reached the end of the file")
+
+        #The b opens the file in binary mode to write hex directly.
+        print("Done ")
 
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])

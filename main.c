@@ -694,6 +694,12 @@ void PC_Mode()
               LCDClear();
               stream();
               break;
+
+              case 'F':
+              LCDClear();
+              LCDPrint("File Transfer");
+              fileTransfer();
+              break;
             }
           break;
 
@@ -1101,7 +1107,7 @@ void PC_Play(char* fpath)
 }
 
 void stream(){
-  //Sends the whole file to the pc
+  //Sends the raw part of a WAV file to the PC
   FIL fil;        /* File object */
   char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
@@ -1126,6 +1132,51 @@ void stream(){
     return (int)fr;
   }
   f_lseek(&fil,44);
+
+  /* Read every line and display it */
+  uint y;
+  char buffer [0x20];
+
+  while (!fr){
+      fr = f_read(&fil,buffer,0x20, &y);
+      //n = sprintf(buffer,"%s\n\r", line);
+      write_usb_serial_blocking(buffer,y);
+  }
+
+  /* Close the file */
+  f_close(&fil);
+
+  //Unmount the file system
+  f_mount(0, "", 0);
+  free(fs);
+  write_usb_serial_blocking("EndOfFile",9);
+}
+
+void fileTransfer(){
+  //Sends the whole file to the pc
+  FIL fil;        /* File object */
+  char line[100]; /* Line buffer */
+  FRESULT fr;     /* FatFs return code */
+  FATFS *fs;
+
+  fs = malloc(sizeof(FATFS));
+  fr = f_mount(fs, "", 0);
+
+  if (fr)
+  {
+    sprintf(line, "Not Mounted With Code: %d\n\r",fr);
+    return (int)fr;
+  }
+
+  /* Open a text file */
+  fr = f_open(&fil, "a.wav", FA_READ);
+
+  if (fr)
+  {
+    sprintf(line, "Exited with Error Code: %d\n\r",fr);
+    WriteText(line);
+    return (int)fr;
+  }
 
   /* Read every line and display it */
   uint y;
