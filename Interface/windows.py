@@ -27,7 +27,7 @@ class WindowManager(Frame):
         self.width = self.winfo_width()
         self.height = self.winfo_height()
         #Change this to menu or play to switch between the windows
-        self.currentScreen = "menu"
+        self.currentScreen = "play"
         #Defining all the windows for the menu buttons
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browsePlay":Browse_For_Play(self),"browseRecord":Browse_For_Record(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
@@ -191,6 +191,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.playSong)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
+        self.widgets["dislayGraph"] = functionalButton(self.frame,self, "graphbutton", function = self.visualize("asd"))
         self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda:None,296,352,"y")
         self.widgets["revereserooney"] = switchButton(self.frame,self,"reverse",function = self.reverse_play_button)
         #Parts of other buttons
@@ -214,7 +215,7 @@ class PlayScreen(PlaceWindow):
         self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
         self.widgets["start"].place(x=1,y =576)
         self.widgets["cross"].place(x=563,y =67)
-
+        self.widgets["dislayGraph"].place(x = 247,y=272 )
         self.widgets["realplay"].place(x=84,y =120)
         self.widgets["realpause"].place(x=116,y =120)
         self.widgets["realstop"].place(x= 147,y = 120)
