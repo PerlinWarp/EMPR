@@ -1,5 +1,6 @@
 import serial
 from tkinter import *
+
 from tkinter.ttk import Combobox
 from os.path import isfile,join
 from buttons import *
@@ -135,13 +136,14 @@ class PlayScreen(PlaceWindow):
         print("R|")
         self.frame.ser.write(bytes("R|","utf-8"))
 
-    def visualise(self,filepath):
+    def visualise(self):
         import matplotlib.pyplot as plt
         import numpy as np
         import wave
         import sys
-
-        spf = wave.open('../MagicSpells.wav','r')
+        from tkinter import filedialog
+        fname = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("wave files","*.wav"),("all files","*.*")))
+        spf = wave.open(fname,'r')
 
         #Extract Raw Audio from Wav File
         signal = spf.readframes(-1)
@@ -219,7 +221,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.playSong)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
-        self.widgets["dislayGraph"] = functionalButton(self.frame,self, "graphbutton", function = self.visualize("asd"))
+        self.widgets["dislayGraph"] = functionalButton(self.frame,self, "graphbutton", function = self.visualise)
         self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda:None,296,352,"y")
         self.widgets["revereserooney"] = switchButton(self.frame,self,"reverse",function = self.reverse_play_button)
         #Parts of other buttons
