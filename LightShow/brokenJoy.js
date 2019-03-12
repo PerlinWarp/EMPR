@@ -9,10 +9,10 @@
 var source, fft;
 
 // height of fft == height/divisions
-var divisions = 8;
+var divisions = 10;
 var cnv;
-var speed = 15;
-var bins = 128;
+var speed = 50;
+var bins = 256;
 var octaveBands;
 
 function setup() {
@@ -24,7 +24,7 @@ function setup() {
   source = new p5.AudioIn();
   source.start();
 
-  fft = new p5.FFT(0.3, bins);
+  fft = new p5.FFT(0.6, bins);
   fft.setInput(source);
 }
 
@@ -37,10 +37,11 @@ function draw() {
   var scaledSpectrum = spectrum;
   var len = scaledSpectrum.length;
 
+  background(0, 0, 0, 10);
 
   // copy before clearing the background
   copy(cnv,0,0,width,height,0,speed,width,height);
-  background(0, 0, 0, 5);
+
 
   // draw shape
   beginShape();
@@ -54,7 +55,7 @@ function draw() {
       var col = map(vol, 0, 1, 0, 255);
       stroke(col);
       var x = map(i, 0, len-1, 0, width);
-      var y = map(amp, 0, 255, 0, h);
+      var y = map(amp, 0, 255, h, 0);
       vertex(x, y);
     }
 
