@@ -9,6 +9,7 @@ function setup() {
   //Microphone setup
   mic = new p5.AudioIn();
   mic.start();
+  touchStarted();
 }
 
 function draw() {
@@ -22,6 +23,10 @@ function draw() {
 		var y = map(volHistory[i], 0, 1, height, 0);
 		point(i,y);
 
+	}
+	if (volHistory.length > width){
+		//Remove one element from the start of the array
+		volHistory.splice(0,1);
 	}
 
 
