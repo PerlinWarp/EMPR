@@ -5,15 +5,13 @@ from os.path import isfile,join
 from buttons import *
 from PIL import Image, ImageTk,GifImagePlugin
 
-sem = False
-
 def scale(value):
     '''
-    Scales the byte between 0 and 100. 
+    Scales the byte between 0 and 100.
     Input, value between +/- 1/2 * 2^16
     '''
     value = abs(value) / 2**15 # Scale between +/-0.5
-    value = int(value*200) 
+    value = int(value*200)
     print("Height = ", value)
     return value
 
@@ -43,7 +41,7 @@ class WindowManager(Frame):
         elif screen == "menu" or screen == "BlueScreen":
             self.menus[self.currentScreen].hide_All()
             self.menus[screen].show_All()
-            self.currentScreen = screen 
+            self.currentScreen = screen
         else:
             self.menus[self.currentScreen].hide_All()
             self.menus["load"].show_All()
@@ -130,11 +128,12 @@ class MainMenu(PlaceWindow):
 class PlayScreen(PlaceWindow):
         # Non interface functions
     def pause(self):
-        print("play")
+        print("W|")
+        self.frame.ser.write(bytes("W|","utf-8"))
 
     def playSong(self):
-        print("play")
-        
+        print("R|")
+        self.frame.ser.write(bytes("R|","utf-8"))
 
     # Interface functionsswitch
     def redraw_Canvas(self):
@@ -199,8 +198,10 @@ class PlayScreen(PlaceWindow):
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
         self.redraw_Canvas()
-
     def reverse_play_button(self):
+        ##Send reverse command
+        self.frame.ser.write(b"FRa.wav|")
+
         self.widgets["realplay"].switch_images()
         self.widgets["realplay"].config(image = self.widgets["realplay"].imagePath)
     def adjust_counter(self):
@@ -295,13 +296,14 @@ class TestingScreen(PlaceWindow):
             d = self.frame.ser.read_until('|')
             print(d)
 
-    def test(self):
+    def reverse(self):
         print("Starting test")
-        self.frame.ser.write(b"FCcopyme.txt|")
+        self.frame.ser.write(b"FRa.wav|")
         print("FCdeleteme.wav|")
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             print(d)
+
 
     def deleting(self):
         print("Starting deleting test")
@@ -311,10 +313,10 @@ class TestingScreen(PlaceWindow):
             d = self.frame.ser.read_until(b'|')
             print(d)
 
-    def A4(self):
+    def AS(self):
         file = bytes([])
-        print("Starting A4")
-        self.frame.ser.write(b"A4|")
+        print("Starting AS")
+        self.frame.ser.write(b"AS|")
         while(self.frame.ser.in_waiting > 0):
             d = self.frame.ser.read_until('EndOfFile')
             file += d
@@ -324,7 +326,7 @@ class TestingScreen(PlaceWindow):
 
         print("Writing to a file")
         #The b opens the file in binary mode to write hex directly.
-        f = open('dataFile.wav','wb')
+        f = open('testing.wav','wb')
         f.write(file)
         f.close()
         print("Done ")
@@ -334,7 +336,7 @@ class TestingScreen(PlaceWindow):
         self.frame.ser.write(b"AS|")
         eof = False
         d = self.frame.ser.read(2)
-        while (True and sem == True):
+        while (True):
         #while(self.frame.ser.in_waiting > 0 and not str(d) == b''):
             d = self.frame.ser.read(2)
             val = int.from_bytes(d,"little",signed=True)
@@ -343,7 +345,6 @@ class TestingScreen(PlaceWindow):
 
             self.widgets["canvas"].delete("all")
             self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
-            sem = False
         print("Reached the end of the file")
 
         #The b opens the file in binary mode to write hex directly.
@@ -353,8 +354,8 @@ class TestingScreen(PlaceWindow):
 
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
-        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.A4)
-        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.stream)
+        self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.AS)
+        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.AS)
         self.canvas_height = 243
         self.canvas_width = 300
         self.widgets["canvas"] = Canvas(self.frame,background ="black",width = self.canvas_width,height = self.canvas_height,highlightthickness=0)
@@ -392,7 +393,7 @@ class loadingScreen(PlaceWindow):
         if self.serConnected == False:
             self.widgets["load_big"].inc_image()
             self.job = self.frame.after(140,self.animate)#repeat every 40 ms
-    
+
     def hide_All(self):
         PlaceWindow.hide_All(self)
         if self.job is not None:
@@ -469,7 +470,7 @@ class Browse_For_Play(PlaceWindow):
 
     def outof_dir(self):
         if self.path != "C:":
-            self.hide_directories(self.workingTree,self.path)
+            self.hide_directories(elf.selectedFileself.workingTree,self.path)
             self.path = self.path.rpartition('/')[0]
             self.widgets["folderName"].config(text = self.path.rpartition('/')[2])
             self.workingTree = self.find_directory(self.directoryTree,self.path)#remove the C: as the base is self.directoryTree itself
@@ -516,8 +517,13 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["copyButton"] = functionalButton(self.widgets["fileWindow"],self,"filebrowserCopy",function = self.copy)
         self.widgets["folderName"] = Label(self.widgets["fileWindow"],text = "My Computer",font =("MS Reference Sans Serif bold",16),background = "white",foreground = "#0099FF")
         self.widgets["dirEntry"] = directoryEntry(self.widgets["fileWindow"],self,self.path)
-        self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "#C0C0C0",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
-
+        self.widgets["objects"] = Label(self.widgets["fileWindow"],text = "1 Object(s)",background = "white",font =("MS Reference Sans Serif bold",8),borderwidth = 0)
+        self.File_Name = StringVar()
+        self.widgets["FileName"] = Label(self.widgets["fileWindow"],background = "white",font =("Arial bold",10),textvariable=self.File_Name,borderwidth = 0)
+        self.Size_Bytes = StringVar()
+        self.widgets["Size_Bytes"] = Label(self.widgets["fileWindow"],background = "white",font =("MS Reference Sans Serif bold",8),textvariable=self.Size_Bytes,borderwidth = 0)
+        self.Song_Length = StringVar()
+        self.widgets["SongLength"] = Label(self.widgets["fileWindow"],background = "white",font =("MS Reference Sans Serif bold",8),textvariable=self.Song_Length,borderwidth = 0)
         self.widgets["rightclickmenu"] = betterLabel(self.frame,"rightclickmenu")
         self.widgets["rightclickmenu2"] = betterLabel(self.frame,"rightclickmenu2")
         self.widgets["rightclickmenu_file"] = betterLabel(self.frame,"rightclickmenu_file")
@@ -534,8 +540,10 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["shutdown"] = hoverButton(self.frame,self, "shutdown", "menu")
         self.widgets["documents"] = hoverButton(self.frame,self, "documents", "browse")
     def opens(self):
-        self.frame.ser.write(bytes("P:"+self.path +"/" +self.selectedFile+"/"+'|',"utf-8"))
+        self.frame.ser.write(bytes("P"+self.path[2:] +"/" +self.selectedFile+'|',"utf-8"))
+        print("P"+self.path[2:] +"/" +self.selectedFile+'|')
         self.frame.switch("play")
+
     def delete(self):#If recursive directory deletion is necessary uncomment lines
         self.hide_directories(self.workingTree,self.path)
         #self.recursiveDelete(self.workingTree[self.selectedFile])
@@ -544,7 +552,6 @@ class Browse_For_Play(PlaceWindow):
             p = "/"
         else: #if is "C:/xxx/xx etc."
             p = self.path[2:]
-
         print("FD"+ p +self.selectedFile+'|')
         self.frame.ser.write(bytes("FD"+ p +self.selectedFile+'|',"utf-8"))
         self.place_directories(self.workingTree,self.path)
@@ -610,6 +617,7 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["wavesound"].place(x=int(self.widgets["rightclickmenu2"].place_info()["x"])+2,y =22+int(self.widgets["rightclickmenu2"].place_info()["y"]))
 
     def show_All(self):
+        self.getDirs()
         self.widgets["background"].place(x=0,y=0,relwidth = 1,relheight =1)
         self.widgets["fileWindow"].place(x=80,y=18)
         self.widgets["taskbar"].place(x =0,y = 574)
@@ -624,11 +632,13 @@ class Browse_For_Play(PlaceWindow):
         self.widgets["folderName"].place(x = 115, y = 133)
         self.widgets["dirEntry"].place(x = 77,y = 93)
         self.widgets["objects"].place(x=8,y=504)
+        self.widgets["FileName"].place(x = 23,y = 230)
+        self.widgets["Size_Bytes"].place(x = 23,y = 250)
+        self.widgets["SongLength"].place(x = 23, y = 270)
     def hide_All(self):
         self.hidden = True
         PlaceWindow.hide_All(self)
         self.frame.root.unbind("<Button-1>")
-class Browse_For_Record(Browse_For_Play):
     def getDirs(self):
         self.frame.ser.write(b"B|")#Make this happen in place.
         while(True):
@@ -642,7 +652,8 @@ class Browse_For_Record(Browse_For_Play):
             if path[0] != 'd' and path[0] != 'null)d':
                 self.workingTree = self.add_directories(self.workingTree,path)
         self.init_directories(self.workingTree,self.path)
-
-    def show_All(self):
-        self.getDirs()
-        Browse_For_Play.show_All(self)
+class Browse_For_Record(Browse_For_Play):
+    def opens(self):
+        self.frame.ser.write(bytes("M"+self.path[2:] +"/" +self.selectedFile+'|',"utf-8"))
+        print("M"+self.path[2:] +"/" +self.selectedFile+'|')
+        self.frame.switch("record")

@@ -10,7 +10,7 @@ from dummy_ser import *
 '''
 To switch windows see windows.py
 Note to get the duck to dissapear you have to press 5.
-For this to work you need to open the python UI first. 
+For this to work you need to open the python UI first.
 '''
 if __name__ == "__main__":
     root = Tk()
@@ -25,6 +25,5 @@ if __name__ == "__main__":
         ser = dummy_ser()
     app = WindowManager(ser,root)
     while True:
-        if(sem == False):
-            root.update_idletasks()
-            root.update()
+       root.update_idletasks()
+       root.update()

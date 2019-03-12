@@ -1,13 +1,79 @@
 #include "i2s.h"
 
-uint8_t I2S_ihf_Index;
-static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&i2s_wav_play_16_bit,&i2s_playSound};
-uint32_t buff2[BUFFER_SIZE];
+
+static void (*I2S_int_Handler_Funcs[])(void) = {&i2s_int_Passthrough,&I2S_Play_Sample_Interrupt,&i2s_playSound,&i2s_record_1buffer};
+
+uint16_t* I2SSAMPLEBUFFER;
+signed long long sample;
+signed long long diff;
+uint32_t record_sum;
+UINT dummy,dummy2;
 void I2S_IRQHandler()
 {
   I2S_int_Handler_Funcs[I2S_ihf_Index]();
 }
+char output[100];
+void I2S_Play_Sample_Interrupt()
+{
+  if (I2S_GetIRQStatus(LPC_I2S,I2S_TX_MODE))
+  {
+    if(I2S_GetLevel(LPC_I2S,I2S_TX_MODE)<=I2S_GetIRQDepth(LPC_I2S,I2S_TX_MODE))
+    {
 
+      //  diff = (signed long long)I2SSAMPLEBUFFER[WriteInd] - (signed long long)I2SSAMPLEBUFFER[CHECK_SAMPLE_BUFFER(WriteInd)];
+      //    sample = I2SSAMPLEBUFFER[WriteInd] - (diff*(signed long long)Counter48k)/48;
+      I2S_Send(LPC_I2S, (uint32_t)I2SSAMPLEBUFFER[WriteInd]);
+
+      if (Counter48k == 16)
+      {
+        Counter48k = 0;
+        if (WriteInd == READ_SIZE)
+        {
+          f_read(fileptr, I2SSAMPLEBUFFER, READ_SIZE * 2, &dummy2);
+          if (dummy2 != READ_SIZE * 2)
+          {
+            breakout2 = 1;
+            NVIC_DisableIRQ(I2S_IRQn);
+            return;
+          }
+          WriteInd = 0;
+        }
+        else
+        {
+          WriteInd++;
+        }
+
+      }
+      else
+      {
+        Counter48k++;
+      }
+    }
+  }
+}
+void I2S_Play_Sample(uint16_t* BUF)
+{
+  I2S_MODEConf_Type Clock_Config;
+  I2S_CFG_Type I2S_Config_Struct;
+  LPC_PINCON->PINSEL0|=PINS7_9TX;//Set pins 0.7-0.9 as func 2 (i2s Tx)
+  LPC_PINCON->PINSEL1|=PINS023_025RX;//Set Pins 0.23-0.25 as func 3 (i2s Rx)
+  I2S_Init(LPC_I2S);
+  ConfInit(&I2S_Config_Struct, I2S_WORDWIDTH_16,I2S_MONO,I2S_STOP_ENABLE,I2S_RESET_ENABLE,I2S_MUTE_DISABLE);
+  ClockInit(&Clock_Config,I2S_CLKSEL_FRDCLK,I2S_4PIN_DISABLE,I2S_MCLK_DISABLE);
+  breakout2 = 0;
+  I2S_FreqConfig(LPC_I2S, 48000, I2S_TX_MODE);//Set frequency for output
+  WriteInd = Counter48k = 0;
+  I2SSAMPLEBUFFER = BUF;
+  LPC_I2S->I2STXRATE = 0x00;
+  LPC_I2S->I2STXBITRATE = 0x00;
+  I2S_SetBitRate(LPC_I2S,0,I2S_TX_MODE);
+  I2S_Start(LPC_I2S);
+  I2S_IRQConfig(LPC_I2S,I2S_TX_MODE,4);
+  I2S_IRQCmd(LPC_I2S,I2S_TX_MODE,ENABLE);
+  NVIC_SetPriority(I2S_IRQn, 0x03);
+  I2S_ihf_Index =1;
+  NVIC_EnableIRQ(I2S_IRQn);
+}
 void i2s_int_Passthrough(){
   if(I2S_GetIRQStatus(LPC_I2S,I2S_RX_MODE))
   {
@@ -80,6 +146,26 @@ void i2s_wav_play_16_bit()
     }
   // }
 }
+
+void i2s_record_1buffer() {
+  if(ReadInd == READ_SIZE) {
+    f_write(fileptr, buffer16, READ_SIZE, &dummy);
+    ReadInd = 0;
+   
+  }
+  if(Counter48k == 80)
+  {
+    buffer16[ReadInd++] = I2S_Receive(LPC_I2S)&0x0000FFFF;
+    record_sum = Counter48k = 0;
+  }
+  else{
+    // record_sum += I2S_Receive(LPC_I2S)&0x0000FFFF;
+     Counter48k++;
+  }
+  if(breakout2!=0){
+    NVIC_DisableIRQ(I2S_IRQn);
+  } 
+}
 /*
 To do this, we are going to create a small read write buffer of
 since i2s must be disabled while we read, it is pointless to have a large buffer, as we have to wait for refills each time.
@@ -109,7 +195,7 @@ void Init_I2S_Wav(uint16_t NumChannels,uint32_t SampleRate,uint16_t BitsPerSampl
   TLV320_Start_I2S_WavPlay();
   I2S_ihf_Index = 1;
    bufs[0] = buffer;
-   bufs[1] = buff2;
+   //bufs[1] = buff2;
   //Read a buffer of audio into the data
   f_lseek(fileptr,44);
   SD_READ(fileptr,bufs[bufidx],BUFFER_SIZE);
