@@ -1,17 +1,15 @@
-var mic;
-var button, micOn, fft;
+let mic;
+var button, micOn;
 
 var volHistory = [];
 
 function setup() {
-  createCanvas(256, 256);
+  createCanvas(640, 480);
 
   //Microphone setup
   mic = new p5.AudioIn();
   mic.start();
   micOn = true;
-  fft = new p5.FFT(0, 256);
-  fft.setInput(mic);
 
   button = createButton('toggle');
   button.mousePressed(toggleMic);
@@ -21,13 +19,23 @@ function draw() {
 	background(0);
 	if(micOn){
 		var vol = mic.getLevel();
-		stroke(255)
-		var spectrum = fft.analyze();
-		for (var i = 0; i < spectrum.length; i++){
-			var amp = spectrum[i];
-			var y = map(amp, 0, 256, height, 0);
-			line(i, height, i, y);
-		}
+		console.log(vol);
+		volHistory.push(vol);
+	}
+
+	stroke(255);
+	noFill();
+	beginShape();
+	for(var i = 0; i < volHistory.length; i++){
+		var y = map(volHistory[i], 0, 1, height, 0);
+		vertex(i,y);
+
+	}
+	endShape();
+
+	if (volHistory.length > width){
+		//Remove one element from the start of the array
+		volHistory.splice(0,1);
 	}
 }
 
