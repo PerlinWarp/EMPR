@@ -1,18 +1,17 @@
-var mic, cnv, speed;
+var mic;
 var button, micOn, fft;
 
 var volHistory = [];
 var w; //Width of each band. 
 
 function setup() {
-  cnv = createCanvas(256, 256);
-  speed = 1;
+  createCanvas(256, 256);
   //colorMode(HSB);
   //Microphone setup
   mic = new p5.AudioIn();
   mic.start();
   micOn = false;
-  fft = new p5.FFT(0, 64);
+  fft = new p5.FFT(0, 1024);
   fft.setInput(mic);
   w = width / 64;
 
@@ -21,24 +20,24 @@ function setup() {
 }
 
 function draw() {
+	background(0);
 	if(micOn){
 		plot();
 	}
 }
 
 function plot(){
-	copy(cnv,0,0,width,height,0,speed,width,height);
-	//background(0);
-	var vol = mic.getLevel();
-	stroke(0);
-	var spectrum = fft.analyze();
-	for (var i = 0; i < spectrum.length; i++){
-		var amp = spectrum[i];
-		var y = map(amp, 0, 256, height, 0);
-		colour = map(i, 0,spectrum.length, 0, 255);
-		fill(colour,40,255);
-		rect(i*w, y, w, height - y);
-	}
+  var waveform = fft.waveform();
+  noFill();
+  beginShape();
+  stroke(255,0,0); // waveform is red
+  strokeWeight(1);
+  for (var i = 0; i< waveform.length; i++){
+    var x = map(i, 0, waveform.length, 0, width);
+    var y = map( waveform[i], -1, 1, 0, height);
+    vertex(x,y);
+  }
+  endShape();
 }
 
 function toggleMic(){
