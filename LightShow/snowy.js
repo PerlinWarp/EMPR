@@ -18,18 +18,13 @@ function draw() {
 	volHistory.push(vol);
 
 	stroke(255);
-	noFill();
-	beginShape();
 	for(var i = 0; i < volHistory.length; i++){
 		var y = map(volHistory[i], 0, 1, height, 0);
-		vertex(i,y);
+		point(i,y);
 
 	}
-	endShape();
 
-	if (volHistory.length > width){
-		volHistory.splice(0,1);
-	}
+
 
 }
 
