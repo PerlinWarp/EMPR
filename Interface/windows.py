@@ -406,23 +406,23 @@ class TestingScreen(PlaceWindow):
         print("Done ")
 
     def fileTransfer(self):
-        print("Starting streaming")
+        file = bytes([])
+        print("Starting AF")
         self.frame.ser.write(b"AF|")
-        eof = False
-        d = self.frame.ser.read(2)
-        while (True):
-        #while(self.frame.ser.in_waiting > 0 and not str(d) == b''):
-            d = self.frame.ser.read(2)
-            val = int.from_bytes(d,"little",signed=True)
-            print("Data:", d)
-            print("Int:  ",str(int.from_bytes(d,"little",signed=True)))
-
-            self.widgets["canvas"].delete("all")
-            self.widgets["canvas"].create_rectangle(10,10,100,scale(val), fill="red")
+        while(self.frame.ser.in_waiting > 0):
+            d = self.frame.ser.read_until('EndOfFile')
+            file += d
+            #print(d)
         print("Reached the end of the file")
+        print(len(file))
 
+        print("Writing to a file")
         #The b opens the file in binary mode to write hex directly.
+        f = open('sampleMono.wav','wb')
+        f.write(file)
+        f.close()
         print("Done ")
+
 
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
