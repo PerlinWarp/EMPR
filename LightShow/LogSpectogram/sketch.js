@@ -32,8 +32,8 @@ function draw() {
   console.log(spectrum);
 
   for (var i = 0; i < spectrum.length; i++){
-    var val = spectrum[i];
-    fill(val, 255, val);
+    var index = logScale(i, spectrum.length);
+    fill(spectrum[index], 255, spectrum[index]);
     rect(width - speed, i*len, 100, (i+1)*len);
   }
 }
@@ -41,3 +41,9 @@ function draw() {
 // Needed to get the audio working on chrome
 function touchStarted() { getAudioContext().resume(); } 
 
+//We want to try to stretch the graph logarithmically 
+function logScale(index, total) {
+  var logmax = Math.log2(total + 1);
+  var exp = logmax * index / total;
+  return Math.round(Math.pow(2, exp) - 1);
+}
