@@ -1,4 +1,4 @@
-var mic;
+var mic, fft;
 // The minumum amplitude requires to trigger a wave
 var thres = 0.11;
 //A variable that stops it triggering all the time, decays over time
@@ -19,6 +19,7 @@ function setup() {
   mic.start();
   // Fixing the permissions issue on chrome
   touchStarted();
+
 }
 
 function draw() {
@@ -28,8 +29,9 @@ function draw() {
   detectBeat(vol);
 
   //Draw a square in the middle of the screen
-  fill(255);
-  rect(width/2-50,height/2-50,100,100);
+  console.log(vol);
+  var size = 50 + vol * 500;
+  rect(width/2-size/2,height/2-size/2,size,size);
 }
 
 // Needed to get the audio working on chrome
@@ -41,10 +43,10 @@ function detectBeat(vol){
     backgroundColor = color( random(0,255), random(0,255), random(0,255) );
     background(backgroundColor);
     fill(0);
-    rect(width/2-75,height/2-75,150,150);
     cutOff = vol * 1.2;
     framesSinceBeat = 0;
   }else{
+    fill(255);
     if(framesSinceBeat <= 30){
       framesSinceBeat++;
     }else{
