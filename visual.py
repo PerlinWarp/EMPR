@@ -4,7 +4,7 @@ import wave
 import sys
 
 
-spf = wave.open('memeMono.wav','r')
+spf = wave.open('MagicSpells.wav','r')
 
 #Extract Raw Audio from Wav File
 signal = spf.readframes(-1)

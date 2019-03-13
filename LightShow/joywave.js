@@ -9,38 +9,37 @@
 var source, fft;
 
 // height of fft == height/divisions
-var divisions = 8;
+var divisions = 5;
 var cnv;
 var speed = 10;
-var bins = 1024;
-var octaveBands;
+var bins = 256;
 
 function setup() {
   background(0);
+
   cnv = createCanvas(windowWidth, windowHeight);
   noFill();
   stroke(0,100);
   source = new p5.AudioIn();
   source.start();
 
-  fft = new p5.FFT(0.3, bins);
+  fft = new p5.FFT(0.6, bins);
   fft.setInput(source);
 }
 
 function draw() {
-  touchStarted();  //Fixing the permissions issue on chrome
+  touchStarted();
   var h = height/divisions;
   var spectrum = fft.analyze();
   var newBuffer = [];
 
-  octaveBands = fft.getOctaveBands(8);
-  var scaledSpectrum = fft.logAverages(octaveBands);
+  var scaledSpectrum = spectrum;
   var len = scaledSpectrum.length;
 
-
+ 
   // copy before clearing the background
   copy(cnv,0,0,width,height,0,speed,width,height);
-  background(0, 0, 0, 5);
+  background(0, 0, 0, 1);
 
   // draw shape
   beginShape();
@@ -51,10 +50,10 @@ function draw() {
     for (var i = 0; i < len; i++) {
       var amp = spectrum[i];
       var vol = source.getLevel();
-      var col = map(vol, 0, 1, 0, 255);
+      var col = map(vol, 0, 1, 255, 0);
       stroke(col);
       var x = map(i, 0, len-1, 0, width);
-      var y = map(amp, 0, 255, 0, h);
+      var y = map(amp, 0, 255, h, 0);
       vertex(x, y);
     }
 

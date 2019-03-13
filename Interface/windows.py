@@ -1,5 +1,6 @@
 import serial
 from tkinter import *
+
 from tkinter.ttk import Combobox
 from os.path import isfile,join
 from buttons import *
@@ -32,8 +33,7 @@ class WindowManager(Frame):
         self.menus = {"play":PlayScreen(self),"menu":MainMenu(self),"settings":Settings(self),"browsePlay":Browse_For_Play(self),"browseRecord":Browse_For_Record(self),"BlueScreen":BlueScreen(self),"load":loadingScreen(self),"record":RecordScreen(self), "TestingScreen":TestingScreen(self)}#initialize array of window contents
         self.menus[self.currentScreen].show_All()
     def switch(self,screen):
-        if self.menus[self.currentScreen].serConnected == True:
-
+        if self.menus[self.currentScreen].serConnected == True or screen == "TestingScreen":
             self.menus[self.currentScreen].hide_All()
             self.menus[screen].show_All()
             self.menus[screen].serConnected = True
@@ -135,6 +135,35 @@ class PlayScreen(PlaceWindow):
         print("R|")
         self.frame.ser.write(bytes("R|","utf-8"))
 
+    def visualise(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import wave
+        import sys
+        from tkinter import filedialog
+        fname = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("wave files","*.wav"),("all files","*.*")))
+        spf = wave.open(fname,'r')
+
+        #Extract Raw Audio from Wav File
+        signal = spf.readframes(-1)
+        signal = np.fromstring(signal, 'Int16')
+        fs = spf.getframerate()
+
+        #If Stereo
+        if spf.getnchannels() == 2:
+            print('Just mono files')
+            sys.exit(0)
+
+
+        Time=np.linspace(0, len(signal)/fs, num=len(signal))
+
+        plt.figure(1)
+        plt.title('Mono Wav Visualised...')
+        plt.plot(Time,signal)
+        plt.show()
+
+
+
     # Interface functionsswitch
     def redraw_Canvas(self):
         self.widgets["canvas"].delete("all")
@@ -191,6 +220,7 @@ class PlayScreen(PlaceWindow):
         self.widgets["realpause"] = functionalButton(self.frame,self, "realpause", function = self.playSong)
         self.widgets["realstop"] = functionalButton(self.frame,self, "realstop", function = lambda:None)
         self.widgets["realtimer"] = sliderButton(self.frame,self, "realtimer", self.adjust_counter,190,498,"x")
+        self.widgets["dislayGraph"] = functionalButton(self.frame,self, "graphbutton", function = self.visualise)
         self.widgets["realvolume"] = volumeSlider(self.frame,self, "realvolume", lambda:None,296,352,"y")
         self.widgets["revereserooney"] = switchButton(self.frame,self,"reverse",function = self.reverse_play_button)
         #Parts of other buttons
@@ -214,7 +244,7 @@ class PlayScreen(PlaceWindow):
         self.startBinding = self.frame.root.bind("<Button-1>",self.widgets["start"].check_focus,"+")
         self.widgets["start"].place(x=1,y =576)
         self.widgets["cross"].place(x=563,y =67)
-
+        self.widgets["dislayGraph"].place(x = 247,y=272 )
         self.widgets["realplay"].place(x=84,y =120)
         self.widgets["realpause"].place(x=116,y =120)
         self.widgets["realstop"].place(x= 147,y = 120)
@@ -288,6 +318,32 @@ class TestingScreen(PlaceWindow):
     See main.c switchstatement for more details
     '''
 
+    def visualise(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import wave
+        import sys
+        from tkinter import filedialog
+        fname = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("wave files","*.wav"),("all files","*.*")))
+        spf = wave.open(fname,'r')
+
+        #Extract Raw Audio from Wav File
+        signal = spf.readframes(-1)
+        signal = np.fromstring(signal, 'Int16')
+        fs = spf.getframerate()
+
+        #If Stereo
+        if spf.getnchannels() == 2:
+            print('Just mono files')
+            sys.exit(0)
+
+        Time=np.linspace(0, len(signal)/fs, num=len(signal))
+
+        plt.figure(1)
+        plt.title('Mono Wav Visualised...')
+        plt.plot(Time,signal)
+        plt.show()
+
     def test(self):
         print("Starting test")
         self.frame.ser.write(b"FCcopyme.txt|")
@@ -303,7 +359,6 @@ class TestingScreen(PlaceWindow):
         if self.frame.ser.in_waiting > 0:
             d = self.frame.ser.read_until('|')
             print(d)
-
 
     def deleting(self):
         print("Starting deleting test")
@@ -350,12 +405,30 @@ class TestingScreen(PlaceWindow):
         #The b opens the file in binary mode to write hex directly.
         print("Done ")
 
+    def fileTransfer(self):
+        file = bytes([])
+        print("Starting AF")
+        self.frame.ser.write(b"AF|")
+        while(self.frame.ser.in_waiting > 0):
+            d = self.frame.ser.read_until('EndOfFile')
+            file += d
+            #print(d)
+        print("Reached the end of the file")
+        print(len(file))
+
+        print("Writing to a file")
+        #The b opens the file in binary mode to write hex directly.
+        f = open('sampleMono.wav','wb')
+        f.write(file)
+        f.close()
+        print("Done ")
 
 
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
         self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.AS)
         self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.AS)
+        self.widgets["dislayGraph"] = functionalButton(self.frame,self,"graphbutton", function = self.visualise)
         self.canvas_height = 243
         self.canvas_width = 300
         self.widgets["canvas"] = Canvas(self.frame,background ="black",width = self.canvas_width,height = self.canvas_height,highlightthickness=0)
@@ -366,6 +439,7 @@ class TestingScreen(PlaceWindow):
         self.widgets["okButton"].place(x=700,y=100)
         self.widgets["test"].place(x=700,y=125)
         self.widgets["canvas"].place(x=274 ,y=140)
+        self.widgets["dislayGraph"].place(x=700,y=272)
         PlaceWindow.show_All(self)
 
 
