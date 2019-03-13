@@ -7,8 +7,12 @@ var cutOff = 0.11;
 // We need to keep track of time for the decay
 var framesSinceBeat = 0; 
 
+//
+var lastDetect = 0.2;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  backgroundColor = color( random(0,255), random(0,255), random(0,255) );
   background(0);
   // Get input from the mic
   mic = new p5.AudioIn();
@@ -18,7 +22,7 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(backgroundColor);
 
   var vol = mic.getLevel();
   detectBeat(vol);
