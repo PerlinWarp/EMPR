@@ -4,7 +4,6 @@ import wave
 # at some point i'll make it work with any bitrate
 # but the 16bit signed thing is here to stay afaik
 class EffectsConsole():
-
     # effects will be applied to file at sourcePath
     # they are stored in memory until you call save()
     def __init__(self, sourcePath):
@@ -25,7 +24,7 @@ class EffectsConsole():
         self.samples = np.array(self.samples, dtype='int16')
 
     def __msToSmpl(self, ms):
-        return self.samplerate * (ms / 1000)
+        return int(self.samplerate * (ms / 1000))
     def __applyConv(self, conv):
         self.samples = np.convolve(self.samples, conv, mode='same')
         self.samples = self.samples.astype(dtype='int16')
