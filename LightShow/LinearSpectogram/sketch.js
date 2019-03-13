@@ -4,6 +4,9 @@ var mic,fft;
 var cnv;
 var len;
 
+// How fast do we want to move the canvas left
+var speed = 10;
+
 function setup() {
   cnv = createCanvas(windowWidth, windowHeight);
   colorMode(HSB);
@@ -23,7 +26,7 @@ function setup() {
 
 function draw() {
   //Copy the last part of the window and move it left
-  copy(cnv, 0, 0, width, height, -10, 0, width, height);
+  copy(cnv, 0, 0, width, height, -speed, 0, width, height);
 
   var spectrum = fft.analyze();
   console.log(spectrum);
@@ -31,7 +34,7 @@ function draw() {
   for (var i = 0; i < spectrum.length; i++){
     var val = spectrum[i];
     fill(val, 255, val);
-    rect(width - 10, i*len, 100, (i+1)*len);
+    rect(width - speed, i*len, 100, (i+1)*len);
   }
 }
 
