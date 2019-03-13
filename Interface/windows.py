@@ -427,7 +427,7 @@ class TestingScreen(PlaceWindow):
     def init_widgets(self):
         self.widgets["background"] = layeredLabel(self.frame,[("win95loading",0,0)])
         self.widgets["okButton"] = functionalButton(self.frame,self,"okbutton",self.AS)
-        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.AS)
+        self.widgets["test"] = functionalButton(self.frame,self,"neverbutton",self.fileTransfer)
         self.widgets["dislayGraph"] = functionalButton(self.frame,self,"graphbutton", function = self.visualise)
         self.canvas_height = 243
         self.canvas_width = 300

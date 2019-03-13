@@ -1157,9 +1157,7 @@ void fileTransfer(){
   FIL fil;        /* File object */
   char line[100]; /* Line buffer */
   FRESULT fr;     /* FatFs return code */
-  FATFS *fs;
 
-  fs = malloc(sizeof(FATFS));
   fr = f_mount(fs, "", 0);
 
   if (fr)
@@ -1169,7 +1167,7 @@ void fileTransfer(){
   }
 
   /* Open a text file */
-  fr = f_open(&fil, "sampleMono.wav", FA_READ);
+  fr = f_open(&fil, "/sampleMono.wav", FA_READ);
 
   if (fr)
   {
@@ -1193,7 +1191,6 @@ void fileTransfer(){
 
   //Unmount the file system
   f_mount(0, "", 0);
-  free(fs);
   write_usb_serial_blocking("EndOfFile",9);
 }
 
