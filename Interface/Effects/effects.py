@@ -12,7 +12,6 @@ class EffectsConsole():
         wf = wave.open(sourceFile)
         self.samplerate = wf.getframerate()
         wf.close()
-        print(self.samplerate)
         sourceFile = open(sourcePath, 'rb')
         self.header = sourceFile.read(44)
         self.samples = []
@@ -23,7 +22,7 @@ class EffectsConsole():
             self.samples.append(np.int16((allData[i + 1] << 8) | allData[i]))
         self.samples = np.array(self.samples, dtype='int16')
 
-    def __msToSmpl(self, ms):
+    def msToSmpl(self, ms):
         return int(self.samplerate * (ms / 1000))
     def __applyConv(self, conv):
         self.samples = np.convolve(self.samples, conv, mode='same')
@@ -34,7 +33,7 @@ class EffectsConsole():
     # apply a low pass filter (1d-convolution of size n, with a homemade function that drops off rapidly)
     # work pretty nice for removing noise
     def effectFilter(self, n):
-        n = self.__msToSmpl(n)
+        n = self.msToSmpl(n)
         l = np.array([*np.linspace(0, 1, n // 2), *np.linspace(1, 0, n // 2)[1:]]) ** 3
         l /= sum(l)
 
@@ -42,7 +41,7 @@ class EffectsConsole():
 
     # add a delay - add sample i - n to the ith sample
     def effectDelay(self, n):
-        n = self.__msToSmpl(n)
+        n = self.msToSmpl(n)
         x1 = [0.75]
         x2 = np.zeros(n)
         x3 = [0.75]
@@ -53,8 +52,19 @@ class EffectsConsole():
     # this one is amazing
     # it slowly varies the amount of delay between 2 thresholds (i - l and i - r)
     # sounds v.v. spooky/funky/noisy depending on the settings
+    def effectModAmpl(self, period, intensity):
+        print(self.msToSmpl(period))
+        modulator = np.sin(np.linspace(0, 2 * np.pi, self.msToSmpl(period)))
+
+        for i in range(len(self.samples)):
+            self.samples[i] = self.samples[i] * (1 - intensity) \
+                              + self.samples[i] * modulator[i % len(modulator)] * intensity
+
+    # this one is amazing
+    # it slowly varies the amount of delay between 2 thresholds (i - l and i - r)
+    # sounds v.v. spooky/funky/noisy depending on the settings
     def effectFlange(self, l, r):
-        l, r = self.__msToSmpl(l), self.__msToSmpl(l)
+        l, r = self.msToSmpl(l), self.msToSmpl(r)
         i = l
         j,jdelta = 0, 10
 
@@ -79,6 +89,7 @@ class EffectsConsole():
 
 # example usage:
 # ec = EffectsConsole('test.wav')
+# ec.effectModAmpl(1000, 1)
 # ec.effectFilter(20)
 # ec.effectDelay(10000)
 # ec.effectFlange(2000, 1000)
