@@ -15,7 +15,7 @@ function setup() {
   // Get input from the mic
   mic = new p5.AudioIn();
   mic.start();
-  fft = new p5.FFT();
+  fft = new p5.FFT(0.6);
   fft.setInput(mic);
 
   // Fixing the permissions issue on chrome
@@ -34,7 +34,7 @@ function draw() {
   for (var i = 0; i < spectrum.length; i++){
     var index = logScale(i, spectrum.length);
     fill(spectrum[index], 255, spectrum[index]);
-    rect(width - speed, height - (i*len), 100, height - ((i+1)*len));
+    rect(width - speed, i*len, 100, (i+1)*len);
   }
 }
 
