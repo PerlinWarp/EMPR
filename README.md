@@ -3,8 +3,14 @@
 ***University of York, Computer Science BEng/MEng Stage 2 EMPR (Embedded Systems Project)***
 #### Members are Idris Al-Ghabra, Peter Walkington, Lackshan Rama and Brian Camacho
 
+From the specification:  
+The 2018/19 EMPR assessment will be based on implementation on an MBED system board of an
+audio recorder and playback system, somewhat like an IpodTM in principle. Analogue audio inputs
+will be converted to digital form, stored in suitable storage resources, and then played back on
+demand. Typically, audio will be music. A user interface will be implemented on the MBED board
+to control the system, and a PC based module will be required to provide a secondary interface.
 
-##Demo Information
+## Demo Information
 ### A1:  Audio Recording from flash memory
 DEMO: A1 function + I2S interrupt passthrough
 
@@ -30,11 +36,9 @@ Make sure a suitable wave file is on the SD Card, and run function to read heade
 
 ### D1: PC List mode
 Open browse menu
-# TODO: DISPLAY NUMBER OF BYTES AND PLAYING TIME ON PC!!!
-# TODO: MAKE FILE SELECTION START PLAYBACK OF SONG ON MBED!!!
+
 ### D2: PC Data Visualizer
 Open file on PC with menu
-
 
 ### D3: PC File Manager
 Play files, copy files, run volume and reverse functions, delete functions
