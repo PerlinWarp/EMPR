@@ -42,7 +42,6 @@ Open file on PC with menu
 
 ### D3: PC File Manager
 Play files, copy files, run volume and reverse functions, delete functions
-# TODO: FINISH IMPLEMENTATION OF THESE FUNCTIONS!!!
 
 # Individual projects:
 All need doing. Make sure that when you do these you implement them in a separate branch, so that you don't mess up the maste
