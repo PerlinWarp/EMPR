@@ -544,7 +544,7 @@ class Browse_For_Play(PlaceWindow):
 
     def outof_dir(self):
         if self.path != "C:":
-            self.hide_directories(elf.selectedFileself.workingTree,self.path)
+            self.hide_directories(self.workingTree,self.path)
             self.path = self.path.rpartition('/')[0]
             self.widgets["folderName"].config(text = self.path.rpartition('/')[2])
             self.workingTree = self.find_directory(self.directoryTree,self.path)#remove the C: as the base is self.directoryTree itself
